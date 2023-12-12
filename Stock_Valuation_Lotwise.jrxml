@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Stock_Valuation_Lotwise" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="f042225b-8bd2-43a4-9727-6d891e2e36f0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_ID" class="java.lang.Integer"/>
+	<parameter name="M_Locator_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT	p.m_product_id,son.m_attributesetinstance_id,son.m_locator_id, SUM(son.qtyonhand) qty_onhand,
+				p.value product_code,p.name Product, SUM(son.qtyonhand * c.currentcostprice) cost_value, p.itemsource item_source,pc.name category,psc.name sub_category
+				,pg1.name group_one, pg2.name group_two, pg3.name group_three, ats.description attr_description
+				
+				,(SELECT clientname FROM (SELECT cl.name clientname  from adempiere.ad_client cl where cl.ad_client_id = $P{AD_Client_ID})cl)
+				,(SELECT orgname FROM (SELECT org.name orgname  from adempiere.ad_org org where org.ad_org_id = $P{AD_Org_ID})org)
+		
+FROM adempiere.m_storageonhand son
+LEFT JOIN adempiere.m_attributesetinstance ats ON son.m_attributesetinstance_id = ats.m_attributesetinstance_id
+LEFT JOIN adempiere.m_product p ON son.m_product_id = p.m_product_id
+LEFT JOIN adempiere.m_product_category pc on p.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.m_product_subcategory psc on p.m_product_subcategory_id = psc.m_product_subcategory_id
+LEFT JOIN adempiere.m_product_group1 pg1 ON p.m_product_group1_id = pg1.m_product_group1_id
+LEFT JOIN adempiere.m_product_group2 pg2 ON p.m_product_group2_id = pg2.m_product_group2_id
+LEFT JOIN adempiere.m_product_group3 pg3 ON p.m_product_group3_id = pg3.m_product_group3_id
+LEFT JOIN adempiere.m_cost c ON son.m_product_id = c.m_product_id and son.m_attributesetinstance_id = c.m_attributesetinstance_id and c.m_costelement_id=1000003
+
+where ( $P{M_Product_ID} IS NULL OR son.m_product_id  =  $P{M_Product_ID} )
+				AND son.qtyonhand <> 0
+				AND ($P{M_Locator_ID} IS NULL OR   son.m_Locator_ID=  $P{M_Locator_ID} )
+				AND son.ad_client_id = $P{AD_Client_ID} 
+				AND ( $P{AD_Org_ID}  IS NULL OR son.ad_org_id =  $P{AD_Org_ID})
+				
+GROUP BY	p.m_product_id, son.m_attributesetinstance_id, son.m_locator_id, p.value, p.name, p.itemsource, pc.name, psc.name, pg1.name, pg2.name, pg3.name, ats.description
+
+HAVING SUM(son.qtyonhand) <> 0
+
+ORDER BY pc.name, p.value, ats.description]]>
+	</queryString>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="m_attributesetinstance_id" class="java.math.BigDecimal"/>
+	<field name="m_locator_id" class="java.math.BigDecimal"/>
+	<field name="qty_onhand" class="java.math.BigDecimal"/>
+	<field name="product_code" class="java.lang.String"/>
+	<field name="product" class="java.lang.String"/>
+	<field name="cost_value" class="java.math.BigDecimal"/>
+	<field name="item_source" class="java.lang.String"/>
+	<field name="category" class="java.lang.String"/>
+	<field name="sub_category" class="java.lang.String"/>
+	<field name="group_one" class="java.lang.String"/>
+	<field name="group_two" class="java.lang.String"/>
+	<field name="group_three" class="java.lang.String"/>
+	<field name="attr_description" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<variable name="Qty_Sum" class="java.math.BigDecimal" resetType="Group" resetGroup="Product_group" calculation="Sum">
+		<variableExpression><![CDATA[$F{qty_onhand}]]></variableExpression>
+	</variable>
+	<variable name="Value_Sum" class="java.math.BigDecimal" resetType="Group" resetGroup="Product_group" calculation="Sum">
+		<variableExpression><![CDATA[$F{cost_value}]]></variableExpression>
+	</variable>
+	<variable name="Qty_Sum_1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{qty_onhand}]]></variableExpression>
+	</variable>
+	<variable name="Value_Sum_1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cost_value}]]></variableExpression>
+	</variable>
+	<group name="Product_group">
+		<groupExpression><![CDATA[$F{m_product_id}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="554" height="20" uuid="20b43b8f-2640-4d1f-b6ca-fedbeae819e4"/>
+					<box leftPadding="3">
+						<pen lineWidth="0.2"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="6" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{product}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<textField>
+					<reportElement x="0" y="0" width="370" height="20" uuid="7120fa49-2657-41c2-8240-a41293b2ba91">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box rightPadding="3">
+						<pen lineWidth="0.2"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="6" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Total"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="470" y="0" width="84" height="20" uuid="b4c04ea3-7f31-4cb2-ac2d-3323bc3bc9a5">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box rightPadding="2">
+						<pen lineWidth="0.2"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="6" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Value_Sum}.intValue()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+					<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="370" y="0" width="60" height="20" uuid="c4fae165-ae7d-4e63-8d46-94d25c406fcc">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box rightPadding="2">
+						<pen lineWidth="0.2"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+						<font size="6" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Qty_Sum}.intValue()]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="430" y="0" width="40" height="20" uuid="1f3885d4-9b1f-4175-92e1-6a3ac177db2e">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box rightPadding="2">
+						<pen lineWidth="0.2"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="6" isBold="true"/>
+						<paragraph lineSpacing="Single"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<title>
+		<band height="50" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="554" height="30" uuid="7ed8bd64-5783-45fc-b3d3-dc9444eae2c6"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Stock Valuation Lotwise"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="31" width="554" height="19" uuid="9b757f01-8076-4894-a010-58a7f3e7e787"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname} + "[" + ($F{orgname}!=null?$F{orgname}:"") +"]"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="70" height="20" uuid="d40f8298-8f00-4e97-a9e4-d0ebe4872d68">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Product Code"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="70" y="0" width="300" height="20" uuid="d398ef17-3edb-423d-bf31-f32726204562">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Product Name"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="430" y="0" width="40" height="20" uuid="4482e085-a303-49c6-a251-a14ef13d62de">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Price"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="370" y="0" width="60" height="20" uuid="e327436c-09bf-4fbe-8b07-92cf7744821e">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Qty"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="470" y="0" width="84" height="20" uuid="0ea86d21-3194-42c5-8028-0b05e7b41f86">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Value"]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="370" y="0" width="60" height="20" uuid="dd890e46-812b-4d7d-8d80-eab5ff953539">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font size="6" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qty_onhand}.intValue()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="70" y="0" width="300" height="20" uuid="c5c1cee5-c965-41e4-bcd0-1d95dc936161">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box leftPadding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{attr_description}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="430" y="0" width="40" height="20" uuid="2dd4d24d-3fb3-4b5f-9481-9e4e25772223">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="470" y="0" width="84" height="20" uuid="92aa6aff-2065-4d3b-ab58-61015f23fcdf">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cost_value}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="20">
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="470" y="0" width="84" height="20" uuid="e97300b4-0e39-4981-bf37-b05b26840c9d">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Value_Sum_1}.intValue()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="370" height="20" uuid="3878e012-e243-4f32-8c92-d7dfb9b7c412">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box rightPadding="3">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Grand Total"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="370" y="0" width="60" height="20" uuid="a195bf19-b3d6-4bb3-ad78-7c13759c80c9">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="none">
+					<font size="6" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{Qty_Sum_1}.intValue()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###-)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="430" y="0" width="40" height="20" uuid="14de36ad-d7d5-4add-a29a-0e324a3760b0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box rightPadding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

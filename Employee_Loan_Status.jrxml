@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Employee_Loan_Status" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="559" leftMargin="18" rightMargin="18" topMargin="18" bottomMargin="18" uuid="3b93c7d6-a9ce-4cdd-a156-789fb7900e83">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.1" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.2" value="pageHeader"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT
+			bp.value, bp.name, lv.loanamount, lv.loaninstall, lv.amtrecvd, lv.loanded, i.documentno,i.dateinvoiced,
+			(SELECT bp.bp_header FROM (SELECT bp.name bp_header FROM adempiere.c_bpartner bp WHERE bp.c_bpartner_id = $P{C_BPartner_ID} ) bp)
+
+
+FROM adempiere.xxloanview lv
+LEFT JOIN adempiere.c_bpartner bp ON lv.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_invoiceline il ON lv.c_invoiceline_id = il.c_invoiceline_id
+LEFT JOIN adempiere.c_invoice i ON il.c_invoice_id = i.c_invoice_id
+
+WHERE ($P!{C_BPartner_ID} IS NULL OR bp.c_bpartner_id = $P!{C_BPartner_ID}
+	
+) 
+union all
+SELECT
+			bp.value, bp.name, lv.loanamount, lv.loaninstall, lv.amtrecvd, lv.loanded, i.documentno,i.dateinvoiced,
+			(SELECT bp.bp_header FROM (SELECT bp.name bp_header FROM adempiere.c_bpartner bp WHERE bp.c_bpartner_id = $P{C_BPartner_ID} ) bp)
+
+
+FROM adempiere.xxlaptopview lv
+LEFT JOIN adempiere.c_bpartner bp ON lv.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_invoiceline il ON lv.c_invoiceline_id = il.c_invoiceline_id
+LEFT JOIN adempiere.c_invoice i ON il.c_invoice_id = i.c_invoice_id
+
+WHERE ($P!{C_BPartner_ID} IS NULL OR bp.c_bpartner_id = $P!{C_BPartner_ID}
+	
+)]]>
+	</queryString>
+	<field name="value" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="loanamount" class="java.math.BigDecimal"/>
+	<field name="loaninstall" class="java.math.BigDecimal"/>
+	<field name="amtrecvd" class="java.math.BigDecimal"/>
+	<field name="loanded" class="java.math.BigDecimal"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="dateinvoiced" class="java.sql.Timestamp"/>
+	<field name="bp_header" class="java.lang.String"/>
+	<variable name="deduction" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{loanded}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="105">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement mode="Transparent" x="0" y="2" width="560" height="14" uuid="451f6d9d-7607-4b61-bbb7-d62657c0c5b7">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="16" width="560" height="29" forecolor="#000000" uuid="ea116b8c-d1fe-4cae-8764-9843255bc7dc">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="Arial Rounded MT Bold" size="16" isBold="true" isItalic="false" isUnderline="false" pdfFontName="Helvetica-BoldOblique"/>
+				</textElement>
+				<text><![CDATA[Employe OutStanding Loan Status]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" mode="Transparent" x="0" y="45" width="560" height="20" forecolor="#006F3A" uuid="76acf059-350e-4df5-948e-f1c7dced9978">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Engravers MT" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" mode="Transparent" x="0" y="65" width="560" height="20" uuid="db20011b-4edc-4023-bf82-16121a2f193e">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bp_header}!=null?$F{bp_header}:"All Employee"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" mode="Transparent" x="0" y="85" width="560" height="20" forecolor="#000000" uuid="7cca0ab8-4925-4ed7-8a2a-69977f7c86a0">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="Engravers MT" size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="464" y="0" width="95" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="f7bbe39c-2e9a-4cc5-a68b-734179bc9fd9"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Document No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="56" y="0" width="40" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="722ec04c-6fb6-4fed-8a15-bb72ca964082">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="310" y="0" width="51" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="041d23dd-cc3d-4fb5-9a45-7a1631908882">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Remaining Laon]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="259" y="0" width="51" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="7f566828-4303-4835-b05a-dfde22665503"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Loan Deducted]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="208" y="0" width="51" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="d88ded26-754c-4f1c-a6c1-faaf09e5ff59">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Loan Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="361" y="0" width="51" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="33bac1d1-9d0e-4995-ba6a-3fadd0848623"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Installment]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="96" y="0" width="71" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="1030235a-cdee-4392-851a-01a280652305">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Employee Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="413" y="0" width="51" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="0f240c4d-c1ab-4cb0-9d65-1f71059f2005">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Deduction]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="167" y="0" width="41" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="23458936-5828-40ad-ab90-985d5d1db8b4">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="56" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="65955dfe-fa95-4452-94e3-d33931af29c2">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="1.0" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Sr#.]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="56" y="1" width="40" height="19" uuid="18a0764b-93db-40e5-a4be-7526d70c794f"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement stretchType="RelativeToBandHeight" x="464" y="1" width="95" height="19" uuid="829508f4-23ae-4359-897a-694563f6eba8">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="259" y="1" width="51" height="19" forecolor="#000000" backcolor="#FFFFFF" uuid="4fd883bc-b579-4ebc-a486-e9e6c91d8880"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amtrecvd}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="310" y="1" width="51" height="19" forecolor="#000000" backcolor="#FFFFFF" uuid="72dc0447-542e-41fc-969d-95c3e75b4876">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{loanamount}-$F{amtrecvd}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="208" y="1" width="51" height="19" forecolor="#000000" backcolor="#FFFFFF" uuid="d2511bba-e5b3-4fb0-8c17-e59df7df6858">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{loanamount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="361" y="1" width="51" height="19" forecolor="#000000" backcolor="#FFFFFF" uuid="93ab1258-0e04-49a0-b351-ec19dd71a151"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{loaninstall}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="96" y="1" width="71" height="19" uuid="2bfe742f-9db5-4728-b837-d1d7f2660aad">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement stretchType="RelativeToBandHeight" x="413" y="1" width="51" height="19" uuid="a4537c29-75f1-45f6-a4d6-7698e099e692">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{loanded}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd-MM-yyyy">
+				<reportElement stretchType="RelativeToBandHeight" x="167" y="1" width="41" height="19" uuid="639e5258-c6ed-4746-baa6-75aa3fe8e885">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dateinvoiced}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="1" width="56" height="19" uuid="52fd0884-fcc6-4f73-b51f-3616a8e47581"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#949494"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="22">
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" mode="Opaque" x="0" y="0" width="104" height="22" forecolor="#FFFFFF" backcolor="#2E3092" uuid="86762c23-1f5a-47a1-812c-4c8bd5a21769"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="3.0" lineStyle="Double"/>
+					<topPen lineWidth="3.0" lineStyle="Double"/>
+					<leftPen lineWidth="0.0" lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineWidth="0.0" lineStyle="Double"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Grand Total]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Opaque" x="155" y="0" width="60" height="22" forecolor="#FFFFFF" backcolor="#2E3092" uuid="37dde650-7d83-4cb7-99d3-98547e142bbd"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="3.0" lineStyle="Double"/>
+					<topPen lineWidth="3.0" lineStyle="Double"/>
+					<leftPen lineWidth="0.0" lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineWidth="0.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Opaque" x="395" y="0" width="60" height="22" forecolor="#FFFFFF" backcolor="#2E3092" uuid="fca25606-e57e-4e20-8f95-6ab2e98593af"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="3.0" lineStyle="Double"/>
+					<topPen lineWidth="3.0" lineStyle="Double"/>
+					<leftPen lineWidth="0.0" lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineWidth="0.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{deduction}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Opaque" x="215" y="0" width="60" height="22" forecolor="#FFFFFF" backcolor="#2E3092" uuid="54187053-5369-415b-afa8-4dc4d8f25c81"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="3.0" lineStyle="Double"/>
+					<topPen lineWidth="3.0" lineStyle="Double"/>
+					<leftPen lineWidth="0.0" lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineWidth="0.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Opaque" x="275" y="0" width="60" height="22" forecolor="#FFFFFF" backcolor="#2E3092" uuid="3d416578-b04b-471c-8a6e-a5990fdca76b"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="3.0" lineStyle="Double"/>
+					<topPen lineWidth="3.0" lineStyle="Double"/>
+					<leftPen lineWidth="0.0" lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineWidth="0.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Opaque" x="335" y="0" width="60" height="22" forecolor="#FFFFFF" backcolor="#2E3092" uuid="99d4d6d0-f18b-435a-91a9-c1eede7cf94f"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="3.0" lineStyle="Double"/>
+					<topPen lineWidth="3.0" lineStyle="Double"/>
+					<leftPen lineWidth="0.0" lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineWidth="0.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Opaque" x="455" y="0" width="104" height="22" forecolor="#FFFFFF" backcolor="#2E3092" uuid="e80bd746-849b-472e-a6ea-0ca95fe87bf5"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="3.0" lineStyle="Double"/>
+					<topPen lineWidth="3.0" lineStyle="Double"/>
+					<leftPen lineWidth="0.0" lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineWidth="0.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToBandHeight" mode="Opaque" x="103" y="0" width="52" height="22" forecolor="#FFFFFF" backcolor="#2E3092" uuid="b8a45dfd-1c11-461d-a7db-d51e50714737"/>
+				<box topPadding="1" leftPadding="2" bottomPadding="1" rightPadding="2">
+					<pen lineWidth="3.0" lineStyle="Double"/>
+					<topPen lineWidth="3.0" lineStyle="Double"/>
+					<leftPen lineWidth="0.0" lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineWidth="0.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

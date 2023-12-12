@@ -1,0 +1,672 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Aging Customer Recievables" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="26b4fff7-14be-4ed4-8b41-6c987cfd1dc4">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="idempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<parameter name="AD_User_ID" class="java.lang.Integer"/>
+	<parameter name="DateAsOn" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT	i.documentno, duedate, grandtotal invoiceamt, i.dateinvoiced,
+	($P{DateAsOn} :: date - I.duedate :: date) as exactdays,
+	CASE WHEN ($P{DateAsOn} :: date - I.duedate :: date) BETWEEN 0 AND 30
+	THEN openamt ELSE 0 END as days30,
+	CASE WHEN ($P{DateAsOn} :: date - I.duedate :: date) BETWEEN 31 AND 60
+	THEN openamt ELSE 0 END as days60,
+	CASE WHEN ($P{DateAsOn} :: date - I.duedate :: date) BETWEEN 61 AND 90
+	THEN openamt ELSE 0 END as days90,
+	CASE WHEN ($P{DateAsOn} :: date - I.duedate :: date) BETWEEN 91 AND 100000000
+	THEN openamt ELSE 0 END as days120,
+	(SELECT rep.salesrep FROM (SELECT bp.name salesrep FROM adempiere.ad_user u LEFT JOIN adempiere.c_bpartner bp ON u.c_bpartner_id = bp.c_bpartner_id WHERE ad_user_id = $P{AD_User_ID})rep),
+(SELECT bp.bpname FROM (SELECT bp.name bpname FROM adempiere.c_bpartner bp  WHERE c_bpartner_id = $P{C_BPartner_ID})bp),
+(SELECT org.orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org  WHERE ad_org_id = $P{AD_Org_ID})org),
+(SELECT cl.clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl  WHERE ad_client_id = $P{AD_Client_ID})cl)
+
+FROM
+
+(
+SELECT i.ad_org_id,
+    i.ad_client_id,
+    i.documentno,
+    i.c_invoice_id,
+    i.c_order_id,
+    i.c_bpartner_id,
+    i.issotrx,
+    i.dateinvoiced,
+    i.dateacct,
+    p.netdays,
+    adempiere.paymenttermduedate(i.c_paymentterm_id, i.dateinvoiced::timestamp with time zone) AS duedate,
+    adempiere.paymenttermduedays(i.c_paymentterm_id, i.dateinvoiced::timestamp with time zone, adempiere.getdate()) AS daysdue,
+    adempiere.adddays(i.dateinvoiced::timestamp with time zone, p.discountdays) AS discountdate,
+    adempiere.currencyround(i.grandtotal * p.discount / 100::numeric, i.c_currency_id, 'N'::character varying) AS discountamt,
+    i.grandtotal,
+    adempiere.invoicepaid(i.c_invoice_id, i.c_currency_id, 1::numeric) AS paidamt,
+    adempiere.invoiceopen(i.c_invoice_id, 0::numeric) AS openamt,
+    i.c_currency_id,
+    i.c_conversiontype_id,
+    i.c_paymentterm_id,
+    i.ispayschedulevalid,
+    NULL::numeric AS c_invoicepayschedule_id,
+    i.invoicecollectiontype,
+    i.c_campaign_id,
+    i.c_project_id,
+    i.c_activity_id,
+    i.c_invoice_ad_orgtrx_id AS ad_orgtrx_id,
+    i.ad_user_id,
+    i.c_bpartner_location_id,
+    i.c_charge_id,
+    i.c_doctype_id,
+    i.c_doctypetarget_id,
+    i.c_dunninglevel_id,
+    i.chargeamt,
+    i.c_payment_id,
+    i.created,
+    i.createdby,
+    i.dateordered,
+    i.dateprinted,
+    i.description,
+    i.docaction,
+    i.docstatus,
+    i.dunninggrace,
+    i.generateto,
+    i.isactive,
+    i.isapproved,
+    i.isdiscountprinted,
+    i.isindispute,
+    i.ispaid,
+    i.isprinted,
+    i.c_invoice_isselfservice AS isselfservice,
+    i.istaxincluded,
+    i.istransferred,
+    i.m_pricelist_id,
+    i.m_rma_id,
+    i.paymentrule,
+    i.poreference,
+    i.posted,
+    i.processedon,
+    i.processing,
+    i.ref_invoice_id,
+    i.reversal_id,
+    i.salesrep_id,
+    i.sendemail,
+    i.totallines,
+    i.updated,
+    i.updatedby,
+    i.user1_id,
+    i.user2_id,
+    bp.name customername
+   FROM adempiere.rv_c_invoice i
+     JOIN adempiere.c_paymentterm p ON i.c_paymentterm_id = p.c_paymentterm_id
+     JOIN adempiere.c_bpartner bp ON i.c_bpartner_id = bp.c_bpartner_id
+  WHERE ($P!{C_BPartner_ID} IS NULL OR i.c_bpartner_id = $P!{C_BPartner_ID}) AND i.ad_client_id = $P{AD_Client_ID}
+	AND adempiere.invoiceopen(i.c_invoice_id, 0::numeric) <> 0::numeric
+	AND i.ispayschedulevalid <> 'Y'::bpchar AND (i.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar]))
+UNION
+ SELECT i.ad_org_id,
+    i.ad_client_id,
+    i.documentno,
+    i.c_invoice_id,
+    i.c_order_id,
+    i.c_bpartner_id,
+    i.issotrx,
+    i.dateinvoiced,
+    i.dateacct,
+    adempiere.daysbetween(ips.duedate::timestamp with time zone, i.dateinvoiced::timestamp with time zone) AS netdays,
+    ips.duedate,
+    adempiere.daysbetween(adempiere.getdate(), ips.duedate::timestamp with time zone) AS daysdue,
+    ips.discountdate,
+    ips.discountamt,
+    ips.dueamt AS grandtotal,
+    adempiere.invoicepaid(i.c_invoice_id, i.c_currency_id, 1::numeric) AS paidamt,
+    adempiere.invoiceopen(i.c_invoice_id, ips.c_invoicepayschedule_id) AS openamt,
+    i.c_currency_id,
+    i.c_conversiontype_id,
+    i.c_paymentterm_id,
+    i.ispayschedulevalid,
+    ips.c_invoicepayschedule_id,
+    i.invoicecollectiontype,
+    i.c_campaign_id,
+    i.c_project_id,
+    i.c_activity_id,
+    i.c_invoice_ad_orgtrx_id AS ad_orgtrx_id,
+    i.ad_user_id,
+    i.c_bpartner_location_id,
+    i.c_charge_id,
+    i.c_doctype_id,
+    i.c_doctypetarget_id,
+    i.c_dunninglevel_id,
+    i.chargeamt,
+    i.c_payment_id,
+    i.created,
+    i.createdby,
+    i.dateordered,
+    i.dateprinted,
+    i.description,
+    i.docaction,
+    i.docstatus,
+    i.dunninggrace,
+    i.generateto,
+    i.isactive,
+    i.isapproved,
+    i.isdiscountprinted,
+    i.isindispute,
+    i.ispaid,
+    i.isprinted,
+    i.c_invoice_isselfservice AS isselfservice,
+    i.istaxincluded,
+    i.istransferred,
+    i.m_pricelist_id,
+    i.m_rma_id,
+    i.paymentrule,
+    i.poreference,
+    i.posted,
+    i.processedon,
+    i.processing,
+    i.ref_invoice_id,
+    i.reversal_id,
+    i.salesrep_id,
+    i.sendemail,
+    i.totallines,
+    i.updated,
+    i.updatedby,
+    i.user1_id,
+    i.user2_id,
+    bp.name customername
+   FROM adempiere.rv_c_invoice i
+     JOIN adempiere.c_invoicepayschedule ips ON i.c_invoice_id = ips.c_invoice_id
+     JOIN adempiere.c_bpartner bp ON i.c_bpartner_id = bp.c_bpartner_id
+  WHERE adempiere.invoiceopen(i.c_invoice_id, ips.c_invoicepayschedule_id) <> 0::numeric AND i.ispayschedulevalid = 'Y'::bpchar
+	AND (i.docstatus = ANY (ARRAY['CO'::bpchar, 'CL'::bpchar])) AND ips.isvalid = 'Y'::bpchar AND ($P!{C_BPartner_ID} IS NULL OR i.c_bpartner_id = $P!{C_BPartner_ID})
+	AND i.ad_client_id = $P{AD_Client_ID}
+
+ORDER BY duedate) I
+
+WHERE	I.ad_client_id = $P{AD_Client_ID}
+	AND I.duedate < $P{DateAsOn}
+	AND ($P!{AD_Org_ID} IS NULL OR I.ad_org_id = $P!{AD_Org_ID})
+	AND ($P!{C_BPartner_ID} IS NULL OR I.c_bpartner_id = $P!{C_BPartner_ID})
+	AND ($P!{AD_User_ID} IS NULL OR I.salesrep_id = $P!{AD_User_ID})
+	AND I.docstatus = 'CO' AND I.c_doctype_id = 1000002
+
+ORDER BY duedate]]>
+	</queryString>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="duedate" class="java.sql.Timestamp"/>
+	<field name="invoiceamt" class="java.math.BigDecimal"/>
+	<field name="dateinvoiced" class="java.sql.Timestamp"/>
+	<field name="exactdays" class="java.lang.Integer"/>
+	<field name="days30" class="java.math.BigDecimal"/>
+	<field name="days60" class="java.math.BigDecimal"/>
+	<field name="days90" class="java.math.BigDecimal"/>
+	<field name="days120" class="java.math.BigDecimal"/>
+	<field name="salesrep" class="java.lang.String"/>
+	<field name="bpname" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<variable name="GTot30" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{days30}]]></variableExpression>
+	</variable>
+	<variable name="GTot60" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{days60}]]></variableExpression>
+	</variable>
+	<variable name="GTot90" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{days90}]]></variableExpression>
+	</variable>
+	<variable name="GTot120" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{days120}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="108" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="0" y="0" width="555" height="107" backcolor="#FFFFFF" uuid="97f816a4-d501-4742-8edc-b9be3b03d0c6">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+			</frame>
+			<textField pattern="EEEEE dd MMMMM yyyy" isBlankWhenNull="true">
+				<reportElement x="1" y="88" width="314" height="20" uuid="d2fcdf64-f2b0-4e70-8bd6-4bdbaef84e73"/>
+				<textElement verticalAlignment="Top">
+					<font size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA['As On : ' + new StringBuilder(new SimpleDateFormat("dd-MM-yyyy").format($P{DateAsOn}))]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="46" width="314" height="20" uuid="d07ac861-b262-4da0-b5d1-43f6a2990f8c"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA['Customer : '+$F{bpname}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="1" y="0" width="553" height="45" forecolor="#006F3A" backcolor="#FFFFFF" uuid="eed91300-7b25-4bf0-8061-28ef7a16cbd7">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<leftPen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<bottomPen lineWidth="1.0" lineColor="#FFFFFF"/>
+					<rightPen lineWidth="0.0" lineColor="#FFFFFF"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="22" isBold="true" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[CUSTOMER INVOICES AGING REPORT]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="67" width="314" height="20" uuid="6fe2b5d9-1cac-42d2-a276-13d0578bfbb6"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA['Sales Rep : '+$F{salesrep}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="315" y="46" width="240" height="20" uuid="a6ddc8be-09f3-4e4a-b21e-9c4ef20277fc"/>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Note: ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="315" y="68" width="240" height="39" forecolor="#000000" uuid="fc8b3edf-eca2-4e09-b6da-45d9f99926b1"/>
+				<textElement verticalAlignment="Top">
+					<font size="9"/>
+				</textElement>
+				<text><![CDATA[If you have any objection on this report please contact to our sales and accounts depertment with proper evidence. Thank you for your kind cooperation]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="42">
+			<staticText>
+				<reportElement mode="Opaque" x="1" y="21" width="51" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="ab15e434-756a-4fcc-b018-d578d2d1a558"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Invoice No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="227" y="21" width="59" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="ac48fe5a-c8c0-4186-b8b9-d3f5d231663e"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[0-30 Days
+Old]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="286" y="21" width="59" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="d1577cfe-6ab7-4547-90b7-954780d811e2"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[31-60 Days Old]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="345" y="21" width="59" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="44ffe6fa-a072-4583-b2d7-e290363d5030"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[61-90 Days Old]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="404" y="21" width="59" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="b29f2977-ceab-45ae-8044-c625072cea65"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[91-Above Days Old]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="463" y="21" width="59" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="8d177c5a-d8cd-4306-8739-ec61f5e7a6bd"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Balance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="522" y="21" width="33" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="6aa23682-d779-4777-a538-2dffc0a27d6f"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Days
+Old]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="52" y="21" width="55" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="8c7a184f-f30e-42b7-bddd-f900cd8f1a67"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Due Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="107" y="21" width="60" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="3476203b-d4dc-496a-abc1-cede4e32824e"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Invoice Amt]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="177" y="0" width="378" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="5053ee67-4cc8-46dc-83aa-f91bdd7b70b7"/>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Amount Recievables]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="177" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="b3f5c1dd-0a27-4426-9840-d63d97ca9cc8">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="9" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[Particulars]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="167" y="21" width="60" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="0d119a61-eef3-4bdc-8aa8-c609dcaeff1c"/>
+				<box>
+					<pen lineWidth="0.0" lineColor="#FFFFFF"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Received]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="1" y="0" width="51" height="20" uuid="6c4e832b-4653-4cd4-8228-b13675c1b5e6"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentno} +  " - Invoice Date" + new StringBuilder(new SimpleDateFormat("dd-MM-yyyy").format($F{dateinvoiced}))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="404" y="0" width="59" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="af76a651-47b3-4741-a1f0-b26853af1a51"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{days120}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="345" y="0" width="59" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="39c8686b-8887-4852-8795-ccb1dc77fbb4"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{days90}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="522" y="0" width="33" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="a9fe965a-6ef2-433e-9e36-8d293621f65d"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{exactdays}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="52" y="0" width="55" height="20" uuid="5baafd95-6d24-4ce6-860c-0414f3316f4e"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{duedate}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="107" y="0" width="60" height="20" uuid="7daad64c-9a1e-472c-986d-68e2cf43c653"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{invoiceamt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="286" y="0" width="59" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="e7a25c7c-135c-4607-99df-2dfc9d520d61"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{days60}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="463" y="0" width="59" height="20" backcolor="#CCCCCC" uuid="5688e161-19d1-4a26-9c0b-d20dd98f34bf"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{days30}+$F{days60}+$F{days90}+$F{days120}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="227" y="0" width="59" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="6e09e28f-fe5d-4257-a3cf-e622d76bfad7"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{days30}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="167" y="0" width="60" height="20" uuid="86922942-be35-4da9-80a1-eaf123bf6123"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{invoiceamt} - ($F{days30}+$F{days60}+$F{days90}+$F{days120})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="21" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="1" width="227" height="20" uuid="d343e465-7bfe-42e6-8930-daa85cd65d43"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grand Total]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="227" y="1" width="59" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="6db8732d-e933-4a4c-9518-db1ff2efdf08"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{GTot30}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="286" y="1" width="59" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="fc51df84-230d-4965-9e3c-5a0cfa050feb"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{GTot60}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="345" y="1" width="59" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="5264646b-2952-430a-8972-f8993b1914b6"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{GTot90}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Opaque" x="404" y="1" width="59" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="fd08e9de-6428-40f0-9b1d-d2371870c759"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{GTot120}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement mode="Opaque" x="463" y="1" width="59" height="20" backcolor="#CCCCCC" uuid="0d167688-df20-460d-9e2b-721909f4624b"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{GTot30}+$V{GTot60}+$V{GTot90}+$V{GTot120}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="522" y="1" width="33" height="20" forecolor="#000000" backcolor="#CCCCCC" uuid="e367e831-7134-403b-904b-8a8fe605f232"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

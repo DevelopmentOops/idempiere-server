@@ -1,0 +1,1218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Salary_Slip_Blesso" columnCount="2" pageWidth="842" pageHeight="595" orientation="Landscape" whenNoDataType="AllSectionsNoDetail" columnWidth="401" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ab14843a-4e9f-4854-b736-e9036520c0d8">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="HR_Period_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="HR_Department_ID" class="java.lang.Integer"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<parameter name="HR_EmpLocation_ID" class="java.lang.Integer"/>
+	<parameter name="C_City_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT *, p_dalocal + p_daout p_vehicle, p_talocal + p_taout p_tatotal, p_vmain + p_vrent p_vehtotal
+, COALESCE(p_mobile,0) + COALESCE(p_dalocal,0) + COALESCE(p_daout,0) + COALESCE(p_talocal,0) + COALESCE(p_taout,0) + COALESCE(p_fuel,0) + COALESCE(p_vmain,0) + COALESCE(p_vrent,0) + COALESCE(p_comm,0) + COALESCE(p_nsallow,0) + COALESCE(p_nstay,0) + COALESCE(p_stamp,0) + COALESCE(p_misc,0) + COALESCE(p_exdays,0) + COALESCE(p_ot,0) + COALESCE(p_arrear,0) AS p_totalallowance
+, (COALESCE(p_tax,0) + COALESCE(p_advsal,0) + COALESCE(p_loan,0) +COALESCE(p_laptoploan,0)+ COALESCE(p_late,0) + COALESCE(p_bankpay,0) + COALESCE(p_excessmobile,0) + COALESCE(p_pfemp,0))  AS p_total_ded
+, (COALESCE(p_gross,0) + COALESCE(p_mobile,0) + COALESCE(p_dalocal,0) + COALESCE(p_daout,0) + COALESCE(p_talocal,0) + COALESCE(p_taout,0) + COALESCE(p_fuel,0) + COALESCE(p_vmain,0) + COALESCE(p_vrent,0) + COALESCE(p_comm,0) + COALESCE(p_nsallow,0) + COALESCE(p_nstay,0) + COALESCE(p_stamp,0) + COALESCE(p_misc,0) + COALESCE(p_exdays,0) + COALESCE(p_ot,0) + COALESCE(p_arrear,0)) - (COALESCE(p_tax,0) + COALESCE(p_advsal,0) + COALESCE(p_loan,0)+COALESCE(p_laptoploan,0) + COALESCE(p_late,0) + COALESCE(p_bankpay,0) + COALESCE(p_excessmobile,0) + COALESCE(p_pfemp,0))  AS p_netsal 
+FROM (
+SELECT emp.*
+, to_char(hp.enddate::date, 'fmMon-yyyy') as period
+, hp.startdate::date as period_start
+, hp.enddate::date as period_end
+, (hp.enddate::date - hp.startdate::date)+1 as perioddays
+, COALESCE(hs.pc_1000000, 0) as mgross_salary
+	, COALESCE(hs.pc_1000002, 0) as p_gross, COALESCE(hs.pc_1000003, 0) as p_basic
+	, COALESCE(hs.pc_1000004, 0) as p_hr, COALESCE(hs.pc_1000005, 0) as p_conv
+	, COALESCE(hs.pc_1000006, 0) as p_wd, COALESCE(hs.pc_1000007, 0) as p_mobile
+	, COALESCE(hs.pc_1000008, 0) as p_dalocal, COALESCE(hs.pc_1000009, 0) as p_daout
+	, COALESCE(hs.pc_1000010, 0) as p_talocal, COALESCE(hs.pc_1000011, 0) as p_taout
+	, COALESCE(hs.pc_1000012, 0) as p_fuel, COALESCE(hs.pc_1000013, 0) as p_vmain
+	, COALESCE(hs.pc_1000014, 0) as p_vrent, COALESCE(hs.pc_1000015, 0) as p_comm
+	, COALESCE(hs.pc_1000016, 0) as p_tax, COALESCE(hs.pc_1000017, 0) as p_nsallow
+	, COALESCE(hs.pc_1000018, 0) as p_nstay, COALESCE(hs.pc_1000019, 0) as p_stamp
+	, COALESCE(hs.pc_1000020, 0) as p_misc, COALESCE(hs.pc_1000021, 0) as p_advsal
+	, COALESCE(hs.pc_1000022, 0) as p_loan, COALESCE(hs.pc_1000023, 0) as p_exdays
+	, COALESCE(hs.pc_1000024, 0) as p_late, COALESCE(hs.pc_1000025, 0) as p_ot
+	, COALESCE(hs.pc_1000026, 0) as p_arrear, COALESCE(hs.pc_1000027, 0) as p_bankpay 
+	, COALESCE(hs.pc_1000028, 0) as p_pfemp, COALESCE(hs.pc_1000029, 0) as p_noleaveinctive
+	, COALESCE(hs.pc_1000030, 0) as p_excessmobile
+, (SELECT binarydata FROM adempiere.ad_image WHERE ad_image_id = emp.ad_image_id LIMIT 1) adImage
+,  COALESCE((SELECT SUM(l1.balc) FROM (SELECT COUNT(hr_final_attend_id) * leaveunit::numeric as balc FROM adempiere.hr_final_attend hf 
+			LEFT JOIN adempiere.hr_levtypes ht ON hf.attstatus = ht.value
+			WHERE c_bpartner_id = hs.c_bpartner_id AND attdate::date BETWEEN hp.startdate::date AND hp.enddate::date 
+			AND ht.isdeducted = 'Y' GROUP BY c_bpartner_id, leaveunit::numeric) as l1), 0) AS LevDed
+	, 	COALESCE((SELECT SUM(l2.balc) FROM (SELECT COUNT(hr_final_attend_id) * leaveunit::numeric as balc FROM adempiere.hr_final_attend hf 
+			LEFT JOIN adempiere.hr_levtypes ht ON hf.attstatus = ht.value
+			WHERE c_bpartner_id = hs.c_bpartner_id AND attdate::date BETWEEN hp.startdate::date AND hp.enddate::date 
+			AND ht.isdeducted = 'N' AND ht.hr_levtypes_id IN (1000000, 1000001, 1000002, 1000021, 1000003, 1000022) GROUP BY c_bpartner_id, leaveunit::numeric) as l2), 0) AS LevNDed
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000008 AND hr_period_id = hp.hr_period_id),0) as s_dalocal
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000009 AND hr_period_id = hp.hr_period_id),0) as s_daout
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000010 AND hr_period_id = hp.hr_period_id),0) as s_talocal
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000011 AND hr_period_id = hp.hr_period_id),0) as s_taout
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000024 AND hr_period_id = hp.hr_period_id),0) as s_latedays
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000033 AND hr_period_id = hp.hr_period_id),0) as p_laptoploan
+FROM adempiere.hr_salaryinfo hs
+LEFT JOIN adempiere.xxhr_employee_v emp ON emp.c_bpartner_id = hs.c_bpartner_id
+LEFT JOIN adempiere.hr_period hp ON hs.hr_period_id = hp.hr_period_id
+left join adempiere.ad_image img ON emp.ad_image_id = img.ad_image_id
+WHERE emp.startdate <= hp.enddate::date
+  AND hp.hr_period_id = $P{HR_Period_ID}
+  AND emp.ad_client_id = $P{AD_Client_ID}
+ AND emp.ad_org_id = COALESCE($P{AD_Org_ID}, emp.ad_org_id)
+ AND emp.hr_department_id = COALESCE($P{HR_Department_ID}, emp.hr_department_id)
+ AND emp.c_bpartner_id = COALESCE($P{C_BPartner_ID}, emp.c_bpartner_id)
+ AND emp.hr_emplocation_id = COALESCE($P{HR_EmpLocation_ID}, emp.hr_emplocation_id)
+ AND emp.c_city_id = COALESCE($P{C_City_ID}, emp.c_city_id)
+  AND (emp.enddate IS NULL OR emp.enddate::date >= hp.startdate::date)
+  ) q
+  ORDER BY clientname, orgname, departmet, c_bpartner_id]]>
+	</queryString>
+	<field name="ad_client_id" class="java.math.BigDecimal"/>
+	<field name="ad_org_id" class="java.math.BigDecimal"/>
+	<field name="c_bpartner_id" class="java.math.BigDecimal"/>
+	<field name="empcode" class="java.lang.String"/>
+	<field name="empname" class="java.lang.String"/>
+	<field name="hr_employee_id" class="java.math.BigDecimal"/>
+	<field name="hr_department_id" class="java.math.BigDecimal"/>
+	<field name="hr_job_id" class="java.math.BigDecimal"/>
+	<field name="startdate" class="java.sql.Timestamp"/>
+	<field name="enddate" class="java.sql.Timestamp"/>
+	<field name="date_birth" class="java.sql.Timestamp"/>
+	<field name="grade" class="java.lang.String"/>
+	<field name="maritalstatus" class="java.lang.String"/>
+	<field name="age" class="java.math.BigDecimal"/>
+	<field name="father_name" class="java.lang.String"/>
+	<field name="pmdccode" class="java.lang.String"/>
+	<field name="hr_subdepartment_id" class="java.math.BigDecimal"/>
+	<field name="departmet" class="java.lang.String"/>
+	<field name="deptvalue" class="java.lang.String"/>
+	<field name="c_bp_group_id" class="java.math.BigDecimal"/>
+	<field name="gross_salary" class="java.math.BigDecimal"/>
+	<field name="auto_attend" class="java.lang.String"/>
+	<field name="da_local" class="java.math.BigDecimal"/>
+	<field name="da_outback" class="java.math.BigDecimal"/>
+	<field name="ta_local" class="java.math.BigDecimal"/>
+	<field name="ta_outstation" class="java.math.BigDecimal"/>
+	<field name="mobile_allowance" class="java.math.BigDecimal"/>
+	<field name="vehicle_maintain" class="java.math.BigDecimal"/>
+	<field name="fuel_litres" class="java.math.BigDecimal"/>
+	<field name="fuel_amount" class="java.math.BigDecimal"/>
+	<field name="attendance_type" class="java.lang.String"/>
+	<field name="comm_percent" class="java.math.BigDecimal"/>
+	<field name="hr_shifts_id" class="java.math.BigDecimal"/>
+	<field name="rest_day" class="java.lang.String"/>
+	<field name="vehicle_rent" class="java.math.BigDecimal"/>
+	<field name="logo_id" class="java.math.BigDecimal"/>
+	<field name="nightstayallow" class="java.math.BigDecimal"/>
+	<field name="hr_emplocation_id" class="java.math.BigDecimal"/>
+	<field name="c_city_id" class="java.math.BigDecimal"/>
+	<field name="hr_emp_statustype_id" class="java.math.BigDecimal"/>
+	<field name="ad_image_id" class="java.math.BigDecimal"/>
+	<field name="cnicno" class="java.lang.String"/>
+	<field name="emp_grade" class="java.lang.String"/>
+	<field name="banktransfer" class="java.math.BigDecimal"/>
+	<field name="itax" class="java.math.BigDecimal"/>
+	<field name="shop_name" class="java.lang.String"/>
+	<field name="distributor_id" class="java.math.BigDecimal"/>
+	<field name="ispfallow" class="java.lang.String"/>
+	<field name="fixed_allowance" class="java.math.BigDecimal"/>
+	<field name="subdeptvalue" class="java.lang.String"/>
+	<field name="subdeptname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="designation" class="java.lang.String"/>
+	<field name="c_bp_bankaccount_id" class="java.math.BigDecimal"/>
+	<field name="accountno" class="java.lang.String"/>
+	<field name="c_bank_id" class="java.math.BigDecimal"/>
+	<field name="emplocation" class="java.lang.String"/>
+	<field name="postcity" class="java.lang.String"/>
+	<field name="empstatus" class="java.lang.String"/>
+	<field name="bloog_group" class="java.lang.String"/>
+	<field name="gender_detail" class="java.lang.String"/>
+	<field name="region_detail" class="java.lang.String"/>
+	<field name="grade_detail" class="java.lang.String"/>
+	<field name="mobileno1" class="java.lang.String"/>
+	<field name="mobileno2" class="java.lang.String"/>
+	<field name="email_add" class="java.lang.String"/>
+	<field name="distributor_name" class="java.lang.String"/>
+	<field name="distributor_code" class="java.lang.String"/>
+	<field name="c_salesregion_id" class="java.math.BigDecimal"/>
+	<field name="c_location_id" class="java.math.BigDecimal"/>
+	<field name="zone_code" class="java.lang.String"/>
+	<field name="zone_desc" class="java.lang.String"/>
+	<field name="bp_address" class="java.lang.String"/>
+	<field name="bp_city" class="java.lang.String"/>
+	<field name="bp_country" class="java.lang.String"/>
+	<field name="emp_exp" class="java.lang.Long"/>
+	<field name="hredu" class="java.lang.Long"/>
+	<field name="hrinc" class="java.lang.Long"/>
+	<field name="showdescription" class="java.lang.String"/>
+	<field name="bloodgroup" class="java.lang.String"/>
+	<field name="isfuelperday" class="java.lang.String"/>
+	<field name="ispaynstay" class="java.lang.String"/>
+	<field name="isfuelob" class="java.lang.String"/>
+	<field name="fuel_lob" class="java.math.BigDecimal"/>
+	<field name="period" class="java.lang.String"/>
+	<field name="period_start" class="java.sql.Date"/>
+	<field name="period_end" class="java.sql.Date"/>
+	<field name="perioddays" class="java.lang.Integer"/>
+	<field name="mgross_salary" class="java.math.BigDecimal"/>
+	<field name="p_gross" class="java.math.BigDecimal"/>
+	<field name="p_basic" class="java.math.BigDecimal"/>
+	<field name="p_hr" class="java.math.BigDecimal"/>
+	<field name="p_conv" class="java.math.BigDecimal"/>
+	<field name="p_wd" class="java.math.BigDecimal"/>
+	<field name="p_mobile" class="java.math.BigDecimal"/>
+	<field name="p_dalocal" class="java.math.BigDecimal"/>
+	<field name="p_daout" class="java.math.BigDecimal"/>
+	<field name="p_talocal" class="java.math.BigDecimal"/>
+	<field name="p_taout" class="java.math.BigDecimal"/>
+	<field name="p_fuel" class="java.math.BigDecimal"/>
+	<field name="p_vmain" class="java.math.BigDecimal"/>
+	<field name="p_vrent" class="java.math.BigDecimal"/>
+	<field name="p_comm" class="java.math.BigDecimal"/>
+	<field name="p_tax" class="java.math.BigDecimal"/>
+	<field name="p_nsallow" class="java.math.BigDecimal"/>
+	<field name="p_nstay" class="java.math.BigDecimal"/>
+	<field name="p_stamp" class="java.math.BigDecimal"/>
+	<field name="p_misc" class="java.math.BigDecimal"/>
+	<field name="p_advsal" class="java.math.BigDecimal"/>
+	<field name="p_loan" class="java.math.BigDecimal"/>
+	<field name="p_exdays" class="java.math.BigDecimal"/>
+	<field name="p_late" class="java.math.BigDecimal"/>
+	<field name="p_ot" class="java.math.BigDecimal"/>
+	<field name="p_arrear" class="java.math.BigDecimal"/>
+	<field name="p_bankpay" class="java.math.BigDecimal"/>
+	<field name="p_pfemp" class="java.math.BigDecimal"/>
+	<field name="p_noleaveinctive" class="java.math.BigDecimal"/>
+	<field name="p_excessmobile" class="java.math.BigDecimal"/>
+	<field name="adimage" class="java.awt.Image"/>
+	<field name="levded" class="java.math.BigDecimal"/>
+	<field name="levnded" class="java.math.BigDecimal"/>
+	<field name="s_dalocal" class="java.math.BigDecimal"/>
+	<field name="s_daout" class="java.math.BigDecimal"/>
+	<field name="s_talocal" class="java.math.BigDecimal"/>
+	<field name="s_taout" class="java.math.BigDecimal"/>
+	<field name="s_latedays" class="java.math.BigDecimal"/>
+	<field name="p_laptoploan" class="java.math.BigDecimal"/>
+	<field name="p_vehicle" class="java.math.BigDecimal"/>
+	<field name="p_tatotal" class="java.math.BigDecimal"/>
+	<field name="p_vehtotal" class="java.math.BigDecimal"/>
+	<field name="p_totalallowance" class="java.math.BigDecimal"/>
+	<field name="p_total_ded" class="java.math.BigDecimal"/>
+	<field name="p_netsal" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="259">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="134" width="80" height="14" uuid="20b19885-fd68-4eeb-9150-338bde65ab0a"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Absents"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="162" width="90" height="14" uuid="6e7b6f01-72b6-41b3-bfa5-f2ffc3ebd41d">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Late"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="190" width="45" height="14" uuid="39667c01-2fb4-4ecf-8123-5ee23f1d7c74">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="190" width="90" height="14" uuid="5acb53f3-97a0-45fd-8266-cfbb0e9dff5b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Provident Fund"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="148" width="80" height="14" uuid="32aed637-a9ca-41bb-b877-a317d87e3f71">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["No. of Late(s)"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="148" width="90" height="14" uuid="5bdb64f5-1279-45a9-a8c7-1527dc0452b2">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Advance Salary"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="120" width="45" height="14" uuid="0f3eee3a-ebb8-43c4-aa13-875f8deba084"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_fuel}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="218" width="80" height="14" uuid="bbb40983-8500-49a6-9041-7d2de34cb8b1"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Gross Salary"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="232" width="45" height="14" uuid="b88f3a21-540d-4a43-8422-428c562831e9"/>
+				<box padding="3">
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_netsal}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="92" width="45" height="14" uuid="d2bb6a56-6ba7-441b-a88d-fdee1fa5d068"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_vehtotal}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="92" width="80" height="14" uuid="2799e6e1-8e18-4af4-979c-91395ea6c76b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Salary"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="106" width="80" height="14" uuid="5a64ae17-56f3-4762-b3a2-76a02eed7b3e"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Working Days"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="92" width="90" height="14" uuid="650e927b-b9a4-480b-b2a6-5efb2227b62d">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Vehicle Rent + Maintenance]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="218" width="45" height="14" uuid="39e15bc8-9f0a-409f-b822-4644da9a00df">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="106" width="90" height="14" uuid="cc406ca1-ccd7-4d25-9149-ed4611d16dc6"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Loan"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="162" width="45" height="14" uuid="ba7d2ae7-3a15-4f1e-b4d1-befcf4e9a48f"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="148" width="45" height="14" uuid="c56c4993-f09b-4678-8bf8-7b0163f96a0b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_advsal}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="162" width="45" height="14" uuid="cfa2522c-2ed6-4114-9a32-baa2717d92e6"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_late}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="148" width="45" height="14" uuid="d46a9b83-a90b-4ade-8974-b64efbe96079"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_exdays}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="134" width="45" height="14" uuid="a3faa149-212a-4ffc-87f3-87c0f6aab96e"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_tax}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="218" width="90" height="14" uuid="fe5b3436-3ec8-42af-908d-8c523be44e96"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total Deductions"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="204" width="90" height="14" uuid="f5f57ffa-07d1-4bc2-af7f-85d39caab000"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Excess Mobile Usage"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="92" width="90" height="14" uuid="81845c2e-1659-4122-b43c-d05711badb6b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["EOBI"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="148" width="90" height="14" uuid="803fd80f-349b-4280-9fa9-6c9f7c9d1987"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Extra Day Earning"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="218" width="90" height="14" uuid="0c07a01d-2866-4eb5-bdeb-b0dd9190302d"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total Allowance"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="120" width="45" height="14" uuid="f57952a1-a9ea-4a80-962e-3d5bff7fa22c"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{levnded}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="148" width="45" height="14" uuid="f2be07e9-1de2-4f84-b10f-232e17977658"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{s_latedays}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="232" width="80" height="14" uuid="efa3d4c2-6e78-4781-ad6f-1d5b10d2f3cc"/>
+				<box padding="3">
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="6" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Net Payable Salary"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="120" width="90" height="14" uuid="8b46c5fd-2078-4463-b1d8-94a544f942b4"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Laptop Loan]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="204" width="80" height="14" uuid="1183dbc0-43bf-4784-932d-1eac3a4da510"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="204" width="45" height="14" uuid="25bd54a8-2f64-4649-a53f-c0f2ce4e34cd"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_arrear}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="120" width="90" height="14" uuid="8e89c648-bd6f-4f84-84a5-d8c97d29123a"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Fuel Allowance"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="176" width="90" height="14" uuid="0c05d074-3ffb-4628-bac5-96224d6bf22f"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Payment Through Bank"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="106" width="45" height="14" uuid="768708f2-519e-48df-85bb-b395a5a1f126"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_mobile}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="92" width="45" height="14" uuid="185e1b93-900a-4a0c-b654-546cba52697f"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mgross_salary}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="204" width="45" height="14" uuid="8d771f5e-0604-482d-b07f-c0c17ae6bfca"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="176" width="45" height="14" uuid="701d4d9c-93cd-42ae-a79e-3b13fb7d3670"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="120" width="80" height="14" uuid="f2b3f2ad-4245-44e0-9fd6-a2eba2a5ed0e"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Leaves"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="134" width="45" height="14" uuid="7ea69ba9-e19e-424d-93e4-7bca861d9d9c"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{levded}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="120" width="45" height="14" uuid="1d3ecb63-0068-4a61-bfd3-b1d180517591"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_laptoploan}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="204" width="45" height="14" uuid="9266c726-2020-4868-8d94-454103b622f2">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_excessmobile}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="176" width="45" height="14" uuid="5a30428b-bc11-4d6e-a3ce-d7f9eb2ccfe4"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_bankpay}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="134" width="45" height="14" uuid="a3c9a31b-48d3-4038-be2a-8045b5a8615b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_misc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="204" width="90" height="14" uuid="60468a5f-c54f-45f0-9ade-c86147051104"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Arrears"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="218" width="45" height="14" uuid="4c9ff862-b4db-4b90-ab2f-3ece66567bf0"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mgross_salary}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="106" width="45" height="14" uuid="791550db-f055-42c2-a66a-95cc2ebc3a65"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_loan}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="190" width="45" height="14" uuid="202fa575-aaf2-4b5e-81ef-795c700fe38e"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_pfemp}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="92" width="45" height="14" uuid="3a47b6f0-365a-4a72-9ba0-08bd0119b442"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="253" y="134" width="90" height="14" uuid="32dcad7c-e771-4c8a-8ca6-675606ec14bf"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Tax"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="73" y="106" width="45" height="14" uuid="2c9c732e-d1e5-409a-ad93-ac0e96820e63"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_wd}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="106" width="90" height="14" uuid="887e1804-4906-4912-947e-04bfa2a75719"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Mobile Allowance"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="134" width="90" height="14" uuid="9c0a39ad-19cf-4368-b86b-5ace156b762b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Misc Expense"]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="343" y="218" width="45" height="14" uuid="5b15206f-703b-49c2-b8b8-19fa03297f03"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.25" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{p_total_ded}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="53" y="6" width="270" height="12" uuid="82e7fa44-495b-4c7e-a8b3-40ab7e1a6727">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2"/>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<b>" + $F{orgname} + "</b> " + $F{clientname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="53" y="18" width="270" height="10" forecolor="#3366FF" uuid="16afb7c9-bd2d-42c0-94a1-1866fd4f106d">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="7" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["For The Month of <b>" +$F{period}+"</b>"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="178" y="28" width="55" height="10" uuid="f73de3b7-2bf6-4b08-b905-c493330b2d83">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Joining Date]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="true">
+				<reportElement x="233" y="28" width="90" height="10" uuid="51267f5e-f047-4836-9551-0cc9e3f45932">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{startdate}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="53" y="28" width="55" height="10" uuid="3a610272-dc2c-4a22-9084-84d493f426db">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Employee Code]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="108" y="28" width="70" height="10" uuid="6d74cf23-2187-4b49-ad40-be1b6dd36b71">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="108" y="38" width="215" height="10" uuid="bde54744-3e88-4a2b-a318-8ee6356d94cb">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empname}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="53" y="38" width="55" height="10" uuid="8ee8fe67-e7ae-4909-b84b-1f5a306c1ae3">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Employee Name]]></text>
+			</staticText>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle">
+				<reportElement x="1" y="12" width="45" height="35" uuid="4e1ce21a-5ebf-4094-b388-8b9b3df5c257">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<imageExpression><![CDATA[(new File("C:\\idempiere-server\\reports\\logo\\" +$F{ad_org_id} + ".jpg").isFile() ? "C:\\idempiere-server\\reports\\logo\\" +$F{ad_org_id} + ".jpg" : "C:\\idempiere-server\\reports\\logo\\default.jpg" )]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle">
+				<reportElement x="327" y="10" width="58" height="54" uuid="b2facf82-411f-431f-ba7a-97b4574c06cd">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<imageExpression><![CDATA[$F{adimage}]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="327" y="10" width="58" height="54" uuid="e6cbb070-7a5e-48b9-9c18-837bcd8872ce">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Double"/>
+					<topPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="193" y="48" width="40" height="10" uuid="fd073790-22a6-4d00-8958-04c6c8d22199">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Post City]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="233" y="58" width="90" height="10" uuid="5fbddbc1-31fb-4d26-b4d6-3901b6b68289">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{emplocation}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="233" y="48" width="90" height="10" uuid="930ae240-ca56-45c6-a56e-e065e434fbc4">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{postcity}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-7" y="48" width="60" height="10" uuid="a205ec0b-59a7-4580-9091-5631872a159d">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Department]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="53" y="48" width="140" height="10" uuid="6c47fee1-e1c4-4b78-ab64-f17dcdee7f66">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{departmet}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="193" y="58" width="40" height="10" uuid="da99f3e4-e356-4370-8bc9-d38b50577cd6">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Location]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="53" y="58" width="140" height="10" uuid="362bb0b6-2dc4-4375-bb93-5b2b29b243da">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{designation}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-7" y="58" width="60" height="10" uuid="b6d9528f-bbbd-4bd9-a2a4-2c1036bc67b4">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="6" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Designation]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="253" y="72" width="135" height="20" uuid="7c398e73-628c-4d3a-9645-abb802830584"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Deductions"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="-7" y="72" width="125" height="20" uuid="356afaa8-9c62-4125-ae1c-aaed5d02a8ad"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Salary"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="118" y="72" width="135" height="20" uuid="4b15aff5-50f8-4419-95da-af29c3811173"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Allowances"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="176" width="45" height="14" uuid="2fd5c74d-de7e-478d-acc9-5aa0a932b397"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="190" width="45" height="14" uuid="3900d670-86cd-47f2-a787-f05663fd8436"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="208" y="162" width="45" height="14" uuid="31222d10-2a7d-41f0-aca7-e226bf992192"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="190" width="80" height="14" uuid="1d25c678-1408-4afc-8f71-73bc3faa71e9"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="176" width="80" height="14" uuid="3d0058a4-a0e2-4629-bf89-3e7aec87137c"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="-7" y="162" width="80" height="14" uuid="97b25c16-3786-4c0f-84a9-b293d0c30a8b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="162" width="90" height="14" uuid="f22cf5bb-b04f-44c9-a6ce-89f9ac504d13"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="190" width="90" height="14" uuid="33a7b9b9-a34b-44a4-9606-875ca8c02351"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement stretchType="RelativeToTallestObject" x="118" y="176" width="90" height="14" uuid="08f934a5-48de-42f6-8e11-aa3d53a1a1ed"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="6" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="-7" y="0" width="394" height="72" uuid="074edef3-d286-452e-b083-47e1132d7ea8">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Double"/>
+					<topPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.75" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

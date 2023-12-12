@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AttendanceProcess" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="0672cab7-1207-4e10-833b-1b84c9c11df9">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Blesso Idempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<parameter name="HR_Department_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="AD_User_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Date"/>
+	<parameter name="EndDate" class="java.sql.Date"/>
+	<parameter name="HR_EmpLocation_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT adempiere.xxattendprocess(
+	COALESCE($P{C_BPartner_ID}, null::numeric),
+	COALESCE($P{HR_Department_ID},null::numeric),
+	COALESCE($P{AD_Client_ID},null::numeric),
+	COALESCE($P{AD_Org_ID},null::numeric),
+	COALESCE($P{AD_User_ID},null::numeric),
+	COALESCE($P{StartDate},now()::date),
+	COALESCE($P{EndDate},now()::date),
+	COALESCE($P{HR_EmpLocation_ID}, null::numeric))]]>
+	</queryString>
+	<field name="xxattendprocess" class="java.lang.Boolean"/>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="125" uuid="2a003e33-b446-4d0f-9e6e-025fb8beed4f"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Calibri" size="26" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{xxattendprocess} == true ? "Process Completed Successfully" : "Error In Process")]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

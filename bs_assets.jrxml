@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="balance_sheet_subreport1" language="groovy" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a1a65d85-1b54-4824-adc9-f20f3b2c442b">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AsOn" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT	el.Name, el.value, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+
+
+
+GROUP BY el.value, el.name, el.accounttype
+
+HAVING (sum(fa.amtacctdr) - sum(fa.amtacctcr)) <> 0
+
+ORDER BY el.value]]>
+	</queryString>
+	<field name="name" class="java.lang.String"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<variable name="assets" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="2" y="0" width="155" height="20" uuid="9392e787-fedc-4785-9c29-6c4974904d67"/>
+				<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+				<reportElement x="157" y="0" width="118" height="20" uuid="cfa15d1e-ae30-4b5e-848c-5661df94869e"/>
+				<box topPadding="3" leftPadding="3" bottomPadding="3" rightPadding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="42"/>
+	</summary>
+</jasperReport>

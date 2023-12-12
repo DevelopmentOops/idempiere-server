@@ -1,0 +1,790 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Shipment Detail Cost Report" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="224719e6-940a-4328-ad0f-d080860cfab5">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_Project_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT	m_product_id, value, product, sum(a) ::numeric MaterialCost, sum(b) ::numeric AgencyFee, Sum(c) ::numeric CustomsClearance,
+	sum(d) ::numeric ForeignFreight, sum(e) ::numeric RoyaltyPayment, sum(f) ::numeric IncomeTax, sum(g) ::numeric ContainerFeeTaswarSb, sum(h) ::numeric MiscChargesMoonCooperation, sum(i) ::numeric OtherCustomClearanceCharges,
+	sum(j) ::numeric customduties, sum(qty) qty, sum(k) ::numeric OtherContainerCharges, sum(l) ::numeric UnloadingContainerCharge, sum(m) ::numeric AdditionalTax,
+
+(SELECT shipment FROM (SELECT CONCAT(pj.value, ' - ', pj.name) shipment FROM adempiere.c_project pj WHERE pj.c_project_id = $P{C_Project_ID}) pj),
+(SELECT grandtotal foreign_amount FROM (SELECT grandtotal FROM adempiere.c_invoice inv WHERE inv.c_project_id = $P{C_Project_ID} AND c_bpartner_id = 1000072 AND inv.docstatus IN ('CO', 'CL')) inv)
+				
+,(SELECT clientname FROM (SELECT cl.name clientname  from adempiere.ad_client cl where cl.ad_client_id = $P{AD_Client_ID})cl)
+,(SELECT orgname FROM (SELECT org.name orgname  from adempiere.ad_org org where org.ad_org_id = $P{AD_Org_ID})org)
+
+
+FROM
+
+( SELECT b.m_product_id, p.value, p.name product, 
+	CASE WHEN costname = 'Material Cost' AND b.m_product_id IS NOT NULL THEN sum(amt) ELSE 0 END a,
+	CASE WHEN costname = 'Agency Fee' THEN sum(amt) ELSE 0 END b,
+	CASE WHEN costname = 'Customs Clearance' THEN sum(amt) ELSE 0 END c,
+	CASE WHEN costname = 'Foreign Freight' THEN sum(amt) ELSE 0 END d,
+	CASE WHEN costname = 'Royalty Payment' THEN sum(amt) ELSE 0 END e,
+	CASE WHEN costname = 'Income Tax' THEN sum(amt) ELSE 0 END f,
+	CASE WHEN costname = 'Taswar Sb' THEN sum(amt) ELSE 0 END g,
+	CASE WHEN costname = 'Moon Corporation' THEN sum(amt) ELSE 0 END h,
+	CASE WHEN costname = 'Other Custom Clearance Charges' THEN sum(amt) ELSE 0 END i,
+	CASE WHEN costname = 'Custom Duties' THEN sum(amt) ELSE 0 END j,
+	CASE WHEN costname = 'Material Cost' THEN sum(qty) ELSE 0.0001 END qty,
+	CASE WHEN costname = 'Other Container Charges' THEN sum(amt) ELSE 0 END k,
+	CASE WHEN costname = 'Unloading Container Charge' THEN sum(amt) ELSE 0 END l,
+	CASE WHEN costname = 'Addtional Tax' THEN sum(amt) ELSE 0 END m
+
+FROM
+
+(SELECT	a.m_product_id, CASE WHEN costname IS NOT NULL THEN costname ELSE 'Material Cost' END costname,
+	CASE WHEN a.amt IS NULL THEN (COALESCE(amt, 0)+amt2) ELSE amt END amt,
+	CASE WHEN a.qtyentered IS NOT NULL THEN qtyentered ELSE 0 END qty
+
+FROM
+
+(SELECT CASE WHEN i.C_Currency_ID = 100 THEN round((lca.amt*COALESCE(cr.dividerate, 1)), 2) ELSE lca.amt END amt, round((il.linetotalamt*COALESCE(cr.dividerate, 1)), 2) amt2,
+CASE WHEN lca.m_product_id <> 0 THEN lca.m_product_id ELSE il.m_product_id END m_product_id, lca.m_costelement_id, ce.name as costname, p.name product, il.qtyentered
+
+
+
+FROM adempiere.c_invoiceline il
+LEFT JOIN adempiere.c_invoice i ON il.c_invoice_id = i.c_invoice_id
+LEFT JOIN adempiere.c_conversion_rate cr ON i.c_conversiontype_id = cr.c_conversiontype_id AND i.dateinvoiced = cr.validto AND i.c_currency_id = cr.c_currency_id_to
+LEFT JOIN adempiere.c_landedcostallocation lca ON il.c_invoiceline_id = lca.c_invoiceline_id
+LEFT JOIN adempiere.m_product p ON il.m_product_id = p.m_product_id
+LEFT JOIN adempiere.m_costelement ce ON lca.m_costelement_id = ce.m_costelement_id
+
+
+
+WHERE i.c_project_id = $P{C_Project_ID} AND i.docstatus IN ('CO', 'CL')   ORDER BY il.c_invoiceline_id) a)b
+
+LEFT JOIN adempiere.m_product p ON b.m_product_id = p.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON p.m_product_category_id = pc.m_product_category_id
+GROUP BY b.m_product_id, p.name, p.value, b.costname
+
+ORDER BY p.value ) a
+
+GROUP BY m_product_id, value, product]]>
+	</queryString>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="product" class="java.lang.String"/>
+	<field name="materialcost" class="java.math.BigDecimal"/>
+	<field name="agencyfee" class="java.math.BigDecimal"/>
+	<field name="customsclearance" class="java.math.BigDecimal"/>
+	<field name="foreignfreight" class="java.math.BigDecimal"/>
+	<field name="royaltypayment" class="java.math.BigDecimal"/>
+	<field name="incometax" class="java.math.BigDecimal"/>
+	<field name="containerfeetaswarsb" class="java.math.BigDecimal"/>
+	<field name="miscchargesmooncooperation" class="java.math.BigDecimal"/>
+	<field name="othercustomclearancecharges" class="java.math.BigDecimal"/>
+	<field name="customduties" class="java.math.BigDecimal"/>
+	<field name="qty" class="java.math.BigDecimal"/>
+	<field name="othercontainercharges" class="java.math.BigDecimal"/>
+	<field name="unloadingcontainercharge" class="java.math.BigDecimal"/>
+	<field name="additionaltax" class="java.math.BigDecimal"/>
+	<field name="shipment" class="java.lang.String"/>
+	<field name="foreign_amount" class="java.math.BigDecimal"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<variable name="mat" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{materialcost}]]></variableExpression>
+	</variable>
+	<variable name="acd" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{agencyfee}]]></variableExpression>
+	</variable>
+	<variable name="ast" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{customsclearance}]]></variableExpression>
+	</variable>
+	<variable name="cd" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{foreignfreight}]]></variableExpression>
+	</variable>
+	<variable name="ff" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{royaltypayment}]]></variableExpression>
+	</variable>
+	<variable name="it" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{containerfeetaswarsb}]]></variableExpression>
+	</variable>
+	<variable name="lf" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{miscchargesmooncooperation}]]></variableExpression>
+	</variable>
+	<variable name="occc" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{othercontainercharges}]]></variableExpression>
+	</variable>
+	<variable name="st" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{incometax}]]></variableExpression>
+	</variable>
+	<variable name="occ" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{unloadingcontainercharge}]]></variableExpression>
+	</variable>
+	<variable name="adtx" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{additionaltax}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="60" splitType="Stretch">
+			<textField>
+				<reportElement mode="Transparent" x="0" y="30" width="802" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="72ca2d36-209e-4039-a972-428595185dc6"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Shipment : "+$F{shipment}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="0" y="0" width="802" height="30" forecolor="#000000" backcolor="#FFFFFF" uuid="7a49a456-0362-405f-9fcb-0c6304188e99"/>
+				<textElement verticalAlignment="Bottom">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname} +  " [ " + $F{orgname} + " ]"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="50" splitType="Stretch">
+			<staticText>
+				<reportElement key="" mode="Transparent" x="0" y="0" width="70" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="110e0900-bdfd-4c5c-952f-3f2bf8be43ad"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Product Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="70" y="0" width="82" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="bbfe2bf7-c841-4186-8def-d1dec2326e84"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Product Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="202" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="41f7c34e-885f-4649-925a-89c0f0643823"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Material cost]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="252" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="7e762b18-d37f-4164-88e7-1dcb1c702c4d"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Agency Fee]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="352" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="bc559866-079a-4114-b859-c2876c720956"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Foreign Freight]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="402" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="8e580e76-6ade-422a-9f7f-7ced0b3dbfcb"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Royalty Payment]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="502" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="a5214917-e749-44ad-a88f-dec14c47a50f"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Misc Charges
+(MoonCooperation)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="552" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="3df3970a-d1f4-4abb-8d72-acc6858b0c5a"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Additional Tax]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="602" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="11ff8270-a263-472f-8f57-7c54051d6fc7"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Other Container Charges]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="652" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="b45ebd2c-56d0-4976-a704-afc818f5b9e8"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unloading Container Charge]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="152" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="aad49068-9ad9-4ec8-bffc-a689353fff1f"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="302" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="51a677ce-fa5b-4dfc-81f6-10aef862d214"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Customs Clearance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="452" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="3fa48232-4ff5-431c-b07c-86f68a4e4c10"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ContainerFee
+(Taswar SB)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="702" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="5ffe41f0-be3a-4926-a3c8-4062512dbd18"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement key="" mode="Transparent" x="752" y="0" width="50" height="50" forecolor="#000000" backcolor="#FFFFFF" uuid="ae179f02-a76e-48db-995f-a445b7f6373c"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.75"/>
+					<topPen lineWidth="0.75"/>
+					<leftPen lineWidth="0.75"/>
+					<bottomPen lineWidth="0.75"/>
+					<rightPen lineWidth="0.75"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cost
+Per Qty]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="16" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="70" height="16" uuid="646b8bd8-1064-4cda-8291-220a5e84f69f"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="70" y="0" width="82" height="16" uuid="52f5d5b3-4d55-4ada-b569-c4a4bfa9e7e4"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement>
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{product}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="202" y="0" width="50" height="16" uuid="c4228af2-422e-4e0a-8d48-db26da5e5e21"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{materialcost}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="252" y="0" width="50" height="16" uuid="71b3fd3a-095d-41e6-9f9e-92a34c3b4dca"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{agencyfee}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="352" y="0" width="50" height="16" uuid="bed2cf00-8376-4d14-8235-64d2b55e6ba3"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{foreignfreight}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="402" y="0" width="50" height="16" uuid="99e5ac0f-f0d8-4a9b-97c1-f43f45c27960"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{royaltypayment}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="452" y="0" width="50" height="16" uuid="d2908017-75ce-4997-9bdc-11c029370807"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{containerfeetaswarsb}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="502" y="0" width="50" height="16" uuid="1939e99a-1bd8-4b0f-8352-30317f33e055"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{miscchargesmooncooperation}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="552" y="0" width="50" height="16" uuid="a37104de-e9de-4539-a187-70ff11ad6409"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{additionaltax}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="602" y="0" width="50" height="16" uuid="7c8a5cc2-7c8a-42dc-8876-c59e3a43e678"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{othercontainercharges}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="652" y="0" width="50" height="16" uuid="467abee2-c680-499f-a10b-a71a1ec5aa3a"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{unloadingcontainercharge}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="152" y="0" width="50" height="16" uuid="3954ad31-cbb1-4267-8e64-206321c3a869"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;(#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="302" y="0" width="50" height="16" uuid="ac239cdf-37fe-4c47-9aae-13fefb35946c"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{customsclearance}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto" pattern="#,##0.00;(-#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="702" y="0" width="50" height="16" uuid="6405bb32-e7ed-4201-9f00-8c06aa880a33"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{materialcost}+$F{agencyfee}+$F{customsclearance}+$F{foreignfreight}+$F{royaltypayment}+$F{incometax}+$F{containerfeetaswarsb}+$F{miscchargesmooncooperation}+$F{othercustomclearancecharges}+$F{unloadingcontainercharge}+$F{customduties}+$F{othercontainercharges}+$F{additionaltax}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto" pattern="#,##0.00;(-#,##0.00)">
+				<reportElement stretchType="RelativeToBandHeight" x="752" y="0" width="50" height="16" uuid="246bd39f-6e84-4635-883d-2c2be2070a1f"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{materialcost}+$F{agencyfee}+$F{customsclearance}+$F{foreignfreight}+$F{royaltypayment}+$F{incometax}+$F{containerfeetaswarsb}+$F{miscchargesmooncooperation}+$F{othercustomclearancecharges}+$F{unloadingcontainercharge}+$F{customduties}+$F{othercontainercharges}+$F{additionaltax}) / ($F{qty}.equals("0") ? "1" : $F{qty})]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="246" splitType="Stretch">
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="202" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="e34b1cd8-382b-415b-99f0-063f4ed8a90b"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{mat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="252" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="b5b1c17b-6713-41b2-9b33-c91cf1b89b6b"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{acd}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="352" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="ae524646-af8f-4413-b851-3e1a5c13096d"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{cd}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="402" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="6e796676-1e84-4248-be2e-a82d2737aa92"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{ff}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="452" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="11f833e2-0782-4976-a25a-945f0cb21ecf"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{it}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="502" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="911a6c16-c216-4825-989c-486cc2382823"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{lf}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="552" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="47719845-7396-426d-ae2e-7e5af0ee5723"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{adtx}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="602" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="47a94297-10a1-4dcf-bfae-66fbe4e9f881"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{occc}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="652" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="0fc3383a-5340-4a73-adf7-8e0c95072f04"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{occ}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="0" width="202" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="82db5ba3-274a-4370-870e-c2050a6d187c"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="30" width="202" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="fc5a60d5-e178-41e7-8f1d-1e3a94da59d9"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Shipment Cost : ]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="202" y="30" width="150" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="4db706df-ee2f-4465-84e9-c02c820dd2c5"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{mat}+$V{acd}+$V{ast}+$V{cd}+$V{ff}+$V{it}+$V{lf}+$V{occc}+$V{st}+$V{occ}+$V{adtx}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement mode="Transparent" x="302" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="174e1b78-b0a5-4438-a51a-b62250bdbfae"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{ast}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(-#,##0.00)">
+				<reportElement mode="Transparent" x="702" y="0" width="50" height="16" forecolor="#000000" backcolor="#FFFFFF" uuid="2637cf51-b0f0-4a3c-bf0c-8c3237c61eeb"/>
+				<box topPadding="1" leftPadding="1" bottomPadding="1" rightPadding="1">
+					<pen lineWidth="0.5"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{mat}+$V{acd}+$V{ast}+$V{cd}+$V{ff}+$V{it}+$V{lf}+$V{occc}+$V{st}+$V{occ}+$V{adtx}]]></textFieldExpression>
+			</textField>
+			<subreport>
+				<reportElement x="0" y="46" width="802" height="200" uuid="661d9323-de2c-493d-bf7a-46b1ed304d5c"/>
+				<subreportParameter name="C_Project_ID">
+					<subreportParameterExpression><![CDATA[$P{C_Project_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA["C:/idempiere-server/reports/Shipment_Cost_Detail_Sub.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</summary>
+</jasperReport>

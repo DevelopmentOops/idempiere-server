@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="umer_report" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="88a9ac72-8867-4058-8cd7-1a51ea32f62f">
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2020-05-01 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="AD_User_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select *
+from
+(
+
+select mq.name,mq.c_bpartner_id,SUM(mq.curr_sum) curr_sum,SUM(mq.last_sum) last_sum,SUM(mq.second_sum) second_sum,SUM(mq.third_sum) third_sum,
+	round((SUM(mq.last_sum)+SUM(mq.second_sum)+SUM(mq.third_sum))/3,2) recovery_average
+from 
+(
+	select bp.c_bpartner_id,bp.name,SUM(payamt) curr_sum,0 last_sum,0 second_sum,0 third_sum
+from adempiere.c_payment p
+left join adempiere.c_bpartner bp ON p.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_bpartner_location bpl ON bp.c_bpartner_id = bpl.c_bpartner_id
+LEFT JOIN adempiere.c_salesregion sr ON bpl.c_salesregion_id = sr.c_salesregion_id
+LEFT JOIN adempiere.c_saleszone sz ON sr.c_saleszone_id = sz.c_saleszone_id
+where
+dateacct::timestamp between date_trunc('month',now())  and now()
+and   ($P!{AD_Client_ID} is null or p.ad_client_id=$P!{AD_Client_ID})
+and   ($P!{AD_Org_ID} is null or p.ad_org_id = $P!{AD_Org_ID})
+and   ($P!{C_BPartner_ID} is null or p.c_bpartner_id=$P!{C_BPartner_ID})
+AND ($P!{AD_User_ID} IS NULL OR sz.salesrep_id = $P!{AD_User_ID})
+and isreceipt='Y'
+and bp.c_bp_group_id IN (1000001,1000007)
+group by bp.name,bp.c_bpartner_id
+UNION ALL
+	-----------------------------------------------------------------------------------------------------	-----------------------------------------------------------------------------------------------------
+select bp.c_bpartner_id,bp.name,0 curr_sum,SUM(payamt) last_sum,0 second_sum,0 third_sum
+from adempiere.c_payment p
+left join adempiere.c_bpartner bp ON p.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_bpartner_location bpl ON bp.c_bpartner_id = bpl.c_bpartner_id
+LEFT JOIN adempiere.c_salesregion sr ON bpl.c_salesregion_id = sr.c_salesregion_id
+LEFT JOIN adempiere.c_saleszone sz ON sr.c_saleszone_id = sz.c_saleszone_id
+where
+dateacct::timestamp between date_trunc('month',now())-interval '1 Month' and date_trunc('month',now())-interval '1 Day'
+and   ($P!{AD_Client_ID} is null or p.ad_client_id=$P!{AD_Client_ID})
+and   ($P!{AD_Org_ID} is null or p.ad_org_id = $P!{AD_Org_ID})
+and   ($P!{C_BPartner_ID} is null or p.c_bpartner_id=$P!{C_BPartner_ID})
+AND ($P!{AD_User_ID} IS NULL OR sz.salesrep_id = $P!{AD_User_ID})
+and isreceipt='Y'
+and bp.c_bp_group_id IN (1000001,1000007)
+group by bp.name,bp.c_bpartner_id
+	UNION ALL	
+select bp.c_bpartner_id,bp.name,0 curr_sum,0 last_sum, SUM(payamt) second_sum,0 third_sum
+from adempiere.c_payment p
+left join adempiere.c_bpartner bp ON p.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_bpartner_location bpl ON bp.c_bpartner_id = bpl.c_bpartner_id
+LEFT JOIN adempiere.c_salesregion sr ON bpl.c_salesregion_id = sr.c_salesregion_id
+LEFT JOIN adempiere.c_saleszone sz ON sr.c_saleszone_id = sz.c_saleszone_id
+where
+ dateacct::timestamp between   (((date_trunc('month',now())-interval '1 Month'))-interval '1 Month') AND (date_trunc('month',now())-interval '1 Month')-interval '1 Day' 
+and   ($P!{AD_Client_ID} is null or p.ad_client_id=$P!{AD_Client_ID})
+and   ($P!{AD_Org_ID} is null or p.ad_org_id = $P!{AD_Org_ID})
+and   ($P!{C_BPartner_ID} is null or p.c_bpartner_id=$P!{C_BPartner_ID})
+AND ($P!{AD_User_ID} IS NULL OR sz.salesrep_id = $P!{AD_User_ID})
+and isreceipt='Y'
+and bp.c_bp_group_id IN (1000001,1000007)
+group by bp.name,bp.c_bpartner_id
+	UNION ALL	
+select bp.c_bpartner_id,bp.name,0 curr_sum,0 last_sum,0 second_sum, SUM(payamt) third_sum
+from adempiere.c_payment p
+left join adempiere.c_bpartner bp ON p.c_bpartner_id = bp.c_bpartner_id	
+LEFT JOIN adempiere.c_bpartner_location bpl ON bp.c_bpartner_id = bpl.c_bpartner_id
+LEFT JOIN adempiere.c_salesregion sr ON bpl.c_salesregion_id = sr.c_salesregion_id
+LEFT JOIN adempiere.c_saleszone sz ON sr.c_saleszone_id = sz.c_saleszone_id
+where 	
+dateacct::timestamp between   (((date_trunc('month',now())-interval '1 Month'))-interval '1 Month')-interval '1 Month' AND (((((date_trunc('month',now())-interval '1 Month'))-interval '1 Month')-interval '1 Month')+ interval '1 Month')- interval '1 Day'
+and   ($P!{AD_Client_ID} is null or p.ad_client_id=$P!{AD_Client_ID})
+and   ($P!{AD_Org_ID} is null or p.ad_org_id = $P!{AD_Org_ID})
+and   ($P!{C_BPartner_ID} is null or p.c_bpartner_id=$P!{C_BPartner_ID})
+AND ($P!{AD_User_ID} IS NULL OR sz.salesrep_id = $P!{AD_User_ID})
+and bp.c_bp_group_id IN (1000001,1000007)
+and isreceipt='Y'
+group by bp.name,bp.c_bpartner_id
+) mq
+group by mq.name,mq.c_bpartner_id
+	  	
+) dq
+
+full outer join
+
+(
+
+-------------------------------------------------------
+select o.c_bpartner_id  bp_id_from_order,bp.name name_from_order,SUM(o. grandtotal) order_sum
+from adempiere.c_order o
+left join adempiere.c_bpartner bp ON o.c_bpartner_id = bp.c_bpartner_id	
+LEFT JOIN adempiere.c_bpartner_location bpl ON bp.c_bpartner_id = bpl.c_bpartner_id
+LEFT JOIN adempiere.c_salesregion sr ON bpl.c_salesregion_id = sr.c_salesregion_id
+LEFT JOIN adempiere.c_saleszone sz ON sr.c_saleszone_id = sz.c_saleszone_id
+where o.issotrx = 'Y'
+and o.docstatus IN ('CO','CL')
+and   ($P!{AD_Client_ID} is null or o.ad_client_id=$P!{AD_Client_ID})
+and   ($P!{AD_Org_ID} is null or o.ad_org_id = $P!{AD_Org_ID})
+and   ($P!{C_BPartner_ID} is null or o.c_bpartner_id=$P!{C_BPartner_ID})
+AND ($P!{AD_User_ID} IS NULL OR sz.salesrep_id = $P!{AD_User_ID})
+and dateordered::timestamp between date_trunc('Month',now()) and now()
+group by o.c_bpartner_id,bp.name
+) cq
+ON cq.bp_id_from_order= dq.c_bpartner_id
+order by dq.name]]>
+	</queryString>
+	<field name="name" class="java.lang.String"/>
+	<field name="c_bpartner_id" class="java.math.BigDecimal"/>
+	<field name="curr_sum" class="java.math.BigDecimal"/>
+	<field name="last_sum" class="java.math.BigDecimal"/>
+	<field name="second_sum" class="java.math.BigDecimal"/>
+	<field name="third_sum" class="java.math.BigDecimal"/>
+	<field name="recovery_average" class="java.math.BigDecimal"/>
+	<field name="bp_id_from_order" class="java.math.BigDecimal"/>
+	<field name="name_from_order" class="java.lang.String"/>
+	<field name="order_sum" class="java.math.BigDecimal"/>
+	<group name="bp_changes">
+		<groupExpression><![CDATA[$F{c_bpartner_id}==null? $F{bp_id_from_order}:$F{c_bpartner_id}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<textField isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="0" y="0" width="150" height="20" backcolor="#D6D4D4" uuid="d18e994f-e797-4729-8c31-9077c9182268"/>
+					<box padding="3">
+						<pen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{name}==null?$F{name_from_order}:$F{name}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00#;#,##0.00#-" isBlankWhenNull="true">
+					<reportElement x="490" y="0" width="68" height="20" uuid="384f5b7f-8c52-47a0-ae22-435152fb26d4"/>
+					<box>
+						<pen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{order_sum}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+					<reportElement x="218" y="0" width="68" height="20" uuid="1f2b3daa-dfdd-4dfc-93af-e5629a2cc562"/>
+					<box>
+						<pen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{last_sum}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00#;#,##0.00#-" isBlankWhenNull="true">
+					<reportElement x="422" y="0" width="68" height="20" uuid="30b81ee7-75d2-4e71-b3a7-68939089756d"/>
+					<box>
+						<pen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{recovery_average}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+					<reportElement x="354" y="0" width="68" height="20" uuid="9b19945a-2088-43f6-a6ce-11d46355be3c">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box>
+						<pen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{third_sum}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+					<reportElement x="286" y="0" width="68" height="20" uuid="c7c36a84-483d-4df6-9e98-a7fc0c3e2ecf"/>
+					<box>
+						<pen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{second_sum}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+					<reportElement x="150" y="0" width="68" height="20" uuid="522a45f8-4c6d-4b47-926a-2178b5a172a0"/>
+					<box>
+						<pen lineWidth="0.25"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{curr_sum}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="65" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="560" height="30" uuid="2b2a4c67-7820-4b32-bb39-9eef761c5dc8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Recovery Vs Orders"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="20">
+			<textField>
+				<reportElement mode="Opaque" x="0" y="0" width="150" height="20" forecolor="#000000" backcolor="#F2F0F0" uuid="584a7e72-675b-4e20-9075-b40af1c63f3b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Business Partner"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;#,##0.00#-">
+				<reportElement mode="Opaque" x="422" y="0" width="68" height="20" forecolor="#000000" backcolor="#F2F0F0" uuid="22439ae5-73bd-45b0-816b-b2278aff5203">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Recovery Average"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="286" y="0" width="68" height="20" forecolor="#000000" backcolor="#F2F0F0" uuid="8af49eca-c508-4e64-a159-82b858d18473">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Second Last Month"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="354" y="0" width="68" height="20" forecolor="#000000" backcolor="#F2F0F0" uuid="14f7cf0a-9514-4ab7-993e-15b62dcee940">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Third Last Month"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="218" y="0" width="68" height="20" forecolor="#000000" backcolor="#F2F0F0" uuid="8d1317a0-1312-4ab7-86ac-b761451cf960"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Last Month"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;#,##0.00#-">
+				<reportElement mode="Opaque" x="490" y="0" width="68" height="20" forecolor="#000000" backcolor="#F2F0F0" uuid="d181cad6-9462-4a5b-9381-a05385516f39"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Orders Total"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="150" y="0" width="68" height="20" forecolor="#000000" backcolor="#F2F0F0" uuid="539fea4c-fec8-4681-a643-a92e1f288998"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Curr Month"]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+</jasperReport>

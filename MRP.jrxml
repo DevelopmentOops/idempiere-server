@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="MRP" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ab1a4447-0949-4f5c-a425-03b4632a90e0">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.1" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.2" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.ignore.graphics" value="false"/>
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="net.sf.jasperreports.exports.xls.font.size.fix.enabled" value="false"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="EndDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT a.*, raw_code, raw_name, a.productionqty*BOMQty rawqty, c.qtyonhand, COALESCE(d.order_qty, 0) order_qty
+
+FROM 
+
+(SELECT mrp.m_product_id, pd.value fg_code, pd.name fg_name, SUM(mrp.productionqty) productionqty
+
+FROM adempiere.m_productionplan_mrp mrp
+LEFT JOIN adempiere.m_product pd ON mrp.m_product_id = pd.m_product_id
+
+WHERE 	mrp.ad_client_id = $P{AD_Client_ID}
+				AND ($P!{AD_Org_ID} IS NULL OR mrp.ad_org_id = $P!{AD_Org_ID}) 
+				AND ($P!{M_Product_ID} IS NULL OR mrp.m_product_id = $P!{M_Product_ID})
+				AND mrp.productiondate BETWEEN $P{StartDate} AND $P{EndDate}
+				AND mrp.isactive = 'Y' AND mrp.processed = 'N'
+
+GROUP BY mrp.m_product_id, pd.value, pd.name) a
+
+LEFT JOIN
+
+(SELECT bm.m_product_id, pd.value raw_code, pd.name raw_name, bm.bomqty, bm.m_productbom_id
+
+FROM adempiere.M_Product_BOM bm
+LEFT JOIN adempiere.m_product pd ON bm.m_productbom_id = pd.m_product_id) b
+
+ON a.m_product_id = b.m_product_id
+
+LEFT JOIN
+
+
+( SELECT m_product_id, SUM(st.qtyonhand) qtyonhand
+
+FROM adempiere.m_storageonhand st
+
+GROUP BY m_product_id ) c
+
+ON b.m_productbom_id = c.m_product_id
+
+LEFT JOIN 
+
+(
+	Select ol.m_product_id,SUM(qtyentered-qtydelivered) order_qty
+from adempiere.c_orderline ol 
+join adempiere.c_order o ON ol.c_order_id = o.c_order_id
+where o.issotrx = 'N'
+group by ol.m_product_id
+	
+) d
+ON b.m_productbom_id = d.m_product_id]]>
+	</queryString>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="fg_code" class="java.lang.String"/>
+	<field name="fg_name" class="java.lang.String"/>
+	<field name="productionqty" class="java.math.BigDecimal"/>
+	<field name="raw_code" class="java.lang.String"/>
+	<field name="raw_name" class="java.lang.String"/>
+	<field name="rawqty" class="java.math.BigDecimal"/>
+	<field name="qtyonhand" class="java.math.BigDecimal"/>
+	<field name="order_qty" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="75" height="20" uuid="f4921667-9801-43db-9eae-4fde69534fb4">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FG Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="75" y="0" width="126" height="20" uuid="27a7dfdf-2652-40b4-a4e0-ca37098d5295"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FG Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="201" y="0" width="75" height="20" uuid="99a812c8-398f-48c2-84ba-6cfcf2dbb460">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Plan Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="276" y="0" width="75" height="20" uuid="e3146741-cf9e-4540-8785-fc761f9c9ecf"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[RM Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="351" y="0" width="150" height="20" uuid="5dceb766-7b5a-4bf9-b04b-ba5926ddad2e"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[RM Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="501" y="0" width="75" height="20" uuid="2caacb4d-d696-42ca-9160-7ec5c11abdc4"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Required Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="576" y="0" width="75" height="20" uuid="9bbe547e-d731-4802-9902-3c458debdb43"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[OH]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="726" y="0" width="75" height="20" uuid="92906f78-683f-4ea6-a567-b7ddaed78afa">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Re-Order Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="651" y="0" width="75" height="20" uuid="df9a3dbb-25a1-4ac6-950e-7ad251967da0"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[OTB]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="75" height="20" uuid="90059fdc-5ef1-43d6-89b3-44db2c848003">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fg_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="75" y="0" width="126" height="20" uuid="1bc03a74-3965-417f-9837-21583aea224a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fg_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="201" y="0" width="75" height="20" uuid="fbe07625-1dfa-4708-b922-4e8c1602a137"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{productionqty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="276" y="0" width="75" height="20" uuid="f7c506c4-7142-4e27-beea-00608159543b"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{raw_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="351" y="0" width="150" height="20" uuid="687e021a-027e-4cb9-a4b8-4a3c2caed7db"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{raw_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="501" y="0" width="75" height="20" uuid="49bb83cc-c8db-42d5-8bcf-66e78b686b40"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rawqty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="576" y="0" width="75" height="20" uuid="15c0a20f-0b1e-4e4d-b1af-a8b3f14adfaf"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{qtyonhand}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="726" y="0" width="75" height="20" uuid="8c9b5387-4bd5-43af-b8ab-6f31d67d29d3">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{qtyonhand}.doubleValue() + $F{order_qty}.doubleValue()) - $F{rawqty}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="651" y="0" width="75" height="20" uuid="a52c095b-f43c-4a7d-9638-54beae45c20b"/>
+				<box topPadding="2" leftPadding="3" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{order_qty}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

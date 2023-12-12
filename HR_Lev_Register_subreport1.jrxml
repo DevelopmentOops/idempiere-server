@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HR_Lev_Register_subreport1" pageWidth="555" pageHeight="802" columnWidth="555" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="a3fb31c4-0e0d-4190-8dc3-3b892805f853">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="idempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="C_Year_ID" class="java.lang.Integer"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT *
+, ((COALESCE(open_bal, 0) + COALESCE(total,0)) - (COALESCE(vavailed, 0) + COALESCE(inqued, 0) + COALESCE(encashed, 0) + COALESCE(adjusted,0))) as balanced
+FROM (
+SELECT lp.hr_emplev_bal_id, lp.open_bal, lp.total, lp.availed, lp.inqued, lp.encashed, lp.adjusted, lp.c_bpartner_id, lt.hr_levtypes_id, lt.value alias, lt.name leavedesc, lt.description, lt.isbalanced, lt.ischkbal, lt.isdeducted, lt.unittype, lt.attbalwd, lt.att_levtype_id, lt.maxleaves
+, ((COALESCE(lp.open_bal, 0) + COALESCE(lp.total,0)) - (COALESCE(lp.availed, 0) + COALESCE(lp.inqued, 0) + COALESCE(lp.encashed, 0) + COALESCE(lp.adjusted,0))) as balance
+, (SELECT name FROM adempiere.c_bpartner WHERE c_bpartner_id = lp.c_bpartner_id) as partnername
+, (SELECT 'Leave Balance For The Year <b> ' || fiscalyear || '</b>' FROM adempiere.c_year WHERE c_year_id = lp.c_year_id) as yearshow
+, 0 as prorata
+, COALESCE((SELECT SUM(nduration) FROM adempiere.hr_emplev_posting WHERE c_bpartner_id = lp.c_bpartner_id AND c_year_id = lp.c_year_id AND hr_levtypes_id = lt.hr_levtypes_id),0) 
++ COALESCE((SELECT SUM(nduration) FROM adempiere.hr_emplev_posting WHERE c_bpartner_id = lp.c_bpartner_id AND c_year_id = lp.c_year_id AND hr_levtypes_id IN (SELECT hr_levtypes_id FROM adempiere.hr_levtypes WHERE att_levtype_id = lt.hr_levtypes_id)),0) 
++ COALESCE(lp.availed, 0) as vavailed
+FROM adempiere.hr_emplev_bal lp
+   , adempiere.hr_levtypes lt
+WHERE lt.ad_client_id   = lp.ad_client_id
+  AND lp.hr_levtypes_id = lt.hr_levtypes_id
+  AND lp.c_bpartner_id  = $P{C_BPartner_ID}
+  AND lp.c_year_id      = $P{C_Year_ID}
+) a]]>
+	</queryString>
+	<field name="hr_emplev_bal_id" class="java.math.BigDecimal"/>
+	<field name="open_bal" class="java.math.BigDecimal"/>
+	<field name="total" class="java.math.BigDecimal"/>
+	<field name="availed" class="java.math.BigDecimal"/>
+	<field name="inqued" class="java.math.BigDecimal"/>
+	<field name="encashed" class="java.math.BigDecimal"/>
+	<field name="adjusted" class="java.math.BigDecimal"/>
+	<field name="c_bpartner_id" class="java.math.BigDecimal"/>
+	<field name="hr_levtypes_id" class="java.math.BigDecimal"/>
+	<field name="alias" class="java.lang.String"/>
+	<field name="leavedesc" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="isbalanced" class="java.lang.String"/>
+	<field name="ischkbal" class="java.lang.String"/>
+	<field name="isdeducted" class="java.lang.String"/>
+	<field name="unittype" class="java.lang.String"/>
+	<field name="attbalwd" class="java.lang.String"/>
+	<field name="att_levtype_id" class="java.math.BigDecimal"/>
+	<field name="maxleaves" class="java.math.BigDecimal"/>
+	<field name="balance" class="java.math.BigDecimal"/>
+	<field name="partnername" class="java.lang.String"/>
+	<field name="yearshow" class="java.lang.String"/>
+	<field name="prorata" class="java.lang.Integer"/>
+	<field name="vavailed" class="java.math.BigDecimal"/>
+	<field name="balanced" class="java.math.BigDecimal"/>
+	<group name="c_bpartner_id">
+		<groupExpression><![CDATA[$F{c_bpartner_id}]]></groupExpression>
+		<groupHeader>
+			<band height="60">
+				<rectangle>
+					<reportElement mode="Transparent" x="0" y="0" width="555" height="60" uuid="2f29850a-73c1-4fe5-a999-654de0bada16"/>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</rectangle>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="0" width="555" height="18" uuid="d78fc3ba-a5df-40c2-8363-3bc445adef13"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+						<font size="9" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{yearshow}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement x="0" y="18" width="555" height="18" uuid="d2cf11d2-02e9-4772-a4de-0708efc0775d"/>
+					<box>
+						<topPen lineWidth="0.5"/>
+						<bottomPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{partnername}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="0" y="36" width="214" height="24" uuid="6bc099ea-5dc0-4422-86fd-230482123d9b"/>
+					<box leftPadding="3">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Leave
+Description]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="214" y="36" width="40" height="24" uuid="1bc27f88-26d4-4988-b0f2-095a4fc6c630"/>
+					<box leftPadding="3">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Leave
+Alias]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="254" y="36" width="43" height="24" uuid="119dbc84-3575-4189-bfff-f2fceb49a0b6"/>
+					<box leftPadding="3">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Opening
+Balance]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="297" y="36" width="43" height="24" uuid="14577948-9a75-4e44-b90b-edca265e85db"/>
+					<box leftPadding="3">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total
+Alloted]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="340" y="36" width="43" height="24" uuid="748418f4-e269-43c0-a053-748b96b23d1d"/>
+					<box leftPadding="3">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Advanced
+Availed]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="383" y="36" width="43" height="24" uuid="07ec9a6f-8bf3-43f1-b095-08ec4326eaa1"/>
+					<box leftPadding="3">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[
+Availed]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="426" y="36" width="43" height="24" uuid="90edbb4e-d752-414b-9a4d-249ae96db427"/>
+					<box leftPadding="3">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[
+In-Qued]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="469" y="36" width="43" height="24" uuid="0da85ea9-89cf-4162-8b93-d975767096ff"/>
+					<box leftPadding="3">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[
+En-Cashed]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="512" y="36" width="43" height="24" uuid="d2eaec73-9545-4545-99ac-e41d0e470250"/>
+					<box leftPadding="3"/>
+					<textElement verticalAlignment="Middle">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<text><![CDATA[
+Balanced]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
+	<detail>
+		<band height="16" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<rectangle>
+				<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="0" y="0" width="555" height="16" uuid="a7db335d-8161-4ffa-9d11-8402527906db"/>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</rectangle>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="214" height="16" uuid="56092312-b85d-43df-a41f-f7a2a69a3973"/>
+				<box leftPadding="3">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{leavedesc}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="214" y="0" width="40" height="16" uuid="e424c047-504e-4b6b-813d-88c3efa55a5a"/>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{alias}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="297" y="0" width="43" height="16" uuid="78b82ef3-17b3-48e7-b36b-634f207184c9"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="340" y="0" width="43" height="16" uuid="e8f0d1d8-5c02-43b5-93d2-362fb71ad5a8"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{adjusted}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="383" y="0" width="43" height="16" uuid="6a3870a5-4377-40c6-962f-c458dee887cc"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vavailed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="426" y="0" width="43" height="16" uuid="d5d8419f-4084-4deb-9aa3-104322a5c061"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inqued}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="469" y="0" width="43" height="16" uuid="588f5476-7c09-4e62-9496-f24c4cf789f0"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{encashed}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="###0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="512" y="0" width="43" height="16" uuid="d9b79c21-53a2-4ce8-9de2-ad1eb4045204"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{balanced}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="254" y="0" width="43" height="16" uuid="327f7770-30ce-499b-b86a-38cae0279e65"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_bal}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

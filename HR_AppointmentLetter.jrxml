@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HR_AppointmentLetter" language="groovy" pageWidth="595" pageHeight="842" columnWidth="515" leftMargin="40" rightMargin="40" topMargin="20" bottomMargin="20" uuid="79fee785-aa2d-4d86-b05e-520525de632b">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT * 
+, SUBSTRING(showdate1, 1, LENGTH(showdate1) - 5) as showdate2 , RIGHT(showdate1, 4) as showdate3
+FROM (
+SELECT * 
+, LENGTH(showdate)
+, REPLACE(REPLACE(REPLACE(REPLACE(showdate, 'nd', '<sup>nd</sup>'), 'th', '<sup>th</sup>'), 'rd', '<sup>rd</sup>'), 'st', '<sup>st</sup>') as showdate1
+FROM (SELECT empcode, empname, father_name, cnicno, hr_department_id
+, CASE WHEN gender_detail = 'Female' THEN 'Ms. ' ELSE 'Mr. ' END MrTitle
+, CASE WHEN gender_detail = 'Female' THEN 'D/O | W/O ' ELSE 'S/O ' END DrTitle
+, COALESCE((SELECT COALESCE(address1, '') || COALESCE(', '||address2,'') || COALESCE(', '||address3,'') || COALESCE(', '||address4,'') || COALESCE(', '||address5,'') || COALESCE(', '||city,'') FROM adempiere.c_location WHERE c_location_id = (SELECT c_location_id FROM adempiere.c_bpartner_location WHERE c_bpartner_id = emp.c_bpartner_id)),'') empaddress
+, designation, startdate, now()::date as printerdate
+, to_char(startdate, 'FMMonth FMDDth, YYYY')	as showdate
+, ad_client_id, ad_org_id
+FROM adempiere.xxhr_employee_v emp
+WHERE c_bpartner_id = $P{C_BPartner_ID}
+) q
+	) r]]>
+	</queryString>
+	<field name="empcode" class="java.lang.String"/>
+	<field name="empname" class="java.lang.String"/>
+	<field name="father_name" class="java.lang.String"/>
+	<field name="cnicno" class="java.lang.String"/>
+	<field name="hr_department_id" class="java.math.BigDecimal"/>
+	<field name="mrtitle" class="java.lang.String"/>
+	<field name="drtitle" class="java.lang.String"/>
+	<field name="empaddress" class="java.lang.String"/>
+	<field name="designation" class="java.lang.String"/>
+	<field name="startdate" class="java.sql.Timestamp"/>
+	<field name="printerdate" class="java.sql.Date"/>
+	<field name="showdate" class="java.lang.String"/>
+	<field name="ad_client_id" class="java.math.BigDecimal"/>
+	<field name="ad_org_id" class="java.math.BigDecimal"/>
+	<field name="length" class="java.lang.Integer"/>
+	<field name="showdate1" class="java.lang.String"/>
+	<field name="showdate2" class="java.lang.String"/>
+	<field name="showdate3" class="java.lang.String"/>
+	<group name="employeegrp">
+		<groupExpression><![CDATA[$F{empcode}]]></groupExpression>
+		<groupHeader>
+			<band height="167">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle">
+					<reportElement x="5" y="5" width="100" height="80" uuid="c99089fe-35a7-461a-9edd-a955132446b1">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<imageExpression><![CDATA[(new File("C:\\idempiere-server\\reports\\logo\\" + $F{ad_org_id} + ".jpg").isFile() ? "C:\\idempiere-server\\reports\\logo\\" + $F{ad_org_id} + ".jpg" : "C:\\idempiere-server\\reports\\logo\\default.jpg" )]]></imageExpression>
+				</image>
+				<textField>
+					<reportElement x="5" y="107" width="375" height="20" uuid="fca787e1-0a5d-4b96-a5e9-9a84c531559a"/>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="12" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["<b>" + $F{mrtitle} + " " + $F{empname} + "</b>"]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="5" y="127" width="375" height="20" uuid="6e2e5720-8e9e-4cda-a0a1-41c515128725"/>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="12" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["<b>" + $F{drtitle} + " " + $F{father_name} + "</b>"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToBandHeight" x="5" y="147" width="375" height="20" uuid="11330541-4fe8-4167-953b-ded9f6dbc0a4">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="12" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["<b> Address : " + $F{empaddress} + "</b>"]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="360" y="107" width="155" height="20" uuid="57c19450-a220-4297-a288-19521b2bb94b">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Date : " + new StringBuilder(new SimpleDateFormat("dd-MM-yyyy").format($F{printerdate})) + ""]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="5" y="87" width="375" height="20" uuid="b27a4bf7-964c-4794-ad8b-3012d338b11a"/>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="12" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["<b>"+"Emp. ID : "+ $F{empcode}+"</b>"]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="110">
+				<textField>
+					<reportElement x="5" y="0" width="375" height="20" uuid="4202632b-1a5c-4277-b93f-656b6e8f6f67"/>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="12" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["<b>CNIC No. " + $F{cnicno} + "</b>"]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="25" width="515" height="20" uuid="36608c4f-eebb-43f1-9276-eb00b3e1c64f">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+						<font size="10" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["APPOINTMENT LETTER"]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="50" width="515" height="30" uuid="0f723ba8-cb7a-4d9c-842b-be969c69037f">
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["With reference to your application and subsequent interviews, we are pleased to appoint you as <b>" + "&#8220;" + $F{designation} + "&#8221;" + "</b> your joining date is <b>"  + $F{showdate} + " </b> on a compensation package as per agreement."]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="90" width="515" height="20" uuid="5ef0a9db-a9c0-49f0-b763-ccbd969268fd">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Your appointment is subject to the following terms and conditions : -"]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="30">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="35" y="5" width="480" height="20" uuid="c5908675-54d4-474e-a93d-aafa4ad5faf3">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["You will be on probation for a period of 3-6 months from the date of your joining. Thereafter, if your services are found satisfactory, you will be confirmed in writing. If found necessary, probation period may be extended at the discretion of the management or may be dispensed with earlier either during the probation or the extended period of probation. Unless confirmed in writing, you will be deemed as probation even after the expiry of the Three months or the extended period of probation.  After confirmation, one-month notice or payment in lieu thereof shall apply from either side."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="5" y="5" width="30" height="20" uuid="384f606a-030a-4584-b319-6a0e20ae9b89">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["1."]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="30">
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="35" y="5" width="480" height="20" uuid="21201771-66d7-41cb-aab0-c382bd54cae3">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["The company reserves the right to transfer your services to any of its sister concerns or at any of their Mill located anywhere in Pakistan."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="5" y="5" width="30" height="20" uuid="7e92ae35-b03a-4a29-a014-e3c4f8222263">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["2."]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="30" splitType="Stretch">
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="35" y="5" width="480" height="20" uuid="e5bdc643-c84f-4862-a01b-f3ef2e4150f8">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["The Company reserves the right to change your duties and assign new job as may deem expedient to the management."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="5" y="5" width="30" height="20" uuid="33c6870d-4eb0-4b24-9ed5-82b1e0dd1359">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["3."]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="30">
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="35" y="5" width="480" height="20" uuid="427499c4-6d48-41d8-931f-5b5ae56a2a55">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Compensation & Benefits will be provided as per company policy."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="5" y="5" width="30" height="20" uuid="1d423b1d-2c60-4d73-a3b8-26542052550f">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["4."]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="30">
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="35" y="5" width="480" height="20" uuid="7d62ee0e-c6f0-4e08-9a53-b47269097869">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{hr_department_id} == 1000006? "In case of termination/resignation you are not eligible for company yearly bonus." : "During the course of your employment with the Company you are not allowed to conduct or take part in any part time employment."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="5" y="5" width="30" height="20" uuid="4413b97c-db1a-46c5-90d2-9fe5340d5d79">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["5."]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="30">
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="35" y="5" width="480" height="20" uuid="30722aba-3c07-4785-a24e-53130ff27352">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["You will be personally responsible for all materials and other valuables which come under your control during the course of your duties and you are bound to indemnify the Company for any loss or damage to such property due to your negligence."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="5" y="5" width="30" height="20" uuid="d7b149f5-ed4b-4723-8d0a-7bbb34464c76">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["6."]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="30">
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="35" y="5" width="480" height="20" uuid="c8c3de32-3890-46b3-b24e-394100578f5f">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["You will abide by the rules and regulations of the company in force and as introduced and / or amended from time to time. The interpretation of rules is at the sole discretion of the management."]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement stretchType="RelativeToBandHeight" x="5" y="5" width="30" height="20" uuid="65c5d9d1-944d-4a29-90b1-c0b44d3e667a">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Top" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["7."]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="30">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="0" y="5" width="515" height="20" uuid="759b5274-7aee-434e-bfe6-47f4e3347b16">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Justified" verticalAlignment="Middle" markup="html">
+						<font size="11" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Should the afore-mentioned terms and conditions be acceptable to you, please sign on the duplicate copy of this letter as token of your acceptance."]]></textFieldExpression>
+				</textField>
+			</band>
+			<band height="144">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<line>
+					<reportElement x="0" y="5" width="515" height="1" uuid="1fc9a1f0-4361-42ae-aebe-c6c961c53ff6">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+				</line>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="0" y="50" width="130" height="20" uuid="22555d65-cce9-4355-b4d5-a223f2a33dff">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{mrtitle} + " " + $F{empname}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="195" y="50" width="130" height="20" uuid="81fc896c-31d0-45bc-ae22-2c2f4af83cf1">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Signature"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="385" y="50" width="130" height="20" uuid="97dc43b2-6375-471b-a4fd-e9015d5fdb4f">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Date"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="0" y="110" width="130" height="20" uuid="30449a85-9ebc-45dc-bb99-28380e0f4fa3">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Sr. Officer HR & Payroll"]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement x="385" y="110" width="130" height="20" uuid="bf17a486-e409-447f-87af-f6c730be2190">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["HR & Admin Manager"]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band>
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			</band>
+		</groupFooter>
+	</group>
+	<detail>
+		<band splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+		</band>
+	</detail>
+</jasperReport>

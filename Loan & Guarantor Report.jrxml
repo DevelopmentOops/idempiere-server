@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Loan &amp; Guarantor Report" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="dce7a911-e782-48ca-a852-ca91338b662a">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<parameter name="HR_EmpLocation_ID" class="java.lang.Integer"/>
+	<parameter name="Report_Type" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<queryString>
+		<![CDATA[select (trim(bp.value))::integer guranteed_for_code,bp.name guranteed_for, bp2.name g1_name,bp3.name g2_name, bp4.name g3_name,
+lonv.loanamount, lonv.amtrecvd,lonv.datestarts issuence_date,inv.documentno invoice_no,lonv.loanamount loanamouunt
+from adempiere.c_invoice inv
+LEFT JOIN adempiere.c_bpartner bp ON inv.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.hr_employee emp ON bp.c_bpartner_id = emp.c_bpartner_id
+LEFT JOIN adempiere.c_bpartner bp2 ON inv.c_loan_guarantor_id= bp2.c_bpartner_id
+LEFT JOIN adempiere.c_bpartner bp3 ON inv.c_loan_guarantor2_id = bp3.c_bpartner_id
+LEFT JOIN adempiere.c_bpartner bp4 ON inv.c_loan_guarantor3_id = bp3.c_bpartner_id
+LEFT JOIN adempiere.xxloanview lonv ON inv.c_bpartner_id = lonv.c_bpartner_id
+LEFT JOIN adempiere.c_invoiceline invl ON lonv.c_invoiceline_id = invl.c_invoiceline_id
+
+where c_doctype_id IN (1000047,1000057) and
+--(c_loan_guarantor_id is not null or c_loan_guarantor2_id is not null or c_loan_guarantor3_id is not null )
+ ($P!{C_BPartner_ID} is null or bp.c_bpartner_id = $P!{C_BPartner_ID} )
+and ($P!{AD_Org_ID} is null or bp.ad_org_id = $P!{AD_Org_ID} )
+and bp.ad_client_id = $P{AD_Client_ID}
+and ( $P!{HR_EmpLocation_ID} is null or emp.HR_EmpLocation_ID = $P!{HR_EmpLocation_ID}  )
+ AND (CASE WHEN $P{Report_Type} = 'Active' THEN emp.enddate IS NULL  WHEN $P{Report_Type} = 'In-Active'  THEN emp.enddate IS NOT NULL ELSE (emp.enddate is null or emp.enddate is not null) END)
+order by guranteed_for_code]]>
+	</queryString>
+	<field name="guranteed_for_code" class="java.lang.Integer"/>
+	<field name="guranteed_for" class="java.lang.String"/>
+	<field name="g1_name" class="java.lang.String"/>
+	<field name="g2_name" class="java.lang.String"/>
+	<field name="g3_name" class="java.lang.String"/>
+	<field name="loanamount" class="java.math.BigDecimal"/>
+	<field name="amtrecvd" class="java.math.BigDecimal"/>
+	<field name="issuence_date" class="java.sql.Timestamp"/>
+	<field name="invoice_no" class="java.lang.String"/>
+	<field name="loanamouunt" class="java.math.BigDecimal"/>
+	<title>
+		<band height="60" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="802" height="30" uuid="c851e033-7ae9-4098-8bbc-09891357fa78"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[LOAN GUARANTORS]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="25">
+			<staticText>
+				<reportElement mode="Opaque" x="90" y="-10" width="130" height="35" backcolor="#F2F2F2" uuid="2715a017-c9de-4885-99b3-908895881d80">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Emp Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="-10" width="70" height="35" backcolor="#F2F2F2" uuid="642d9710-1e9b-4e03-94e4-c0e5a498b713">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DUE AMOUNT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="220" y="-10" width="70" height="35" backcolor="#F2F2F2" uuid="8ae0dab0-8d6d-419e-a355-ebf291df01cc">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Loan Amountt]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="30" y="-10" width="60" height="35" backcolor="#F2F2F2" uuid="dbf44c4a-7f89-4b8f-9181-7fe644dbc350">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Emp Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="712" y="-10" width="90" height="35" backcolor="#F2F2F2" uuid="eca5c1c8-b681-4a66-982e-4f8709f91d6a">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Guarantor#3]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="528" y="-10" width="92" height="35" backcolor="#F2F2F2" uuid="7afdb00c-64bd-4740-b471-02f65a7d1cf6">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Guarantor#1]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="620" y="-10" width="92" height="35" backcolor="#F2F2F2" uuid="ae737ccf-db03-4f79-848a-c67df98d7eb9">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Guarantor#2]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="360" y="-10" width="100" height="35" backcolor="#F2F2F2" uuid="c625d86a-84f0-4cf3-89a0-e7dea0250c0e">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Invoice#]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="460" y="-10" width="68" height="35" backcolor="#F2F2F2" uuid="7b0d1757-ba0a-44f6-a804-0ca3edc9e83b">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Issuence date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="-10" width="30" height="35" backcolor="#F2F2F2" uuid="64077833-ccf7-4eef-87e6-ecbdc766173f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sr.#]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="90" y="0" width="130" height="20" uuid="24200fc3-b728-4df4-b42e-e602c889e697"/>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{guranteed_for}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="220" y="0" width="70" height="20" uuid="f9195b35-d6a0-4707-8e5d-fa18c3bcc9c2"/>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{loanamount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="290" y="0" width="70" height="20" uuid="c960a8ff-9cdd-4af0-ab91-4290c1793c9b"/>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{loanamount}.doubleValue() - $F{amtrecvd}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="528" y="0" width="92" height="20" uuid="e9b40f7d-07fc-4fa4-be48-01564fa80c8e">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{g1_name} !=null ? $F{g1_name} : " "]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="620" y="0" width="92" height="20" uuid="1f1b979e-69f3-458f-8026-5e9d4f0bdca8"/>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{g2_name}!=null ? $F{g2_name} :" "]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="712" y="0" width="90" height="20" uuid="b2181ebb-7950-4bdc-8d3c-0de4d4dc9502">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{g3_name}!=null ? $F{g3_name}:" "]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="30" y="0" width="60" height="20" uuid="52f59118-d2a1-4f2b-9776-e558b736e33d"/>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{guranteed_for_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="360" y="0" width="100" height="20" uuid="8cd8d836-ba2f-449b-88ff-6a2b4b29dc26">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{invoice_no}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="MMM d, yyyy" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="460" y="0" width="68" height="20" uuid="69c74da3-0324-4e10-a6e2-6a0a048e802c">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{issuence_date}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="30" height="20" uuid="c12c219e-b753-4e3f-bfe1-16a10f2a6ea9"/>
+				<box padding="2">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

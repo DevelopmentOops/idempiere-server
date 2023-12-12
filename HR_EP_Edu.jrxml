@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HR_EP_Edu" language="groovy" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="79ef1e3b-ed35-4e56-a5b5-cab4140d5677">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Blesso Idempiere"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT 1::numeric  as recordnumber, $P{C_BPartner_ID} as c_bpartner_id, null::character varying DegreeTitle, null::character varying institute_name, null::double precision passing_year 
+UNION ALL SELECT 2::numeric  as recordnumber, $P{C_BPartner_ID} as c_bpartner_id, null::character varying DegreeTitle, null::character varying institute_name, null::double precision passing_year 
+UNION ALL SELECT 3::numeric  as recordnumber, $P{C_BPartner_ID} as c_bpartner_id, null::character varying DegreeTitle, null::character varying institute_name, null::double precision passing_year 
+UNION ALL SELECT 4::numeric  as recordnumber, $P{C_BPartner_ID} as c_bpartner_id, null::character varying DegreeTitle, null::character varying institute_name, null::double precision passing_year 
+UNION ALL SELECT 5::numeric  as recordnumber, $P{C_BPartner_ID} as c_bpartner_id, null::character varying DegreeTitle, null::character varying institute_name, null::double precision passing_year]]>
+	</queryString>
+	<field name="recordnumber" class="java.math.BigDecimal"/>
+	<field name="c_bpartner_id" class="java.lang.Integer"/>
+	<field name="degreetitle" class="java.lang.String"/>
+	<field name="institute_name" class="java.lang.String"/>
+	<field name="passing_year" class="java.lang.Double"/>
+	<pageHeader>
+		<band height="50" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="30" uuid="cdc5d495-351f-464c-8b56-1f4aad1a1555">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box leftPadding="5"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Academic Qualification]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="30" width="40" height="20" uuid="06c8f6f5-9a88-4f44-a7c1-3760dde4f0ec">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Sr # "]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="40" y="30" width="241" height="20" uuid="3e6cb6c7-9efa-41b3-8221-1ebc714f2bab">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Degree / Diploma / Certificate"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="281" y="30" width="189" height="20" uuid="eb720b03-af69-4326-be3c-e512f78dc29b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Institute / University"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="470" y="30" width="85" height="20" uuid="a72bffff-fb32-4945-8e74-78fb43a18b9b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Passing Year"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="21" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="40" height="20" uuid="1208b26a-9826-421d-b92f-da1867ae893d">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{recordnumber}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="20" width="555" height="1" uuid="eac98ce8-cbfa-42ee-ba75-ff824e51f718">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+</jasperReport>

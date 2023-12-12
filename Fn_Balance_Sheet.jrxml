@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Fn_Balance_Sheet" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="fbb18c3f-f972-464f-b97a-94d85ab13514">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="AsOn" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select a.*, 
+(select name org_name from adempiere.ad_org where ad_org_id = $P{AD_Org_ID}),
+(select name client_name from adempiere.ad_client where ad_client_id = $P{AD_Client_ID})
+from
+
+--CAPITAL AND RESERVES-----------------------------------------------------------------------------------------------------------------
+(
+	SELECT 0 groupby,0 master_grp,'Capital and Reserves' header_name, elv2.value, elv2.name acc_name, SUM(fa.amtacctcr-fa.amtacctdr) amount_cur
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_elementvalue elv2 ON elvl.second_level = elv2.c_elementvalue_id
+
+WHERE fa.ad_client_id = $P{AD_Client_ID}  AND fa.ad_org_id = $P{AD_Org_ID} AND fa.dateacct <= $P{AsOn} AND  elvl.fourth_level = 1000162 
+
+GROUP BY elv2.value, elv2.name
+
+UNION ALL
+
+--Profit and Loss--------------------------------------------------------------------------------------------------------------------------------------
+
+SELECT 0 groupby,0 master_grp,'Capital and Reserves' header_name, '1-002-100-999' as value, 'Profit/Loss' as acc_name, SUM(fa.amtacctcr-fa.amtacctdr) amount_cur
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_elementvalue elv2 ON elvl.second_level = elv2.c_elementvalue_id
+
+WHERE fa.ad_client_id = $P{AD_Client_ID}  AND fa.ad_org_id = $P{AD_Org_ID} AND fa.dateacct <= $P{AsOn} AND  elvl.fourth_level IN (1000280, 1000288, 1000340, 1000497)
+
+UNION ALL
+
+--Non-Current-LIABILITIES--------------------------------------------------------------------------------------------------------------------
+ SELECT 1 groupby,0 master_grp,'Non-Current Liabilities' header_name, elv2.value, elv2.name acc_name,SUM(fa.amtacctcr-fa.amtacctdr) amount_cur
+
+FROM adempiere.fact_acct fa
+
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_elementvalue elv2 ON elvl.second_level = elv2.c_elementvalue_id
+WHERE fa.ad_client_id = $P{AD_Client_ID}  AND fa.ad_org_id = $P{AD_Org_ID} AND fa.dateacct <= $P{AsOn} AND  elvl.third_level =1000172
+GROUP BY elv2.value, elv2.name
+UNION ALL
+--Current LIABILITIES--------------------------------------------------------------------------------------------------------------------
+ SELECT 2 groupby,0 master_grp,'Current Liabilities' header_name, elv2.value, elv2.name acc_name,SUM(fa.amtacctcr-fa.amtacctdr) amount_cur
+
+FROM adempiere.fact_acct fa
+
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_elementvalue elv2 ON elvl.second_level = elv2.c_elementvalue_id
+WHERE fa.ad_client_id = $P{AD_Client_ID}  AND fa.ad_org_id = $P{AD_Org_ID} AND fa.dateacct <= $P{AsOn} AND  elvl.third_level =1000173
+GROUP BY elv2.value, elv2.name
+
+UNION ALL
+--NON-CURRENT ASSETS----------------------------------------------------------------------------------------------------
+ SELECT 3 groupby,1 master_grp,'Non_Current Assets' header_name, elv2.value, elv2.name acc_name, SUM(fa.amtacctdr-fa.amtacctcr) amount_cur
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_elementvalue elv2 ON elvl.second_level = elv2.c_elementvalue_id
+WHERE fa.ad_client_id = $P{AD_Client_ID}  AND fa.ad_org_id = $P{AD_Org_ID} AND fa.dateacct <= $P{AsOn} AND  elvl.fourth_level = 1000192  
+
+GROUP BY elv2.value, elv2.name
+
+UNION ALL
+--CURRENT ASSETS------------------------------------------------------------------------------------------------------------
+ SELECT 4 groupby,1 master_grp,'Current Assets' header_name, elv2.value, elv2.name acc_name,SUM(fa.amtacctdr-fa.amtacctcr) amount_cur
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_elementvalue elv2 ON elvl.second_level = elv2.c_elementvalue_id
+
+WHERE fa.ad_client_id = $P{AD_Client_ID}  AND fa.ad_org_id = $P{AD_Org_ID} AND fa.dateacct <= $P{AsOn} AND  elvl.fourth_level = 1000228  
+
+GROUP BY master_grp, elv2.value, elv2.name
+
+ORDER BY groupby, value
+) a
+
+
+]]>
+	</queryString>
+	<field name="groupby" class="java.lang.Integer"/>
+	<field name="master_grp" class="java.lang.Integer"/>
+	<field name="header_name" class="java.lang.String"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="acc_name" class="java.lang.String"/>
+	<field name="amount_cur" class="java.math.BigDecimal"/>
+	<field name="org_name" class="java.lang.String"/>
+	<field name="client_name" class="java.lang.String"/>
+	<variable name="master_sum" class="java.math.BigDecimal" resetType="Group" resetGroup="master_grp" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount_cur}]]></variableExpression>
+	</variable>
+	<variable name="header_sum" class="java.math.BigDecimal" resetType="Group" resetGroup="header_grp" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount_cur}]]></variableExpression>
+	</variable>
+	<group name="master_grp">
+		<groupExpression><![CDATA[$F{master_grp}]]></groupExpression>
+		<groupFooter>
+			<band height="46">
+				<textField pattern="#,##0.00#;(#,##0.00#)">
+					<reportElement mode="Opaque" x="380" y="13" width="175" height="25" forecolor="#030303" backcolor="#F0F0F0" uuid="877da02b-b684-40d7-b66a-343783a6fc6d">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{master_sum}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="0" y="13" width="380" height="25" forecolor="#030303" backcolor="#F0F0F0" uuid="768f6c83-1cf3-4df9-a920-c175393872f3"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font fontName="SansSerif" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{master_grp}==0 ? "Total Equity and Liabilities": "Total Assets"]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="header_grp">
+		<groupExpression><![CDATA[$F{header_name}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<textField>
+					<reportElement mode="Transparent" x="0" y="0" width="555" height="20" forecolor="#030303" backcolor="#FFFFFF" uuid="7327cedb-04af-4613-ae9a-65303c448f3d">
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{header_name}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="37">
+				<textField pattern="#,##0.00#;(#,##0.00#)">
+					<reportElement mode="Transparent" x="380" y="17" width="175" height="20" forecolor="#030303" backcolor="#FFFFFF" uuid="a4a77997-4abd-4ceb-9187-ccc72d6c35ef"/>
+					<box padding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{header_sum}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Transparent" x="0" y="17" width="380" height="20" forecolor="#030303" backcolor="#FFFFFF" uuid="d4b95432-c47a-4bed-bc96-ad1017a0877c"/>
+					<box>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Left" verticalAlignment="Middle">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<title>
+		<band height="105" splitType="Stretch">
+			<textField>
+				<reportElement mode="Transparent" x="0" y="0" width="556" height="35" forecolor="#000000" backcolor="#FFFFFF" uuid="b01165f6-c15f-47a9-bda3-ec8552973f84">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Balance Sheet"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="0" y="55" width="555" height="20" uuid="0303bcaa-fce1-475c-ad49-48ae1719d672">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box padding="0">
+					<pen lineWidth="0.25" lineColor="#7D7D7D"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["AsOn "+ new StringBuilder(new SimpleDateFormat("d-MM-yyyy").format($P{AsOn})) ]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="0" y="35" width="555" height="20" uuid="aaa11d35-e809-4379-94f2-fec4693fdf8e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box padding="0">
+					<pen lineWidth="0.25" lineColor="#7D7D7D"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{client_name} + " [ " + ($F{org_name} != null?$F{org_name}:"All Businesses") + " ]"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="20">
+			<textField>
+				<reportElement mode="Transparent" x="0" y="0" width="380" height="20" forecolor="#030303" backcolor="#FFFFFF" uuid="e273408e-6997-4ebe-8a51-49726b74f727"/>
+				<box leftPadding="20">
+					<pen lineWidth="0.1"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{acc_name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement mode="Transparent" x="380" y="0" width="175" height="20" forecolor="#030303" backcolor="#FFFFFF" uuid="af338006-67ca-4e7d-9141-08ba469dd1fb"/>
+				<box>
+					<pen lineWidth="0.1"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amount_cur}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

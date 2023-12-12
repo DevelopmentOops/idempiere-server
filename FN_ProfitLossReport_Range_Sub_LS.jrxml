@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FN_ProfitLossReport_Sub" language="groovy" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="722c7656-5b68-4d34-969e-61b0bdf6365d">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Timestamp"/>
+	<parameter name="EndDate" class="java.sql.Timestamp"/>
+	<queryString>
+		<![CDATA[SELECT *,
+			(SELECT orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE org.ad_org_id  = $P{AD_Org_ID} )org),
+			(SELECT clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl WHERE cl.ad_client_id = $P{AD_Client_ID} )cl)
+			
+
+FROM
+
+
+(SELECT 1 order_by, value, account_name, SUM(amt_cur) amt_cur
+	
+FROM 
+	
+(SELECT third_level, elv.value, elv.name account_name, SUM(amtacctcr-amtacctdr) amt_cur
+	
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+	
+	WHERE fa.ad_client_id = $P{AD_Client_ID} AND  ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})   AND fa.dateacct between $P{StartDate} and $P{EndDate} AND fourth_level IN (1000166)
+	
+	GROUP BY third_level, elv.value, elv.name
+) d
+
+GROUP BY value, account_name
+
+UNION ALL
+
+SELECT 2 order_by, value, account_name, SUM(amt_cur) amt_cur
+	
+FROM 
+	
+(SELECT third_level, elv.value, elv.name account_name, SUM(amtacctdr-amtacctcr) amt_cur
+	
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+	
+	WHERE fa.ad_client_id = $P{AD_Client_ID} AND  ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID}) AND fa.dateacct between $P{StartDate} and $P{EndDate} AND fourth_level IN (1000171)
+	
+	GROUP BY third_level, elv.value, elv.name
+	
+	) d
+
+GROUP BY value, account_name
+
+UNION ALL
+
+SELECT 3 order_by, value, account_name, SUM(amt_cur) amt_cur
+	
+FROM 
+	
+(SELECT third_level, elv.value, elv.name account_name, SUM(amtacctdr-amtacctcr) amt_cur
+	
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+	
+	WHERE fa.ad_client_id = $P{AD_Client_ID} AND  ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID}) AND fa.dateacct between $P{StartDate} and $P{EndDate} AND fourth_level IN (1000225)
+	
+	GROUP BY third_level, elv.value, elv.name
+	
+	) d
+
+GROUP BY value, account_name
+
+UNION ALL
+
+SELECT 4 order_by, value, account_name, SUM(amt_cur) amt_cur
+	
+FROM 
+	
+(SELECT third_level, elv.value, elv.name account_name, SUM(amtacctdr-amtacctcr) amt_cur
+	
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.third_level
+	LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+	
+	WHERE fa.ad_client_id = $P{AD_Client_ID} AND  ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID}) AND fa.dateacct between $P{StartDate} and $P{EndDate}  AND second_level IN (1000098)
+	
+	GROUP BY third_level, elv.value, elv.name
+	
+) d
+
+GROUP BY value, account_name
+	
+)d
+
+ORDER BY order_by, value]]>
+	</queryString>
+	<field name="order_by" class="java.lang.Integer"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="account_name" class="java.lang.String"/>
+	<field name="amt_cur" class="java.math.BigDecimal"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<variable name="amt_cur_total_g" class="java.math.BigDecimal" resetType="Group" resetGroup="order_by" calculation="Sum">
+		<variableExpression><![CDATA[$F{amt_cur}]]></variableExpression>
+	</variable>
+	<group name="order_by">
+		<groupExpression><![CDATA[$F{order_by}]]></groupExpression>
+		<groupHeader>
+			<band height="30">
+				<textField>
+					<reportElement x="0" y="0" width="405" height="30" uuid="5b28c2c1-9895-42e7-9371-c008ccedc590"/>
+					<box padding="3"/>
+					<textElement verticalAlignment="Middle">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Note: " + $F{order_by}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="405" y="0" width="175" height="30" uuid="5c0e947e-88f3-4c9b-9089-dfcc30df59bf"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="195" y="0" width="120" height="30" uuid="343536ab-0557-43bf-bd5d-de80e8615955"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="315" y="0" width="90" height="30" uuid="68a059bf-f273-4f90-9ebd-6b63ebe4ee79"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle"/>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="30">
+				<textField pattern="#,##0.00#;(#,##0.00#)">
+					<reportElement x="405" y="0" width="175" height="30" uuid="f2169784-c346-4ab3-b315-9d41981caa94"/>
+					<box padding="3"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="11" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{amt_cur_total_g}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="405" height="30" uuid="7cf8fa95-ecd8-4d4d-bed0-97db88a12e95"/>
+				<box padding="3">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Notes Detail"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="405" y="0" width="175" height="30" uuid="06bd3a6f-7668-4bec-95ea-4c91c445371e"/>
+				<box>
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="1.0"/>
+					<bottomPen lineWidth="1.0"/>
+					<rightPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="405" height="20" uuid="0522c549-d708-4744-83be-be34a6496e7b">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="7afeb82d-11e3-4b4e-b485-4fc99353fb6e"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{account_name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement x="405" y="0" width="175" height="20" uuid="4e767ab4-00a4-4a72-9c8c-7aecbfb4f471">
+					<property name="com.jaspersoft.studio.spreadsheet.connectionID" value="b071cc8f-dd8e-4a09-8d66-1ba24f0f2455"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{amt_cur}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

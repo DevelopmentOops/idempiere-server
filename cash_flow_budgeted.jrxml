@@ -1,0 +1,1173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="cash_flow_budgeted" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="3072caba-a524-4038-b0ca-e5da16759b77">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="575"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="411"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_Period_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[select 	a.c_period_id,SUM(a.open_bank) open_bank, SUM(a.open_cash) open_cash,SUM(a.inflow_bank) inflow_bank, SUM(a.inflow_cash) inflow_cash, SUM(a.vendor_bank) vendor_bank,
+			 	SUM(a.vendor_cash) vendor_cash , SUM(a.opex_fop) opex_fop
+				---------------------------------------------------------------------------------Actuals Below
+				,SUM(a.open_bank_actual) open_bank_actual
+				,SUM(a.open_cash_actual) open_cash_actual
+				,SUM(a.inflow_bank_actual) inflow_bank_actual
+				,SUM(a.inflow_cash_actual) inflow_cash_actual
+				,SUM(a.vendor_bank_actual) vendor_bank_actual
+				,SUM(a.vendor_cash_actual) vendor_cash_actual
+				,SUM(a.opex_fop_actual) opex_fop_actual
+				,SUM(a.other_inflow) other_inflow_actual
+				,SUM(a.other_outflow) other_outflow_actual
+				,(select name from adempiere.c_period pe where c_period_id = $P{C_Period_ID}) as period_name,
+		(SELECT (org.orgname) orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE CAST(org.ad_org_id as integer) = CAST($P{AD_Org_ID} as integer))org),
+		(SELECT (cl.clientname) clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl WHERE CAST(cl.ad_client_id as integer) = CAST($P{AD_Client_ID} as integer))cl)
+		
+from
+(
+
+-------------------opening bank Budget
+select c_period_id, amount open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+from adempiere.GL_Budget_IDLogix gl
+where  C_Period_ID=$P{C_Period_ID} and gl.ad_client_id = $P{AD_Client_ID} and ($P{AD_Org_ID} is null or gl.ad_org_id = $P{AD_Org_ID}) and User2_ID  = 1000670 and C_ElementValue_ID = 1000676
+
+UNION ALL
+
+-------------------opening cash Budget
+select c_period_id, 0 open_bank, amount open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+from adempiere.GL_Budget_IDLogix gl
+where  C_Period_ID=$P{C_Period_ID} and gl.ad_client_id = $P{AD_Client_ID} and ($P{AD_Org_ID} is null or gl.ad_org_id = $P{AD_Org_ID}) and User2_ID  = 1000670 and C_ElementValue_ID = 1000515
+
+UNION ALL
+
+---------------INFLOW Bank Budget
+
+select c_period_id,0 open_bank, 0 open_cash, amount inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+from adempiere.GL_Budget_IDLogix gl
+where  C_Period_ID=$P{C_Period_ID} and gl.ad_client_id = $P{AD_Client_ID} and ($P{AD_Org_ID} is null or gl.ad_org_id = $P{AD_Org_ID}) and User2_ID  IN (1000672)
+
+
+UNION ALL
+
+---------------INFLOW Cash Budget
+
+select c_period_id,0 open_bank, 0 open_cash, 0 inflow_bank, amount inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+from adempiere.GL_Budget_IDLogix gl
+where  C_Period_ID=$P{C_Period_ID} and gl.ad_client_id = $P{AD_Client_ID} and ($P{AD_Org_ID} is null or gl.ad_org_id = $P{AD_Org_ID}) and User2_ID  IN (1000671)
+
+
+UNION ALL
+----------------------Bank Payment Vendors Budget
+
+select c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, amount  vendor_bank, 0  vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+from adempiere.GL_Budget_IDLogix gl
+where  C_Period_ID=$P{C_Period_ID} and gl.ad_client_id = $P{AD_Client_ID} and ($P{AD_Org_ID} is null or gl.ad_org_id = $P{AD_Org_ID}) and User2_ID  = 1000673 and C_ElementValue_ID = 1000676
+
+UNION ALL
+----------------------Cash Payment Vendors Budget
+
+select c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0  vendor_bank, amount vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+from adempiere.GL_Budget_IDLogix gl
+where  C_Period_ID=$P{C_Period_ID} and gl.ad_client_id = $P{AD_Client_ID} and ($P{AD_Org_ID} is null or gl.ad_org_id = $P{AD_Org_ID}) and User2_ID  = 1000673 and C_ElementValue_ID = 1000515 
+
+UNION ALL
+----------- OPEX FOP Budget
+
+select c_period_id,0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , amount opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+from adempiere.GL_Budget_IDLogix gl
+where  C_Period_ID=$P{C_Period_ID} and gl.ad_client_id = $P{AD_Client_ID} and ($P{AD_Org_ID} is null or gl.ad_org_id = $P{AD_Org_ID}) and User2_ID  = 1000674
+
+
+UNION ALL
+
+-------------------opening bank Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, sum(fa.amtacctdr-fa.amtacctcr) open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+
+WHERE fa.ad_client_id =   $P{AD_Client_ID}  AND fa.ad_org_id =  $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000233, 1000259, 1000544) AND fa.account_id != 1000523
+		AND fa.c_period_id <   $P{C_Period_ID} 
+
+
+UNION ALL
+
+-------------------opening cash Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, sum(fa.amtacctdr-fa.amtacctcr) open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_bankaccount ba ON elv.c_bankaccount_id = ba.c_bankaccount_id
+
+WHERE fa.ad_client_id = $P{AD_Org_ID}  AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 
+		AND fa.c_period_id <   $P{C_Period_ID}
+
+
+UNION ALL
+
+-------------------Bank Inflow Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, sum(fa.amtacctdr) inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND fa.ad_table_id = 335
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id = $P{AD_Org_ID}  AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000544) AND p.docstatus IN ('CO', 'CL') --AND bp.c_bp_group_id IN (1000001, 1000007)
+		AND fa.c_period_id =   $P{C_Period_ID} AND fa.User2_ID  IN (1000672)
+		
+
+UNION ALL
+
+-------------------Cash Inflow Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, sum(fa.amtacctdr) inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =   $P{AD_Client_ID}  AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus) IN ('CO', 'CL') --AND bp.c_bp_group_id IN (1000001, 1000007)
+		AND fa.c_period_id =   $P{C_Period_ID} AND fa.User2_ID  IN (1000671)
+		
+
+UNION ALL
+
+-------------------Bank Outflow Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, sum(fa.amtacctcr) vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND fa.ad_table_id = 335
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000544)  AND p.docstatus IN ('CO', 'CL') --AND bp.c_bp_group_id IN (1000004, 1000005, 1000006)
+		AND fa.c_period_id =   $P{C_Period_ID} AND fa.User2_ID  IN (1000673)
+		
+
+UNION ALL
+
+-------------------Cash Outflow Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, sum(fa.amtacctcr) vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335 
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224 
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus)  IN ('CO', 'CL') --AND bp.c_bp_group_id IN (1000004, 1000005, 1000006)
+		AND fa.c_period_id =   $P{C_Period_ID} AND fa.User2_ID  IN (1000673)
+
+UNION ALL
+
+------------------------------ OPEX FOP Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , sum(opex_fop_actual) opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+FROM 
+
+( ------------------------------ OPEX FOP Cash
+	select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , sum(fa.amtacctcr) opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335 
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224 
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus)  IN ('CO', 'CL') --AND bp.c_bp_group_id NOT IN (1000004, 1000005, 1000006)
+		AND fa.c_period_id =   $P{C_Period_ID}  AND fa.User2_id = 1000674
+		
+UNION ALL
+
+------------------------------ OPEX FOP Bank
+	select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , sum(fa.amtacctcr) opex_fop_actual, 0 other_inflow, 0 other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND fa.ad_table_id = 335
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000544)  AND p.docstatus IN ('CO', 'CL') --AND bp.c_bp_group_id NOT IN (1000004, 1000005, 1000006)
+		AND fa.c_period_id =   $P{C_Period_ID}  AND fa.User2_id = 1000674
+
+) d
+
+----------------- Other In-flow & Out-flow
+
+UNION ALL
+
+------------------------------ Other In-flow Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, SUM(other_inflow) other_inflow, 0 other_outflow
+
+FROM 
+
+( ------------------------------ Other In-flow Cash
+	select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, sum(fa.amtacctdr) other_inflow, 0 other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335 
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224 
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus)  IN ('CO', 'CL') --AND bp.c_bp_group_id NOT IN (1000004, 1000005, 1000006)
+		AND fa.c_period_id =   $P{C_Period_ID}   AND fa.User2_id = 1000678
+		
+UNION ALL
+
+------------------------------ Other In-flow Bank
+	select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, sum(fa.amtacctdr) other_inflow, 0 other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND fa.ad_table_id = 335
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000544)  AND p.docstatus IN ('CO', 'CL') --AND bp.c_bp_group_id NOT IN (1000004, 1000005, 1000006)
+		AND fa.c_period_id =   $P{C_Period_ID}  AND fa.User2_id = 1000678
+
+) d
+
+
+UNION ALL
+
+------------------------------ Other Out-flow Actual
+select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, SUM(other_outflow) other_outflow
+
+FROM 
+
+( ------------------------------ Other Out-flow Cash
+	select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, sum(fa.amtacctcr) other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335 
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224 
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus)  IN ('CO', 'CL') --AND bp.c_bp_group_id NOT IN (1000004, 1000005, 1000006)
+		AND fa.c_period_id =   $P{C_Period_ID}   AND fa.User2_id = 1000679
+		
+UNION ALL
+
+------------------------------ Other Out-flow Bank
+	select $P{C_Period_ID} c_period_id, 0 open_bank, 0 open_cash, 0 inflow_bank, 0 inflow_cash, 0 vendor_bank, 0 vendor_cash , 0 opex_fop
+			, 0 open_bank_actual, 0 open_cash_actual, 0 inflow_bank_actual, 0 inflow_cash_actual, 0 vendor_bank_actual, 0 vendor_cash_actual , 0 opex_fop_actual, 0 other_inflow, sum(fa.amtacctcr) other_outflow
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND fa.ad_table_id = 335
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000544)  AND p.docstatus IN ('CO', 'CL') --AND bp.c_bp_group_id NOT IN (1000004, 1000005, 1000006)
+		AND fa.c_period_id =   $P{C_Period_ID}  AND fa.User2_id = 1000679
+
+) d
+		
+) a 
+	
+group by a.c_period_id]]>
+	</queryString>
+	<field name="c_period_id" class="java.math.BigDecimal"/>
+	<field name="open_bank" class="java.math.BigDecimal"/>
+	<field name="open_cash" class="java.math.BigDecimal"/>
+	<field name="inflow_bank" class="java.math.BigDecimal"/>
+	<field name="inflow_cash" class="java.math.BigDecimal"/>
+	<field name="vendor_bank" class="java.math.BigDecimal"/>
+	<field name="vendor_cash" class="java.math.BigDecimal"/>
+	<field name="opex_fop" class="java.math.BigDecimal"/>
+	<field name="open_bank_actual" class="java.math.BigDecimal"/>
+	<field name="open_cash_actual" class="java.math.BigDecimal"/>
+	<field name="inflow_bank_actual" class="java.math.BigDecimal"/>
+	<field name="inflow_cash_actual" class="java.math.BigDecimal"/>
+	<field name="vendor_bank_actual" class="java.math.BigDecimal"/>
+	<field name="vendor_cash_actual" class="java.math.BigDecimal"/>
+	<field name="opex_fop_actual" class="java.math.BigDecimal"/>
+	<field name="other_inflow_actual" class="java.math.BigDecimal"/>
+	<field name="other_outflow_actual" class="java.math.BigDecimal"/>
+	<field name="period_name" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="671" splitType="Stretch">
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="125" width="110" height="20" uuid="ade308de-12b1-47b0-b109-125f5c88cbff">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_bank_actual}.doubleValue() - $F{open_bank}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="145" width="110" height="20" uuid="2f0fc6dd-dedd-4e6e-adc0-93fc072ed26b"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<topPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_cash_actual}.doubleValue() - $F{open_cash}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="305" width="110" height="20" uuid="cfaef275-916a-469b-aafe-b96e8412f16f">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(($F{open_bank_actual}.doubleValue() + $F{open_cash_actual}.doubleValue()) + ($F{inflow_bank_actual}.doubleValue()+$F{inflow_cash_actual}.doubleValue())) -(($F{open_bank}.doubleValue() + $F{open_cash}.doubleValue()) + ($F{inflow_bank}.doubleValue()+$F{inflow_cash}.doubleValue()))]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="165" width="110" height="20" uuid="ae4fe92d-4ef9-4903-9420-cff01608733f"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<topPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{open_bank_actual}.doubleValue() + $F{open_cash_actual}.doubleValue()) - ($F{open_bank}.doubleValue() + $F{open_cash}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="125" width="119" height="20" uuid="aa08865d-b058-4cb2-b03e-b39e5bac593f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Bank Balance"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="145" width="119" height="20" uuid="84a3e250-0875-4f52-b244-43e47a412548"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Cash Balance"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="165" width="119" height="20" uuid="325f2f27-6d29-4f78-89f1-9e10a2346d2e"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total Opening"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="265" width="110" height="20" uuid="c3f4b70b-dfe3-42f1-a972-15b80583c1e4"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{inflow_bank_actual}.doubleValue()+$F{inflow_cash_actual}.doubleValue()) - ($F{inflow_bank}.doubleValue()+$F{inflow_cash}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="265" width="119" height="20" uuid="5af001ab-d7fa-40cd-b12e-c296cef098b4"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total Inflow"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="225" width="119" height="20" uuid="3e960a44-a5a8-4f36-a3c5-09299c14f772"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Bank Inflow"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="245" width="119" height="20" uuid="336da8ad-da50-45cb-b72e-c2fb61d6d783">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Cash Inflow"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="225" width="110" height="20" uuid="197f697f-9eaf-47e6-8728-fbd10f65425e"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inflow_bank_actual}.doubleValue() - $F{inflow_bank}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="245" width="110" height="20" uuid="0576c873-4508-4635-8535-888db2abad88"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inflow_cash_actual}.doubleValue() - $F{inflow_cash}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="517" width="110" height="20" uuid="ed29dbb1-de31-4e65-b4f5-c5e57cd86a6b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{vendor_bank_actual}.doubleValue() + $F{vendor_cash_actual}.doubleValue()) - ($F{vendor_bank}.doubleValue() + $F{vendor_cash}.doubleValue()) + ($F{opex_fop_actual}.doubleValue() - $F{opex_fop}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="517" width="119" height="20" uuid="733265c2-4cac-413f-847f-d6aa1b21f47b"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total Outflow"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="477" width="119" height="20" uuid="8f2dee64-721e-489f-b7f0-d159bb0ee68d"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Vendor Payments"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="497" width="119" height="20" uuid="7f7f8c77-c055-4721-9b44-f4cfc7aee4ea"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["OPEX / FOP"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="477" width="110" height="20" uuid="0835a90d-1d8e-4cef-8787-3bd02aec44ec"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{vendor_bank_actual}.doubleValue() - $F{vendor_bank}.doubleValue()) + ($F{vendor_cash_actual}.doubleValue() - $F{vendor_cash}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="497" width="110" height="20" uuid="09b23e6e-492f-46fa-b089-16eb9dc21d68"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{opex_fop_actual}.doubleValue() - $F{opex_fop}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="50" y="0" width="449" height="20" forecolor="#000000" backcolor="rgba(255, 255, 255, 0.972549)" uuid="e3c0a78e-f966-4911-82a4-219a2b6a218d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname} + " [ " +  ($F{orgname}!=null?$F{orgname}:"All Businesses") + " ]"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="305" width="119" height="20" uuid="aa06af08-9407-4f6e-af0c-88f81d0c1a73">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Available for use"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="105" width="119" height="20" uuid="b175a9cc-b7b4-423f-81d8-f474d3cd654b"/>
+				<box padding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["OPENING BALANCES"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="205" width="119" height="20" uuid="73de37e7-de69-46ed-8f2e-cffd17e35f8a"/>
+				<box padding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["INFLOW ACTIVITIES"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="453" width="119" height="20" uuid="bba37fab-0f5c-44cd-9305-b06f3ac893cb"/>
+				<box padding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["OUTFLOW ACTIVITIES"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="50" y="559" width="119" height="20" backcolor="#F7F7F7" uuid="27d4cb4e-7482-4329-a3c6-a283da340f5c"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["NET - MONTH END"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement mode="Opaque" x="389" y="559" width="110" height="20" backcolor="#F7F7F7" uuid="f2e22d3d-48c6-4213-ab93-eae5f4466902">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[(((($F{open_bank_actual}.doubleValue() + $F{open_cash_actual}.doubleValue()) + ($F{inflow_bank_actual}.doubleValue()+$F{inflow_cash_actual}.doubleValue())) - ($F{vendor_bank_actual}.doubleValue() + $F{vendor_cash_actual}.doubleValue())) - $F{opex_fop_actual}.doubleValue()) - (((($F{open_bank}.doubleValue() + $F{open_cash}.doubleValue()) + ($F{inflow_bank}.doubleValue()+$F{inflow_cash}.doubleValue())) - ($F{vendor_bank}.doubleValue() + $F{vendor_cash}.doubleValue())) - $F{opex_fop}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="125" width="110" height="20" uuid="51bb9ca1-f625-4644-8738-25548fd18245">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_bank}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="145" width="110" height="20" uuid="ea0f98b2-3f68-4640-b3a2-4fe9d2bcf661"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<topPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_cash}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="165" width="110" height="20" uuid="cbea0ebf-5fd0-4274-b17e-8da06950a660"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<topPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_bank}.doubleValue() + $F{open_cash}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="225" width="110" height="20" uuid="bb6a54e8-08c6-45d2-954d-e98a43bbdab9"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inflow_bank}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="245" width="110" height="20" uuid="bc727f31-72a1-40de-92fe-94693681f7f5"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inflow_cash}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="265" width="110" height="20" uuid="aeef918f-7998-4748-b1c7-0be4770bb99e"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inflow_bank}.doubleValue()+$F{inflow_cash}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="305" width="110" height="20" uuid="ae664df8-c062-4bfc-aab8-69aed0277fb0"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{open_bank}.doubleValue() + $F{open_cash}.doubleValue()) + ($F{inflow_bank}.doubleValue()+$F{inflow_cash}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="517" width="110" height="20" uuid="eefd4fc4-95a0-45b1-9b74-60aeb2701522"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vendor_bank}.doubleValue() + $F{vendor_cash}.doubleValue() + $F{opex_fop}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="497" width="110" height="20" uuid="7855863e-7c03-4609-aa39-d7884c995e00"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{opex_fop}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement mode="Opaque" x="279" y="559" width="110" height="20" backcolor="#F7F7F7" uuid="2f8de1eb-6f35-40e4-89f4-bda41d42c9a9">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[((($F{open_bank}.doubleValue() + $F{open_cash}.doubleValue()) + ($F{inflow_bank}.doubleValue()+$F{inflow_cash}.doubleValue())) - ($F{vendor_bank}.doubleValue() + $F{vendor_cash}.doubleValue())) - $F{opex_fop}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="477" width="110" height="20" uuid="c6d1d4a6-5044-411e-a2f5-9919188eefbc"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vendor_bank}.doubleValue() + $F{vendor_cash}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="169" y="125" width="110" height="20" uuid="193ab3b0-8ed4-4056-82a2-7b8cc7137a2f"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_bank_actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="169" y="145" width="110" height="20" uuid="77ef9739-19b6-4375-ad0d-94c4f1e53a67"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<topPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_cash_actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="169" y="165" width="110" height="20" uuid="9c441c2e-ef0d-4af6-a24a-831ed801246c"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+					<topPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.2" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_bank_actual}.doubleValue() + $F{open_cash_actual}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="169" y="225" width="110" height="20" uuid="3ed0d89c-ec53-48b6-81d6-8b81299200c1"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inflow_bank_actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="169" y="245" width="110" height="20" uuid="c6e826e1-6391-432a-a679-4fd82cb3c1e1"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inflow_cash_actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="169" y="265" width="110" height="20" uuid="aed68087-b5e0-4019-a8ab-b44f8aefb30c"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inflow_bank_actual}.doubleValue()+$F{inflow_cash_actual}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="169" y="305" width="110" height="20" uuid="90e796c4-62a2-4c9e-b304-45af1504a0af"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{open_bank_actual}.doubleValue() + $F{open_cash_actual}.doubleValue()) + ($F{inflow_bank_actual}.doubleValue()+$F{inflow_cash_actual}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="170" y="477" width="109" height="20" uuid="3c492c6c-9af4-41bb-9e35-fe3dc2a29bb6"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vendor_bank_actual}.doubleValue() + $F{vendor_cash_actual}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="170" y="497" width="109" height="20" uuid="e8828a2c-0295-40d9-aeff-012dde081773"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{opex_fop_actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="170" y="517" width="109" height="20" uuid="85ef30f0-1330-4432-bbb1-e5f3a32c4748"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vendor_bank_actual}.doubleValue() + $F{vendor_cash_actual}.doubleValue() + $F{opex_fop_actual}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement mode="Opaque" x="170" y="559" width="109" height="20" backcolor="#F7F7F7" uuid="0acf9012-ea0d-412b-8a0e-6cd084bbed87">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[((($F{open_bank_actual}.doubleValue() + $F{open_cash_actual}.doubleValue()) + ($F{inflow_bank_actual}.doubleValue()+$F{inflow_cash_actual}.doubleValue())) - ($F{vendor_bank_actual}.doubleValue() + $F{vendor_cash_actual}.doubleValue())) - $F{opex_fop_actual}.doubleValue() + ($F{other_inflow_actual}.doubleValue() - $F{other_outflow_actual}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="389" y="105" width="110" height="20" uuid="4c0d6b2c-a5cd-4335-84be-53c4c0020b86"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Variance"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="279" y="105" width="110" height="20" uuid="57f1e25f-a378-488a-ab1d-4d52ebc54402"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Budgeted Values"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="169" y="105" width="110" height="20" uuid="afacb1f5-4dc4-4669-af8c-0f99e71444cf">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Actual Values"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="53" y="47" width="449" height="20" forecolor="#000000" backcolor="rgba(255, 255, 255, 0.972549)" uuid="256d8b36-e2b5-4214-85d1-a1c3ed743f3a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["( For the Period of : " + $F{period_name} + " )"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="50" y="20" width="449" height="27" forecolor="#000000" backcolor="rgba(255, 255, 255, 0.972549)" uuid="f5eb86af-af4f-4e41-9aa4-9afadd6a2916">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["BUDGETD VS ACTUAL OF CASH FLOWS"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="414" width="110" height="20" uuid="9d126335-5efc-4c47-aacd-d1810eb8313d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["0"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="414" width="119" height="20" uuid="a89f7d83-593d-4049-bfb0-a83d4761a0e8"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total Outflow"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="374" width="119" height="20" uuid="5464c04a-a901-4677-8372-df66f52a9c3b"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Other Inflow"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="394" width="119" height="20" uuid="f957bdf8-57b0-43af-b093-743c978fb4fc"/>
+				<box topPadding="0" leftPadding="21" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Other Outflow"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="374" width="110" height="20" uuid="d49b7550-b643-4d22-a57c-bd870254e907"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["0"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="389" y="394" width="110" height="20" uuid="3b9e88e9-cfac-434c-b582-ef676d4603c9"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["0"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="50" y="350" width="119" height="20" uuid="d0943c07-3361-43f7-a2fb-81e0beb32d00"/>
+				<box padding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["OTHER ACTIVITIES"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="414" width="110" height="20" uuid="f667f36d-f106-4de0-b91e-22e5a4e13891"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["0"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="394" width="110" height="20" uuid="68d66701-22d0-4603-9c28-8522ef1fef46"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["0"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="279" y="374" width="110" height="20" uuid="f8798c83-c51d-4ae2-9a41-1734efd22867"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA["0"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="170" y="374" width="109" height="20" uuid="fddbfe20-5c44-4f6b-b0ec-0ef509a9f4b0"/>
+				<box padding="2">
+					<topPen lineWidth="0.25"/>
+					<leftPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{other_inflow_actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="170" y="394" width="109" height="20" uuid="1ee2be5b-daf6-4df9-b928-906b01a438e1"/>
+				<box padding="2">
+					<leftPen lineWidth="0.25"/>
+					<bottomPen lineWidth="0.25"/>
+					<rightPen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{other_outflow_actual}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="170" y="414" width="109" height="20" uuid="69f745e5-f716-4092-a951-67b4cdda94b9"/>
+				<box padding="2">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{other_inflow_actual}.doubleValue() - $F{other_outflow_actual}.doubleValue()]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+</jasperReport>

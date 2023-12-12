@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="production_cost" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="52bec2b8-da9b-4795-b201-47a49568bf70">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.1" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.2" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.ignore.graphics" value="false"/>
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="net.sf.jasperreports.exports.xls.font.size.fix.enabled" value="false"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<parameter name="M_Product_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT	bm.bom_prodcode, bm.bom_prodname, bm.bomqty, ct.bom_costprice, bm.bm_uomsymbol,
+				(SELECT org.orgname orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE org.ad_org_id = $P{AD_Org_ID})org),
+				(SELECT cl.clientname clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl WHERE cl.ad_client_id =$P{AD_Client_ID})cl),
+				(SELECT pd.prodcode_header FROM (SELECT pd.value prodcode_header FROM adempiere.m_product pd WHERE pd.m_product_id =$P{M_Product_ID})pd),
+				(SELECT pd.prodname_header FROM (SELECT pd.name prodname_header FROM adempiere.m_product pd WHERE pd.m_product_id =$P{M_Product_ID})pd),
+				(SELECT um.uomsymbol FROM (SELECT uom.uomsymbol FROM adempiere.m_product pd LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id WHERE pd.m_product_id =$P{M_Product_ID} )um)
+
+FROM
+
+(SELECT bm.m_productbom_id, p.value bom_prodcode, p.name bom_prodname, bm.bomqty, uom.uomsymbol bm_uomsymbol
+
+FROM adempiere.m_product_bom bm
+LEFT JOIN adempiere.m_product p ON bm.m_productbom_id = p.m_product_id
+ LEFT JOIN adempiere.c_uom uom ON p.c_uom_id = uom.c_uom_id
+
+WHERE bm.ad_client_id = $P{AD_Client_ID}   AND bm.m_product_id =  $P{M_Product_ID} ) bm
+
+LEFT JOIN
+
+( SELECT st.m_product_id, (SUM(st.qtyonhand*ct.currentcostprice) / SUM(st.qtyonhand)) bom_costprice
+
+FROM adempiere.m_storage st
+LEFT JOIN adempiere.m_cost ct ON st.m_product_id = ct.m_product_id AND st.m_attributesetinstance_id = ct.m_attributesetinstance_id AND ct.m_costelement_id = 1000001
+
+WHERE ct.ad_client_id = $P{AD_Client_ID} AND ct.m_costelement_id = 1000001
+
+GROUP BY st.m_product_id
+HAVING SUM(st.qtyonhand) > 0) ct
+
+
+ON bm.m_productbom_id = ct.m_product_id]]>
+	</queryString>
+	<field name="bom_prodcode" class="java.lang.String"/>
+	<field name="bom_prodname" class="java.lang.String"/>
+	<field name="bomqty" class="java.math.BigDecimal"/>
+	<field name="bom_costprice" class="java.math.BigDecimal"/>
+	<field name="bm_uomsymbol" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="prodcode_header" class="java.lang.String"/>
+	<field name="prodname_header" class="java.lang.String"/>
+	<field name="uomsymbol" class="java.lang.String"/>
+	<variable name="amount_total" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{bomqty}.doubleValue() * $F{bom_costprice}.doubleValue()]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="210" splitType="Stretch">
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="400" y="124" width="80" height="20" uuid="844fb4d9-38b8-4146-aa39-387708ff22bb"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["1"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="124" width="90" height="20" uuid="1f460adf-6268-40a6-8fe5-9c9b164b7ba7"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prodcode_header}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="90" y="124" width="250" height="20" uuid="caa49b3d-a10c-4a02-b4a7-1bedb9d71e4c"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prodname_header}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="104" width="90" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="0c2364c9-7c97-4eb7-a626-9594b193cb9f">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3">
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FG Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="90" y="104" width="250" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="40493f0f-a57f-4fcb-a3a5-3b20064e6c16"/>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[FG Product Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="400" y="104" width="80" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="f43ee2f0-c0f9-4c20-850d-f7a716af3af2"/>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="480" y="104" width="75" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="d2bf8a38-a2ca-4b1e-8e96-787a580298c7">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Unit Cost]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="340" y="104" width="60" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="9b8f8b7e-2bf3-443b-b629-12d7b58990d5"/>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[UOM]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="340" y="124" width="60" height="20" uuid="85e00039-805c-4aa2-892d-6911d20688f2"/>
+				<box leftPadding="3" rightPadding="3">
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uomsymbol}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="190" width="90" height="20" forecolor="#FFFFFF" backcolor="#020DA6" uuid="452f7e21-70cf-4fef-abe5-a89c89475ed0">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3">
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[RM Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="90" y="190" width="200" height="20" forecolor="#FFFFFF" backcolor="#020DA6" uuid="c36b170e-1cc6-4e7a-869e-967a220ccbb8"/>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[RM Product Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="340" y="190" width="60" height="20" forecolor="#FFFFFF" backcolor="#020DA6" uuid="39cae457-2fc7-49aa-b707-61f987c1d3dc"/>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Qty Used]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="400" y="190" width="80" height="20" forecolor="#FFFFFF" backcolor="#020DA6" uuid="6202f826-0079-4158-97b7-8a011de00d60"/>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Cost Price]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="480" y="190" width="75" height="20" forecolor="#FFFFFF" backcolor="#020DA6" uuid="15f40769-28fa-44d3-9a99-f72b8ff7ac8f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="290" y="190" width="50" height="20" forecolor="#FFFFFF" backcolor="#020DA6" uuid="e3f22ca9-32b1-4871-9f10-75edc5351097"/>
+				<box>
+					<pen lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[UOM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="30" uuid="49acbce5-1905-4f5f-954e-1e3dc74ea766"/>
+				<box leftPadding="3" rightPadding="3"/>
+				<textElement verticalAlignment="Middle">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[BOM Cost Detail - Single Product]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement mode="Transparent" x="0" y="30" width="555" height="20" forecolor="#006F3A" uuid="25af2120-0dd8-4ba7-ad74-d01113eafc5f">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname} + " [ " + ($F{orgname} != null ? $F{orgname} : "For all Businesses") + " ]"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Auto" pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement x="480" y="124" width="74" height="20" uuid="2f0b7642-32df-4ce9-bc36-782e18db250f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.2"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{amount_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement mode="Transparent" x="0" y="50" width="555" height="45" forecolor="#000000" backcolor="#FFFFFF" uuid="2c71d84d-d2e9-4bce-b2b6-9b984da17271">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["This cost price of selected Finish Good is based on Average Cost of Raw Materials available in the system. But in actual cost of production may different as per utilization of Raw Materials as system is using FIFO Costing and purchase price may different for different lots."]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="160" width="555" height="30" forecolor="#05693A" uuid="a9306bfb-fe38-4b33-98d6-f88a1d27eb2f"/>
+				<box leftPadding="3" rightPadding="3"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["BOM Structure and Detail of Cost"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="90" height="20" uuid="ae22d89a-0332-4371-823f-068872301117">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bom_prodcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="90" y="0" width="200" height="20" uuid="f237ef45-29f9-423c-947b-4c6f3dd68713"/>
+				<box leftPadding="3" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bom_prodname}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement x="340" y="0" width="60" height="20" uuid="0bf68ea3-95d4-4180-b8a1-0d8832a7ba00"/>
+				<box leftPadding="3" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bomqty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement x="400" y="0" width="80" height="20" uuid="274199ec-5693-4886-8080-99e98db81315"/>
+				<box leftPadding="3" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bom_costprice}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement x="480" y="0" width="75" height="20" uuid="a94547ad-c09d-4ff3-a49f-cfdf4fb5a1fe"/>
+				<box leftPadding="3" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bomqty}.doubleValue() * $F{bom_costprice}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="290" y="0" width="50" height="20" uuid="b26e0aed-392a-416c-b9c0-97679b0e9d2a"/>
+				<box leftPadding="3" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bm_uomsymbol}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="30" splitType="Stretch">
+			<textField pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement x="480" y="0" width="75" height="30" uuid="47cab31c-6847-4b49-aa00-b6d702fa3fdb">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{amount_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="">
+				<reportElement x="400" y="0" width="80" height="30" uuid="e9c9eb32-7b5d-49a2-8448-32104bc243e0">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Total"]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

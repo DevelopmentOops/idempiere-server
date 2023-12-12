@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="product_ledger" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="3920fe6b-d99a-407e-bd74-63b9c0398d5f">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.1" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.2" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="net.sf.jasperreports.exports.xls.font.size.fix.enabled" value="false"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_Main_Category_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_Category_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_SubCategory_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_Group1_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_Group2_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_ID" class="java.lang.Integer"/>
+	<parameter name="M_Locator_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="EndDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT	a.m_product_id, value, name, catcode, catname, COALESCE(open_qty, 0) open_qty, 
+				COALESCE(cur_qty, 0) cur_qty, b.costprice,c.undelivered_qty,
+				(SELECT UPPER(org.orgname) orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE org.ad_org_id = $P{AD_Org_ID} )org),
+				(SELECT UPPER(cl.clientname) clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl WHERE cl.ad_client_id  = $P{AD_Client_ID})cl),
+				(SELECT UPPER(p.productname) productname FROM (SELECT p.name productname FROM adempiere.m_product p WHERE p.m_product_id = $P{M_Product_ID})p),
+				(SELECT UPPER(pc.categoryname) categoryname FROM (SELECT pc.name categoryname FROM adempiere.m_product_category pc WHERE pc.m_product_category_id = $P{M_Product_Category_ID} )pc),
+				(SELECT UPPER(pmc.main_categoryname) main_categoryname FROM (SELECT pmc.name main_categoryname FROM adempiere.m_product_main_category pmc WHERE pmc.m_product_main_category_id = $P{M_Product_Main_Category_ID} )pmc),
+				(SELECT loc.locator_name  FROM (SELECT loc.value locator_name FROM adempiere.m_locator loc WHERE loc.m_locator_id = $P{M_Locator_ID})loc)
+				
+FROM
+
+
+(SELECT	m_product_id, value, name, catcode, catname, SUM(open_qty) open_qty, 
+				SUM(cur_qty) cur_qty
+				
+
+FROM 
+
+(
+	SELECT tr.m_product_id, tr.value, tr.name, COALESCE(SUM(tr.movementqty),0) open_qty,0 cur_qty, pc.value catcode, pc.name catname
+
+FROM adempiere.rv_transaction tr
+LEFT JOIN adempiere.m_product_category pc ON tr.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.m_product p ON tr.m_product_id = p.m_product_id
+LEFT JOIN adempiere.M_Product_SubCategory ps ON p.M_Product_SubCategory_ID = ps.M_Product_SubCategory_ID
+LEFT JOIN adempiere.M_Product_Group1 pg1 ON p.M_Product_Group1_ID = pg1.M_Product_Group1_ID
+LEFT JOIN adempiere.M_Product_Group2 pg2 ON p.M_Product_Group2_ID = pg2.M_Product_Group2_ID
+
+WHERE tr.ad_client_id = $P{AD_Client_ID} AND ($P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})  AND tr.movementdate <$P{StartDate}
+ AND ($P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+ AND ($P!{M_Product_Category_ID} IS NULL OR tr.m_product_category_id = $P!{M_Product_Category_ID}) 
+  AND ($P!{M_Product_SubCategory_ID} IS NULL OR p.M_Product_SubCategory_ID = $P!{M_Product_SubCategory_ID})
+    AND ($P!{M_Product_Group1_ID} IS NULL OR p.M_Product_Group1_ID= $P!{M_Product_Group1_ID})
+        AND ($P!{M_Product_Group2_ID} IS NULL OR p.M_Product_Group2_ID= $P!{M_Product_Group2_ID})
+ AND ($P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})
+ AND p.isactive = 'Y'
+
+GROUP BY tr.m_product_id, tr.value, tr.name, pc.value, pc.name
+
+UNION ALL
+
+SELECT tr.m_product_id, tr.value, tr.name,0, COALESCE(SUM(tr.movementqty),0) cur_qty, pc.value catcode, pc.name catname 
+
+FROM adempiere.rv_transaction tr
+LEFT JOIN adempiere.m_product_category pc ON tr.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.m_product p ON tr.m_product_id = p.m_product_id
+LEFT JOIN adempiere.M_Product_SubCategory ps ON p.M_Product_SubCategory_ID = ps.M_Product_SubCategory_ID
+LEFT JOIN adempiere.M_Product_Group1 pg1 ON p.M_Product_Group1_ID = pg1.M_Product_Group1_ID
+LEFT JOIN adempiere.M_Product_Group2 pg2 ON p.M_Product_Group2_ID = pg2.M_Product_Group2_ID
+
+WHERE tr.ad_client_id = $P{AD_Client_ID} AND ($P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID}) 
+AND tr.movementdate BETWEEN $P{StartDate} AND $P{EndDate}
+AND ($P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+AND ($P!{M_Product_Category_ID} IS NULL OR tr.m_product_category_id = $P!{M_Product_Category_ID})
+  AND ($P!{M_Product_SubCategory_ID} IS NULL OR p.M_Product_SubCategory_ID = $P!{M_Product_SubCategory_ID})
+    AND ($P!{M_Product_Group1_ID} IS NULL OR p.M_Product_Group1_ID= $P!{M_Product_Group1_ID})
+        AND ($P!{M_Product_Group2_ID} IS NULL OR p.M_Product_Group2_ID= $P!{M_Product_Group2_ID})
+AND ($P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})
+AND p.isactive ='Y'
+
+GROUP BY tr.m_product_id, tr.value, tr.name, pc.value, pc.name
+
+) 
+as TotalLines
+
+GROUP BY m_product_id, value, name, catcode, catname
+ORDER BY catname, value) a
+
+LEFT JOIN 
+
+(SELECT st.m_product_id, (SUM(st.qtyonhand*ct.currentcostprice) / SUM(st.qtyonhand)) costprice
+
+FROM adempiere.m_storage st
+LEFT JOIN adempiere.m_cost ct ON st.m_product_id = ct.m_product_id AND st.m_attributesetinstance_id = ct.m_attributesetinstance_id AND ct.m_costelement_id = 1000003
+
+WHERE ct.ad_client_id = $P{AD_Client_ID} AND ct.m_costelement_id = 1000003
+
+GROUP BY st.m_product_id
+HAVING SUM(st.qtyonhand) > 0) b
+
+ON a.m_product_id = b.m_product_id
+
+LEFT JOIN 
+
+(
+	Select ol.m_product_id,SUM(qtyentered-qtydelivered) undelivered_qty
+from adempiere.c_orderline ol 
+join adempiere.c_order o ON ol.c_order_id = o.c_order_id
+where o.issotrx = 'N' AND o.dateordered  BETWEEN $P{StartDate} AND $P{EndDate}
+group by ol.m_product_id
+	
+) c
+ON a.m_product_id = c.m_product_id
+ORDER BY catcode, value]]>
+	</queryString>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="catcode" class="java.lang.String"/>
+	<field name="catname" class="java.lang.String"/>
+	<field name="open_qty" class="java.math.BigDecimal"/>
+	<field name="cur_qty" class="java.math.BigDecimal"/>
+	<field name="costprice" class="java.math.BigDecimal"/>
+	<field name="undelivered_qty" class="java.math.BigDecimal"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="productname" class="java.lang.String"/>
+	<field name="categoryname" class="java.lang.String"/>
+	<field name="main_categoryname" class="java.lang.String"/>
+	<field name="locator_name" class="java.lang.String"/>
+	<variable name="open_qty" class="java.math.BigDecimal" resetType="Group" resetGroup="product_category" calculation="Sum">
+		<variableExpression><![CDATA[$F{open_qty}]]></variableExpression>
+	</variable>
+	<variable name="cur_qty" class="java.math.BigDecimal" resetType="Group" resetGroup="product_category" calculation="Sum">
+		<variableExpression><![CDATA[$F{cur_qty}]]></variableExpression>
+	</variable>
+	<variable name="balance_qty" class="java.math.BigDecimal" resetType="Group" resetGroup="product_category" calculation="Sum">
+		<variableExpression><![CDATA[$F{open_qty}.doubleValue() + $F{cur_qty}.doubleValue()]]></variableExpression>
+	</variable>
+	<variable name="cost_amt_group" class="java.math.BigDecimal" resetType="Group" resetGroup="product_category" calculation="Sum">
+		<variableExpression><![CDATA[($F{open_qty}.doubleValue() + $F{cur_qty}.doubleValue() ) * $F{costprice}.doubleValue()]]></variableExpression>
+	</variable>
+	<variable name="cost_amt_grand" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[($F{open_qty}.doubleValue() + $F{cur_qty}.doubleValue() ) * $F{costprice}.doubleValue()]]></variableExpression>
+	</variable>
+	<group name="product_category">
+		<groupExpression><![CDATA[$F{catname}]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="111" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="1" width="572" height="29" forecolor="#000000" uuid="d8d0c16b-32d0-4272-a633-08bb6a9793ba"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="none">
+					<font fontName="SansSerif" size="16" isBold="true" isItalic="false" isUnderline="false" pdfFontName="Helvetica-BoldOblique"/>
+				</textElement>
+				<text><![CDATA[Stock In Hand Vs Delivered]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" mode="Transparent" x="0" y="30" width="572" height="20" forecolor="#006F3A" uuid="44676f0d-7042-4351-a3f8-86466b86e851">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="SansSerif" size="11" isBold="true" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" mode="Transparent" x="0" y="50" width="572" height="20" uuid="7b4a1fd6-6693-42e4-9531-b9c9cd847277">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif" size="9" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{orgname}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="402" y="91" width="170" height="20" uuid="55af34a9-e5cb-4704-abe3-b07de3adc56d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new StringBuilder(new SimpleDateFormat("d-MMM-yyyy").format($P{StartDate}))+" To " + new StringBuilder(new SimpleDateFormat("d-MMM-yyyy").format($P{EndDate}))]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" mode="Transparent" x="0" y="91" width="402" height="20" uuid="1f7c5cd8-c3eb-4c9f-974e-d2772050685e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="SansSerif" size="9" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{main_categoryname}==null?"":$F{main_categoryname} )+ " - " +($F{categoryname}==null? "":$F{categoryname}) + " - " + ($F{productname}==null? "" : $F{productname})]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" mode="Transparent" x="0" y="70" width="402" height="20" uuid="a8916d18-5421-40d3-90b6-47e9dd782d27">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font fontName="SansSerif" size="9" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{locator_name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="402" y="70" width="170" height="21" uuid="e64c2595-ccd7-4681-ab46-f0cbbd8511f0">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Bottom">
+					<font fontName="SansSerif" size="11" isBold="false" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="25" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="100" y="0" width="180" height="25" forecolor="#FFFFFF" backcolor="#006F3A" uuid="f51c2678-7521-4065-9b17-260b5f7f0cfb">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Product Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="280" y="0" width="73" height="25" forecolor="#FFFFFF" backcolor="#006F3A" uuid="f5533594-d325-4050-88cd-4bc0829d5a01">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Opening Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="353" y="0" width="73" height="25" forecolor="#FFFFFF" backcolor="#006F3A" uuid="1eef7dad-a9c8-440d-a7b8-8186d7ebf4b9">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Period Changes]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="100" height="25" forecolor="#FFFFFF" backcolor="#006F3A" uuid="25e46c36-1a91-4630-97d9-12b31606d8ec">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Category]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="426" y="0" width="73" height="25" forecolor="#FFFFFF" backcolor="#006F3A" uuid="9d318e22-f80c-4165-b43d-913ea84f7d84">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Balance Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="499" y="0" width="73" height="25" forecolor="#FFFFFF" backcolor="#006F3A" uuid="b9db0217-62c6-4f9c-bd6a-37267f74d791">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Qty Undelivered]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="100" y="0" width="180" height="20" uuid="d31e0a44-46eb-4d41-8866-e3b114184809"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="353" y="0" width="73" height="20" uuid="d1d587bf-7fc9-46d3-adf0-d656dd3b496c">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cur_qty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="280" y="0" width="73" height="20" uuid="9f4e8324-e939-434d-9188-6c9c740f58b9">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_qty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="100" height="20" uuid="d1978a54-2f6a-4083-ae6a-a16d31d88172"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{catname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="426" y="0" width="73" height="20" uuid="a19293e4-bdab-4dcf-a540-39f7fb7d3556">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_qty}.doubleValue() + $F{cur_qty}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;#,##0.###-" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="499" y="0" width="73" height="20" uuid="bcf9df19-c690-43e7-b1e1-26570e692c5b">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<pen lineWidth="0.15"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="8" isItalic="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{undelivered_qty}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

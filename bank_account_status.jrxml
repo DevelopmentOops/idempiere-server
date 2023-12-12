@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="bank_account_status" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="919accae-c73a-477a-ae62-d6566f5fddd7">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.1" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.2" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.ignore.graphics" value="false"/>
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="net.sf.jasperreports.exports.xls.font.size.fix.enabled" value="false"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_BankAccount_ID" class="java.lang.Integer"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT d.bankname, d.accountno, d.currentbalance, d.documentno, d.party, d.datetrx, d.dateacct, d.receipt, d.payment, d.docstatus, d.description,
+				SUM((receipt-payment)+currentbalance) 
+				OVER (ORDER BY d.dateacct ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Balance,
+				(SELECT orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE org.ad_org_id  = $P{AD_Org_ID} )org),
+					(SELECT clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl WHERE cl.ad_client_id = $P{AD_Client_ID} )cl),
+					(SELECT accountno_header FROM (SELECT ba.accountno accountno_header FROM adempiere.c_bankaccount ba WHERE ba.c_bankaccount_id = $P{C_BankAccount_ID}  )cl)
+
+FROM
+
+(SELECT b.name bankname, ba.accountno, coalesce(ba.currentbalance, 0) currentbalance, '-'documentno, '-' party, '2000-01-01 00:00:00' datetrx,
+		'2000-01-01 00:00:00' dateacct, 0 receipt, 0 payment, '-' docstatus, 'Current Balance' description
+
+FROM adempiere.c_bankaccount ba
+LEFT JOIN adempiere.c_bank b ON ba.c_bank_id = b.c_bank_id
+
+WHERE c_bankaccount_id = $P{C_BankAccount_ID}
+
+UNION ALL
+
+SELECT '-' bankname, '-' accountno, 0 currentbalance,
+		p.documentno, bp.name party, p.datetrx, p.dateacct, p.payamt receipt, 0 payment, p.docstatus, p.description
+
+FROM adempiere.c_payment p
+LEFT JOIN adempiere.c_bpartner bp ON p.c_bpartner_id = bp.c_bpartner_id
+
+WHERE p.c_bankaccount_id = $P{C_BankAccount_ID} AND p.isreconciled = 'N' AND isreceipt = 'Y'
+
+UNION ALL
+
+SELECT '-' bankname, '-' accountno, 0 currentbalance,
+		p.documentno, bp.name party, p.datetrx, p.dateacct, 0 receipt, p.payamt payment, p.docstatus, p.description
+
+FROM adempiere.c_payment p
+LEFT JOIN adempiere.c_bpartner bp ON p.c_bpartner_id = bp.c_bpartner_id
+
+WHERE p.c_bankaccount_id = $P{C_BankAccount_ID} AND p.isreconciled = 'N' AND isreceipt = 'N'
+
+ORDER BY dateacct) d]]>
+	</queryString>
+	<field name="bankname" class="java.lang.String"/>
+	<field name="accountno" class="java.lang.String"/>
+	<field name="currentbalance" class="java.math.BigDecimal"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="party" class="java.lang.String"/>
+	<field name="datetrx" class="java.sql.Timestamp"/>
+	<field name="dateacct" class="java.sql.Timestamp"/>
+	<field name="receipt" class="java.math.BigDecimal"/>
+	<field name="payment" class="java.math.BigDecimal"/>
+	<field name="docstatus" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="balance" class="java.math.BigDecimal"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="accountno_header" class="java.lang.String"/>
+	<variable name="currentbalance" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{currentbalance}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="90" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="50" width="554" height="20" uuid="5c46522b-d107-4a88-9c5f-9e6b656381f1">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2"/>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="30" width="554" height="20" uuid="32692407-c572-4b80-b8aa-77c1dc28d44f">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box padding="2"/>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname} + " [ " + $F{orgname} + " ]"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="70" width="554" height="20" uuid="500a5945-1e47-4d63-a492-b2728620040d"/>
+				<box padding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Top">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bankname} + " - " +  $F{accountno}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="554" height="30" uuid="0f3ac447-50b8-4791-8c48-c864bcc55956">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box padding="2"/>
+				<textElement textAlignment="Left" verticalAlignment="Bottom">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Bank Account Status Report"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="50" height="30" uuid="d410fa76-2d52-4c53-9b87-bcee3a5632f8">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Document No]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="90" y="0" width="90" height="30" uuid="d1b4566f-56bb-4261-a4fb-754549bb2e41"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Party]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="274" y="0" width="50" height="30" uuid="12eb6f85-52ea-44ca-9f4c-b0a1a73d07f7">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date Trx]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="324" y="0" width="50" height="30" uuid="78e39e0f-93a0-4baf-ab11-31ed1132ba35"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date Acct]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="374" y="0" width="60" height="30" uuid="f747aeb4-4343-440d-b9d0-bd4a9ebe13dc">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Un-credited Checks]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="434" y="0" width="60" height="30" uuid="fed7d763-c8c2-4c5d-8e6e-d859372463e0"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Un-presented Checks]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="494" y="0" width="60" height="30" uuid="edbf9914-a940-4578-b7b5-1340afa41607">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Balance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="50" y="0" width="40" height="30" uuid="f2227a3f-a96a-4235-bb0c-23c6bba284c4">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="0" width="94" height="30" uuid="cb59ba3c-00a8-4b47-b427-0f5dd42eeaed"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="50" height="20" uuid="6282cd43-b88c-4d8b-9ad1-409b07f9db0b"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToTallestObject" x="90" y="0" width="90" height="20" uuid="195aa7f0-6e2d-40da-8159-9e4af4c92fd2"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{party}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="MMM d, yyyy">
+				<reportElement stretchType="RelativeToTallestObject" x="274" y="0" width="50" height="20" uuid="81571467-2b5d-4df7-84ed-72fab682a10c"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new StringBuilder(new SimpleDateFormat("d-MMM-yyyy").format($F{datetrx}))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="MMM d, yyyy">
+				<reportElement stretchType="RelativeToTallestObject" x="324" y="0" width="50" height="20" uuid="6cf15a77-15be-4098-8384-61a32ed964dd"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new StringBuilder(new SimpleDateFormat("d-MMM-yyyy").format($F{dateacct}))]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement stretchType="RelativeToTallestObject" x="374" y="0" width="60" height="20" uuid="9c21961e-a213-49e1-af98-44089a4921a1"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{receipt}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement stretchType="RelativeToTallestObject" x="434" y="0" width="60" height="20" uuid="09257054-ea30-475e-a845-b91ffb07bd2e"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{payment}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)">
+				<reportElement stretchType="RelativeToTallestObject" x="494" y="0" width="60" height="20" uuid="185e1591-eead-40af-a88e-155ac2d73517"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{balance}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToTallestObject" x="50" y="0" width="40" height="20" uuid="f3e6b12a-2383-443f-9e53-c7ab950b4d58"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{docstatus}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToTallestObject" x="180" y="0" width="94" height="20" uuid="fb5087c6-704a-41f9-97a6-068792c17dec"/>
+				<box topPadding="2" leftPadding="2" bottomPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

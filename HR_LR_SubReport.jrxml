@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HR_LR_SubReport" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="0" rightMargin="20" topMargin="20" bottomMargin="20" uuid="310f6681-9316-4508-bd9f-e0420a2bdae8">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="idempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="C_Year_ID" class="java.lang.Integer">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT *
+, ((COALESCE(open_bal, 0) + COALESCE(total,0)) - (COALESCE(vavailed, 0) + COALESCE(inqued, 0) + COALESCE(encashed, 0) + COALESCE(adjusted,0))) as balanced
+FROM (
+SELECT lp.hr_emplev_bal_id, lp.open_bal, lp.total, lp.availed, lp.inqued, lp.encashed, lp.adjusted, lp.c_bpartner_id, lt.hr_levtypes_id, lt.value alias, lt.name leavedesc, lt.description, lt.isbalanced, lt.ischkbal, lt.isdeducted, lt.unittype, lt.attbalwd, lt.att_levtype_id, lt.maxleaves
+, ((COALESCE(lp.open_bal, 0) + COALESCE(lp.total,0)) - (COALESCE(lp.availed, 0) + COALESCE(lp.inqued, 0) + COALESCE(lp.encashed, 0) + COALESCE(lp.adjusted,0))) as balance
+, (SELECT name FROM adempiere.c_bpartner WHERE c_bpartner_id = lp.c_bpartner_id) as partnername
+, (SELECT 'Leave Balance For The Year <b> ' || fiscalyear || '</b>' FROM adempiere.c_year WHERE c_year_id = lp.c_year_id) as yearshow
+, 0 as prorata
+, COALESCE((SELECT SUM(nduration) FROM adempiere.hr_emplev_posting WHERE c_bpartner_id = lp.c_bpartner_id AND c_year_id = lp.c_year_id AND hr_levtypes_id = lt.hr_levtypes_id),0) 
++ COALESCE((SELECT SUM(nduration) FROM adempiere.hr_emplev_posting WHERE c_bpartner_id = lp.c_bpartner_id AND c_year_id = lp.c_year_id AND hr_levtypes_id IN (SELECT hr_levtypes_id FROM adempiere.hr_levtypes WHERE att_levtype_id = lt.hr_levtypes_id)),0) 
++ COALESCE(lp.availed, 0) as vavailed
+FROM adempiere.hr_emplev_bal lp
+   , adempiere.hr_levtypes lt
+WHERE lt.ad_client_id   = lp.ad_client_id
+  AND lp.hr_levtypes_id = lt.hr_levtypes_id
+  AND lp.c_bpartner_id  = $P{C_BPartner_ID}
+  AND lp.c_year_id      = $P{C_Year_ID}
+) a]]>
+	</queryString>
+	<field name="hr_emplev_bal_id" class="java.math.BigDecimal"/>
+	<field name="open_bal" class="java.math.BigDecimal"/>
+	<field name="total" class="java.math.BigDecimal"/>
+	<field name="availed" class="java.math.BigDecimal"/>
+	<field name="inqued" class="java.math.BigDecimal"/>
+	<field name="encashed" class="java.math.BigDecimal"/>
+	<field name="adjusted" class="java.math.BigDecimal"/>
+	<field name="c_bpartner_id" class="java.math.BigDecimal"/>
+	<field name="hr_levtypes_id" class="java.math.BigDecimal"/>
+	<field name="alias" class="java.lang.String"/>
+	<field name="leavedesc" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="isbalanced" class="java.lang.String"/>
+	<field name="ischkbal" class="java.lang.String"/>
+	<field name="isdeducted" class="java.lang.String"/>
+	<field name="unittype" class="java.lang.String"/>
+	<field name="attbalwd" class="java.lang.String"/>
+	<field name="att_levtype_id" class="java.math.BigDecimal"/>
+	<field name="maxleaves" class="java.math.BigDecimal"/>
+	<field name="balance" class="java.math.BigDecimal"/>
+	<field name="partnername" class="java.lang.String"/>
+	<field name="yearshow" class="java.lang.String"/>
+	<field name="prorata" class="java.lang.Integer"/>
+	<field name="vavailed" class="java.math.BigDecimal"/>
+	<field name="balanced" class="java.math.BigDecimal"/>
+	<group name="Group1">
+		<groupExpression><![CDATA[$F{c_bpartner_id}]]></groupExpression>
+		<groupHeader>
+			<band height="58">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<rectangle>
+					<reportElement x="0" y="0" width="555" height="58" uuid="3e041676-3045-45b7-8d26-af74f1581789">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</rectangle>
+				<textField>
+					<reportElement x="0" y="0" width="555" height="17" uuid="e1104322-caaf-4aac-ae87-ffb1d3eb4d2f">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<box>
+						<bottomPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" markup="html">
+						<font fontName="Calibri" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{yearshow}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="17" width="555" height="16" uuid="68683950-9db9-4ee4-b5e3-f0371ee5f560"/>
+					<box>
+						<bottomPen lineWidth="0.5"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="Calibri" size="8"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{partnername}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="33" width="205" height="25" uuid="8f90ec55-2d95-4e82-9aae-b657036a105c">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box topPadding="0" leftPadding="2">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Leave<br />Description "]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="205" y="33" width="50" height="25" uuid="dcb8cc49-adc1-42ea-aa2d-3c325d1e929c">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box topPadding="0" leftPadding="2">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Opening<br />Balance "]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="255" y="33" width="50" height="25" uuid="dc046802-9fee-46fa-9671-53320d040d72">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box topPadding="0" leftPadding="2">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Total<br />Alloted "]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="305" y="33" width="50" height="25" uuid="3b66edc4-86ba-463a-b695-b4fed4ece46c">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box topPadding="0" leftPadding="2">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Leave<br />Pro-rata "]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="355" y="33" width="50" height="25" uuid="b0de443d-c26f-4e20-82df-b357c8d2675e">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box topPadding="0" leftPadding="2">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Leave<br />Availed "]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="405" y="33" width="50" height="25" uuid="0402761e-53da-4024-8d8b-06e13fddfe74">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box topPadding="0" leftPadding="2">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Leave<br />En-cashed "]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="455" y="33" width="50" height="25" uuid="283c9b66-0429-4279-b0d6-de975459fa34">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box topPadding="0" leftPadding="2">
+						<rightPen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Leave<br />Adjusted "]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="505" y="33" width="50" height="25" uuid="3c7ed505-8984-46ee-a132-ca36c3620f85">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box topPadding="0" leftPadding="2">
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement verticalAlignment="Middle" markup="html">
+						<font size="7" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Leave<br />Balance "]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<detail>
+		<band height="16" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<rectangle>
+				<reportElement x="0" y="0" width="555" height="16" uuid="1d2dc6cb-aa27-482b-a0df-e6e4314f524e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</rectangle>
+			<textField>
+				<reportElement x="0" y="0" width="170" height="16" uuid="f517baad-6d8f-4781-8bc5-b7a6dba1125a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{leavedesc}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="170" y="0" width="35" height="16" uuid="78a6fe83-1485-4697-8260-6ca06ad38bd2"/>
+				<box leftPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{alias}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#-)">
+				<reportElement x="205" y="0" width="50" height="16" uuid="5b0e1a97-7d0d-47a9-8f33-fee90efa6614"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_bal}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#-)">
+				<reportElement x="255" y="0" width="50" height="16" uuid="ddd9edda-d2f5-411c-8465-fc06b37a1ccb"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#-)">
+				<reportElement x="305" y="0" width="50" height="16" uuid="cbdd6574-1016-4185-a86e-f20998c34fa6"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prorata}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#-)">
+				<reportElement x="355" y="0" width="50" height="16" uuid="50fa1ab0-0cf9-44e0-815c-f8a8d5416176"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vavailed}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#-)">
+				<reportElement x="405" y="0" width="50" height="16" uuid="6bf29b74-6bef-48b7-9fd0-5fc815038e82"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{encashed}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#-)">
+				<reportElement x="455" y="0" width="50" height="16" uuid="5f5b1726-8e3c-4904-b6cf-aa719bae96e2"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{adjusted}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#-)">
+				<reportElement x="505" y="0" width="50" height="16" uuid="dc0970d4-30ec-4d2a-bca1-7fc41976a87c"/>
+				<box rightPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Calibri" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{balanced}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

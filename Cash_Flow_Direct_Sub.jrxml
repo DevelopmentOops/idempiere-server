@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Cash_Flow_Direct_Sub" pageWidth="595" pageHeight="842" columnWidth="585" leftMargin="5" rightMargin="5" topMargin="20" bottomMargin="20" uuid="d7333b67-e3be-4090-aedc-43cb49096100">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="EndDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT 1 orderby, 'Cash Receipts from Distributors' as type, bp.value bpcode, bp.name bpname, SUM(fa.amtacctdr) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_bp_group bpg ON bp.c_bp_group_id = bpg.c_bp_group_id
+
+WHERE fa.ad_client_id =  $P{AD_Client_ID}   AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus) = 'CO'
+		AND fa.dateacct BETWEEN  $P{StartDate}   AND $P{EndDate}   AND bp.c_bp_group_id  IN (1000001, 1000007) AND fa.amtacctcr = 0
+		
+GROUP BY bp.value, bp.name
+
+UNION ALL
+
+SELECT 2 orderby, 'Cash Receipts from Others' as type, bp.value bpcode, bp.name bpname, SUM(fa.amtacctdr) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_bp_group bpg ON bp.c_bp_group_id = bpg.c_bp_group_id
+
+WHERE fa.ad_client_id =   $P{AD_Client_ID}  AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus) = 'CO'
+		AND fa.dateacct BETWEEN   $P{StartDate}  AND   $P{EndDate} AND bp.c_bp_group_id NOT IN (1000001, 1000007) AND fa.amtacctcr = 0
+		
+GROUP BY bp.value, bp.name
+
+UNION ALL
+
+SELECT 3 orderby, 'Bank Receipts from Distributors' as type, bp.value bpcode, bp.name bpname, SUM(fa.amtacctdr) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_bankstatement bs ON fa.record_id = bs.c_bankstatement_id AND fa.ad_table_id = 392
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =   $P{AD_Client_ID}  AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000233, 1000259) AND bs.docstatus IN ('CO', 'CL')
+		AND fa.dateacct BETWEEN   $P{StartDate}  AND  $P{EndDate}  AND bp.c_bp_group_id IN (1000001, 1000007)  AND fa.amtacctcr = 0
+		
+GROUP BY bp.value, bp.name
+		
+UNION ALL
+
+SELECT 4 orderby, 'Bank Receipts from Others' as type, bp.value bpcode, bp.name bpname, SUM(fa.amtacctdr) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_bankstatement bs ON fa.record_id = bs.c_bankstatement_id AND fa.ad_table_id = 392
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =  $P{AD_Client_ID}   AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000233, 1000259) AND bs.docstatus IN ('CO', 'CL')
+		AND fa.dateacct BETWEEN   $P{StartDate} AND  $P{EndDate}  AND bp.c_bp_group_id NOT IN (1000001, 1000007) AND fa.amtacctcr = 0
+		
+GROUP BY bp.value, bp.name
+
+UNION ALL
+
+SELECT  5 orderby, 'Cash Payment to Vendors' as type, bp.value bpcode, bp.name bpname, SUM(fa.amtacctcr) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335 
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224 
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus) = 'CO'
+		AND fa.dateacct BETWEEN   $P{StartDate}  AND $P{EndDate}   AND bp.c_bp_group_id IN (1000004, 1000005, 1000006) AND fa.amtacctdr = 0
+		
+GROUP BY bp.value, bp.name
+		
+UNION ALL
+
+SELECT 6 orderby, 'Cash Payment to Others' as type, bp.value bpcode, bp.name bpname, SUM(fa.amtacctcr) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_payment p ON fa.record_id = p.c_payment_id AND  fa.ad_table_id = 335 
+LEFT JOIN adempiere.gl_journal gj ON fa.record_id = gj.gl_journal_id AND fa.ad_table_id = 224 
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level = 1000514 AND CONCAT(p.docstatus, gj.docstatus) = 'CO'
+		AND fa.dateacct BETWEEN   $P{StartDate}  AND $P{EndDate}   AND bp.c_bp_group_id NOT IN (1000004, 1000005, 1000006) AND fa.amtacctdr = 0
+		
+GROUP BY bp.value, bp.name
+
+
+UNION ALL
+
+SELECT 7 orderby, 'Bank Payments to Vendors' as type, bp.value bpcode, bp.name bpname, SUM(fa.amtacctcr) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_bankstatement bs ON fa.record_id = bs.c_bankstatement_id AND fa.ad_table_id = 392
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000233, 1000259)  AND bs.docstatus IN ('CO', 'CL')
+		AND fa.dateacct BETWEEN   $P{StartDate}  AND $P{EndDate}   AND bp.c_bp_group_id IN (1000004, 1000005, 1000006) AND fa.amtacctdr = 0
+		
+GROUP BY bp.value, bp.name
+		
+		
+UNION ALL
+
+SELECT 8 orderby, 'Bank Payments to Others' as type, bp.value bpcode, bp.name bpname, SUM(fa.amtacctcr) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue elv ON fa.account_id = elv.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+LEFT JOIN adempiere.c_bankstatement bs ON fa.record_id = bs.c_bankstatement_id AND fa.ad_table_id = 392
+LEFT JOIN adempiere.c_bpartner bp ON fa.c_bpartner_id = bp.c_bpartner_id
+
+WHERE fa.ad_client_id =    $P{AD_Client_ID} AND fa.ad_org_id =   $P{AD_Org_ID} 
+		AND elvl.second_level IN (1000233, 1000259)  AND bs.docstatus IN ('CO', 'CL')
+		AND fa.dateacct BETWEEN   $P{StartDate}  AND $P{EndDate}   AND bp.c_bp_group_id NOT IN (1000004, 1000005, 1000006) AND fa.amtacctdr = 0
+		
+GROUP BY bp.value, bp.name
+
+ORDER BY orderby, bpname]]>
+	</queryString>
+	<field name="orderby" class="java.lang.Integer"/>
+	<field name="type" class="java.lang.String"/>
+	<field name="bpcode" class="java.lang.String"/>
+	<field name="bpname" class="java.lang.String"/>
+	<field name="amount" class="java.math.BigDecimal"/>
+	<variable name="amount_total" class="java.math.BigDecimal" resetType="Group" resetGroup="Orderby" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount}]]></variableExpression>
+	</variable>
+	<group name="Orderby">
+		<groupExpression><![CDATA[$F{orderby}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="130" height="20" uuid="94e7c6ef-0aad-41eb-825c-af268319b75e">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box padding="2"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{orderby} + ":  [" + $F{type} + "]"]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###)" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="440" y="0" width="65" height="20" uuid="ae847686-b2a2-4abc-a34f-eda996a34625">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{amount_total}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###)" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToTallestObject" x="130" y="0" width="310" height="20" uuid="a7b9aabc-6f3a-4f49-b02a-e2ceba954808">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Total"]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="130" height="20" uuid="4cc3eda1-9bf5-496f-b8a1-d7a40155871e">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="3"/>
+				<textElement verticalAlignment="Middle">
+					<font size="11" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Notes Detail"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="130" y="0" width="120" height="20" uuid="bed437cf-c065-4ebe-bb8c-9aec311100c8"/>
+				<box padding="2"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Party Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="250" y="0" width="120" height="20" uuid="b59d934e-e18c-4ef6-9d8a-a9935d6bd340"/>
+				<box padding="2"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="370" y="0" width="70" height="20" uuid="b58f8c00-63c1-4484-a125-cd5cfb60479e"/>
+				<box padding="2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="440" y="0" width="65" height="20" uuid="a02adbe6-1045-4045-b3ee-5fe90c530437"/>
+				<box padding="2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Amount]]></text>
+			</staticText>
+		</band>
+	</title>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="130" y="0" width="120" height="20" uuid="a2e1b21b-485f-4133-8ea5-9335599942ac"/>
+				<box padding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bpname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="M/d/yy" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="370" y="0" width="70" height="20" uuid="c3c32eda-482c-4ad0-a866-8facca136bd7"/>
+				<box padding="2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="440" y="0" width="65" height="20" uuid="6c3e7ae3-ae2e-480f-82cf-a4a486b2a5a1"/>
+				<box padding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="250" y="0" width="120" height="20" uuid="67fd743f-96a6-4326-9597-bad2866fd487"/>
+				<box padding="2"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.11.0.final using JasperReports Library version 6.10.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Accounts_Ledger" pageWidth="612" pageHeight="792" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="db25153b-68b2-49c9-9de9-28fb48908685">
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.1" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.2" value="pageHeader"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="idempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_ElementValue_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="EndDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT
+ad_client_id,
+record_id,
+line_id,
+user1_id,
+c_currency_id,
+m_product_id,
+c_bpartner_id,
+description,
+amtsourcedr,
+amtsourcecr,
+fact_acct_id,
+account_id,
+dateacct,
+amtacctdr,
+amtacctcr,
+username,
+SUM((amtacctdr-amtacctcr)+OpeningBalance)
+OVER (ORDER BY dateacct,account_id,fact_acct_id ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS Balance,
+gl_category_id,
+glcatgoryname,
+prodname,
+(SELECT UPPER(org.orgname) orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE org.ad_org_id = $P{AD_Org_ID})org),
+(SELECT UPPER(cl.clientname) clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl WHERE cl.ad_client_id = $P{AD_Client_ID})cl),
+(SELECT elmv.accountname FROM (SELECT elmv.name accountname FROM adempiere.c_elementvalue elmv WHERE elmv.c_elementvalue_id = $P{C_ElementValue_ID})elmv),
+(SELECT elmv2.glcode FROM (SELECT elmv.value glcode FROM adempiere.c_elementvalue elmv WHERE elmv.c_elementvalue_id = $P{C_ElementValue_ID})elmv2),
+(SELECT p.prodname2 FROM (SELECT p.name prodname2 FROM adempiere.m_product p  WHERE p.m_product_id = $P{M_Product_ID})p)
+
+FROM
+
+(SELECT
+0 ad_client_id,
+0 record_id,
+0 line_id,
+0 user1_id,
+0 c_currency_id,
+0 m_product_id,
+0 c_bpartner_id,
+'Opening Balance' description,
+0 amtsourcedr,
+0 amtsourcecr,
+0 fact_acct_id,
+0 account_id,
+$P{StartDate} dateacct,
+0 amtacctdr,
+0 amtacctcr,
+(sum(dr)-sum(cr)) AS OpeningBalance,
+'-' username,
+0 gl_category_id,
+'-' glcatgoryname,
+'-' prodname
+
+FROM
+
+(SELECT
+
+CASE WHEN account_id = $P{C_ElementValue_ID} AND fact_acct.ad_client_id = $P{AD_Client_ID} AND ($P!{AD_Org_ID} IS NULL OR fact_acct.ad_org_id = $P!{AD_Org_ID}) AND ($P!{M_Product_ID} IS NULL OR fact_acct.m_product_id = $P!{M_Product_ID})
+                THEN amtacctdr
+                ELSE 0
+                END as dr,
+
+CASE WHEN account_id = $P{C_ElementValue_ID} AND fact_acct.ad_client_id = $P{AD_Client_ID} AND ($P!{AD_Org_ID} IS NULL OR fact_acct.ad_org_id = $P!{AD_Org_ID}) AND ($P!{M_Product_ID} IS NULL OR fact_acct.m_product_id = $P!{M_Product_ID})
+                THEN amtacctcr
+                ELSE 0
+                END as cr
+
+                FROM adempiere.fact_acct
+
+WHERE dateacct < $P{StartDate} AND account_id = $P{C_ElementValue_ID} AND fact_acct.ad_client_id = $P{AD_Client_ID} AND ($P!{AD_Org_ID} IS NULL OR fact_acct.ad_org_id = $P!{AD_Org_ID}) AND ($P!{M_Product_ID} IS NULL OR fact_acct.m_product_id = $P!{M_Product_ID})
+
+) AS Opening
+
+
+				UNION ALL
+
+				SELECT
+				adempiere.fact_acct.ad_client_id,
+				adempiere.fact_acct.record_id,
+				line_id,
+				user1_id,
+				adempiere.fact_acct.c_currency_id,
+				fact_acct.m_product_id,
+				fact_acct.c_bpartner_id,
+				fact_acct.description,
+				amtsourcedr,
+				amtsourcecr,
+				fact_acct_id,
+				account_id,
+				dateacct,
+				amtacctdr,
+				amtacctcr,
+				0,
+				adempiere.ad_user.name as username,
+				adempiere.gl_category.gl_category_id,
+				adempiere.gl_category.name as glcatgoryname,
+				p.name as prodname
+
+				FROM adempiere.fact_acct
+				LEFT JOIN adempiere.m_product p ON adempiere.fact_acct.m_product_id = p.m_product_id
+				LEFT JOIN adempiere.ad_user ON adempiere.fact_acct.createdby = adempiere.ad_user.ad_user_id
+				LEFT JOIN adempiere.gl_category ON adempiere.fact_acct.gl_category_id = adempiere.gl_category.gl_category_id
+
+				WHERE
+
+				dateacct BETWEEN $P{StartDate} AND $P{EndDate}
+				AND fact_acct.ad_client_id = $P{AD_Client_ID}
+				AND ($P!{AD_Org_ID} IS NULL OR fact_acct.ad_org_id = $P!{AD_Org_ID})
+				AND ($P!{M_Product_ID} IS NULL OR fact_acct.m_product_id = $P!{M_Product_ID})
+				AND account_id = $P{C_ElementValue_ID}
+				AND amtacctcr <> 0
+
+
+				UNION ALL
+
+				SELECT
+				adempiere.fact_acct.ad_client_id,
+				adempiere.fact_acct.record_id,
+				line_id,
+				user1_id,
+				adempiere.fact_acct.c_currency_id,
+				fact_acct.m_product_id,
+				fact_acct.c_bpartner_id,
+				fact_acct.description,
+				amtsourcedr,
+				amtsourcecr,
+				fact_acct_id,
+				account_id,
+				dateacct,
+				amtacctdr,
+				amtacctcr,
+				0,
+				adempiere.ad_user.name as username,
+				adempiere.gl_category.gl_category_id,
+				adempiere.gl_category.name as glcatgoryname,
+				p.name as prodname
+				
+				FROM adempiere.fact_acct
+				LEFT JOIN adempiere.m_product p ON adempiere.fact_acct.m_product_id = p.m_product_id
+				LEFT JOIN adempiere.ad_user ON adempiere.fact_acct.createdby = adempiere.ad_user.ad_user_id
+				LEFT JOIN adempiere.gl_category ON adempiere.fact_acct.gl_category_id = adempiere.gl_category.gl_category_id
+
+
+				WHERE
+
+				dateacct BETWEEN $P{StartDate} AND $P{EndDate}
+				AND fact_acct.ad_client_id = $P{AD_Client_ID}
+				AND ($P!{AD_Org_ID} IS NULL OR fact_acct.ad_org_id = $P!{AD_Org_ID})
+				AND ($P!{M_Product_ID} IS NULL OR fact_acct.m_product_id = $P!{M_Product_ID})
+				AND account_id = $P{C_ElementValue_ID}
+				AND amtacctdr <> 0
+
+
+				ORDER BY
+				dateacct) AS Running
+
+				ORDER BY
+				dateacct]]>
+	</queryString>
+	<field name="ad_client_id" class="java.math.BigDecimal"/>
+	<field name="record_id" class="java.math.BigDecimal"/>
+	<field name="line_id" class="java.math.BigDecimal"/>
+	<field name="user1_id" class="java.math.BigDecimal"/>
+	<field name="c_currency_id" class="java.math.BigDecimal"/>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="c_bpartner_id" class="java.math.BigDecimal"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="amtsourcedr" class="java.math.BigDecimal"/>
+	<field name="amtsourcecr" class="java.math.BigDecimal"/>
+	<field name="fact_acct_id" class="java.math.BigDecimal"/>
+	<field name="account_id" class="java.math.BigDecimal"/>
+	<field name="dateacct" class="java.sql.Timestamp"/>
+	<field name="amtacctdr" class="java.math.BigDecimal"/>
+	<field name="amtacctcr" class="java.math.BigDecimal"/>
+	<field name="username" class="java.lang.String"/>
+	<field name="balance" class="java.math.BigDecimal"/>
+	<field name="gl_category_id" class="java.math.BigDecimal"/>
+	<field name="glcatgoryname" class="java.lang.String"/>
+	<field name="prodname" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="accountname" class="java.lang.String"/>
+	<field name="glcode" class="java.lang.String"/>
+	<field name="prodname2" class="java.lang.String"/>
+	<variable name="amtacctdr_1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{amtacctdr}]]></variableExpression>
+	</variable>
+	<variable name="amtacctcr_1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{amtacctcr}]]></variableExpression>
+	</variable>
+	<variable name="balance_1" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{balance}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="125" splitType="Stretch">
+			<textField pattern="dd/MM/yyyy h.mm a">
+				<reportElement x="1" y="110" width="570" height="15" forecolor="#003300" uuid="2225d76b-f6b4-42aa-942f-01c4c6a3e9e2">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Print Date " + new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="false">
+				<reportElement x="1" y="95" width="570" height="15" forecolor="#003300" uuid="cc530512-40e8-4021-9049-82c64ef4252c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page "+$V{PAGE_NUMBER}+" of" + " " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="0" width="570" height="20" forecolor="#000000" uuid="d25889f7-adf2-4811-bd75-865b73dbf8fd">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="none">
+					<font fontName="Arial Rounded MT Bold" size="12" isBold="true" isUnderline="false" pdfFontName="Helvetica-BoldOblique"/>
+				</textElement>
+				<text><![CDATA[ACCOUNTS LEDGER Product Wise]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="1" y="65" width="570" height="15" forecolor="#003300" uuid="c64d9357-7449-4ec6-b46f-15b479f36998">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Top">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Account :" + $F{glcode} + "-"+ $F{accountname}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="1" y="80" width="570" height="15" forecolor="#003300" uuid="be02ae23-db6e-40cc-bd5a-952344fa0fa5">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new StringBuilder(new SimpleDateFormat("d-MMM-yyyy").format($P{StartDate}))+" To " + new StringBuilder(new SimpleDateFormat("d-MMM-yyyy").format($P{EndDate}))]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="20" width="570" height="15" forecolor="#003300" uuid="51b3ecf3-1611-4b50-a59f-ed64a451c0a3">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Bottom">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="35" width="570" height="15" forecolor="#003300" uuid="39a359e7-cd17-459e-8869-5b44bc323376">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Top">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{orgname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="1" y="50" width="570" height="15" forecolor="#003300" uuid="d2408135-0396-4298-861d-0ba96fb94706">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Bottom">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prodname2}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Opaque" x="1" y="0" width="50" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="3310ca07-8964-412d-a611-41fedc0c1401">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="338" y="0" width="65" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="7867b881-274d-4af9-a6c6-0c2d7817926f"/>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Debit]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="403" y="0" width="65" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="6eafe4d4-257c-43f3-b15f-d9144352bc2a"/>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Credit]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="468" y="0" width="66" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="4d8acac0-4145-4c38-810f-cdfb6ed9a740"/>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Balance]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="51" y="0" width="50" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="e3f4e514-96c5-4cfe-a9ea-21f7b5fdb1bd">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Entry Type]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="101" y="0" width="147" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="7b91fd03-5ff3-4446-a324-68eb6929d397"/>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true" pdfFontName="Helvetica-Bold"/>
+				</textElement>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="534" y="0" width="37" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="c79e1390-6b2c-409e-8b6e-a4e15a1ab848"/>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Entered By]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="248" y="0" width="90" height="20" forecolor="#FFFFFF" backcolor="#006F3A" uuid="626ac268-7b99-4964-a669-cbb2b3cf6613"/>
+				<box>
+					<pen lineWidth="0.25" lineColor="#006F3A"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Product Name]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<textField isStretchWithOverflow="true" pattern="d/MMM/yyyy">
+				<reportElement stretchType="ContainerHeight" x="1" y="0" width="50" height="20" uuid="3365a391-7de5-4bbd-ba8b-1b30dc305c31"/>
+				<box>
+					<pen lineWidth="0.25" lineStyle="Solid" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dateacct}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement stretchType="ContainerHeight" mode="Transparent" x="338" y="0" width="65" height="20" uuid="8dddf598-d12b-4f50-8792-009f4073ce42"/>
+				<box rightPadding="2">
+					<pen lineWidth="0.25" lineStyle="Solid" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amtacctdr}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="101" y="0" width="147" height="20" uuid="ac8c7f31-077b-410b-b252-a28d3dfa0e56"/>
+				<box leftPadding="2">
+					<pen lineWidth="0.25" lineStyle="Solid" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="ContainerHeight" mode="Opaque" x="403" y="0" width="65" height="20" uuid="6e787196-c7aa-489a-ba4d-35a7358d412d"/>
+				<box rightPadding="2">
+					<pen lineWidth="0.25" lineStyle="Solid" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amtacctcr}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="51" y="0" width="50" height="20" uuid="aced2f0f-0858-4d6f-8990-fc0e99c3290f"/>
+				<box>
+					<pen lineWidth="0.25" lineStyle="Solid" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{glcatgoryname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="ContainerHeight" x="534" y="0" width="37" height="20" uuid="bb321420-fa89-412b-b39f-d4b296b665d3"/>
+				<box>
+					<pen lineWidth="0.25" lineStyle="Solid" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{username}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement stretchType="ContainerHeight" mode="Transparent" x="248" y="0" width="90" height="20" forecolor="#000000" backcolor="#FFFFFF" uuid="9de5ecdb-d326-4a6c-8119-e7610ab217a0"/>
+				<box>
+					<pen lineWidth="0.25" lineStyle="Solid" lineColor="#999999"/>
+				</box>
+				<textElement verticalAlignment="Middle" rotation="None" markup="none">
+					<font fontName="SansSerif" size="7" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					<paragraph lineSpacing="Single"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prodname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement stretchType="ContainerHeight" mode="Opaque" x="468" y="0" width="66" height="20" uuid="6d16d0ff-e8b4-40fa-94d2-403f23130913"/>
+				<box rightPadding="2">
+					<pen lineWidth="0.25" lineStyle="Solid" lineColor="#999999"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{balance}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="20" splitType="Stretch">
+			<textField pattern="#,##0.00">
+				<reportElement mode="Opaque" x="338" y="0" width="65" height="20" forecolor="#FFFFFF" backcolor="#2E3092" uuid="a5d50a13-4fda-4aec-a7bc-7523699abbd9"/>
+				<box rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#2E3092"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{amtacctdr_1}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00">
+				<reportElement mode="Opaque" x="403" y="0" width="65" height="20" forecolor="#FFFFFF" backcolor="#2E3092" uuid="3d340b6a-47a4-4fd7-ad1f-c88062551f3e"/>
+				<box rightPadding="2">
+					<pen lineWidth="0.25" lineColor="#2E3092"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{amtacctcr_1}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

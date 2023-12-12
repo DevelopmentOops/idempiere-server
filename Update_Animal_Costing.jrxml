@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Update_Animal_Costing" pageWidth="1851" pageHeight="595" orientation="Landscape" columnWidth="1811" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="27312c24-3f9a-4b7b-87a4-10425517735c">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LRFDataBase"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_Activity_ID" class="java.lang.Integer"/>
+	<parameter name="AsOn" class="java.sql.Timestamp"/>
+	<queryString>
+		<![CDATA[SELECT an.c_activity_id, an.m_product_id, an.value, an.name, an.m_attributesetinstance_id
+		, an.qtyonhand, ct.currentcostprice, am.cost_amount, tot.tot_animal
+		
+		,(SELECT org.orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE org.ad_org_id = $P{AD_Org_ID} ) org)
+		,(SELECT act.activity FROM (SELECT act.name activity FROM adempiere.c_activity act WHERE act.c_activity_id =  $P{C_Activity_ID} ) act)
+		
+FROM
+
+(SELECT pd.c_activity_id, st.m_product_id, pd.value, pd.name, st.m_attributesetinstance_id, SUM(st.qtyonhand) qtyonhand
+
+FROM adempiere.m_storageonhand st
+LEFT JOIN adempiere.m_product pd ON st.m_product_id = pd.m_product_id
+
+ WHERE st.ad_client_id = $P{AD_Client_ID}  AND st.ad_org_id = $P{AD_Org_ID}  AND pd.c_activity_id = $P{C_Activity_ID}   AND st.m_attributesetinstance_id != 0 AND st.qtyonhand > 0
+
+GROUP BY pd.c_activity_id, pd.value, pd.name, st.m_attributesetinstance_id, st.m_product_id ) an
+
+LEFT JOIN adempiere.m_cost ct ON an.m_product_id = ct.m_product_id AND an.m_attributesetinstance_id = ct.m_attributesetinstance_id
+
+LEFT JOIN
+
+(SELECT fa.c_activity_id, SUM(fa.amtacctdr-amtacctcr) cost_amount
+
+FROM adempiere.fact_acct fa
+
+WHERE fa.ad_client_id = $P{AD_Client_ID}   AND fa.ad_org_id =   $P{AD_Org_ID} AND fa.account_id = 1000346  AND fa.c_activity_id =  $P{C_Activity_ID} AND fa.dateacct <=  $P{AsOn} 
+
+GROUP BY fa.c_activity_id) am
+
+ON an.c_activity_id = am.c_activity_id
+
+LEFT JOIN
+
+(SELECT pd.c_activity_id, SUM(st.qtyonhand) tot_animal
+
+FROM adempiere.m_storageonhand st
+LEFT JOIN adempiere.m_product pd ON st.m_product_id = pd.m_product_id
+
+ WHERE st.ad_client_id = $P{AD_Client_ID}  AND st.ad_org_id = $P{AD_Org_ID}  AND pd.c_activity_id = $P{C_Activity_ID}   AND st.m_attributesetinstance_id != 0 AND st.qtyonhand > 0
+
+GROUP BY pd.c_activity_id ) tot
+
+ON an.c_activity_id = tot.c_activity_id]]>
+	</queryString>
+	<field name="c_activity_id" class="java.math.BigDecimal"/>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="m_attributesetinstance_id" class="java.math.BigDecimal"/>
+	<field name="qtyonhand" class="java.math.BigDecimal"/>
+	<field name="currentcostprice" class="java.math.BigDecimal"/>
+	<field name="cost_amount" class="java.math.BigDecimal"/>
+	<field name="tot_animal" class="java.math.BigDecimal"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="activity" class="java.lang.String"/>
+	<variable name="Animals" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{qtyonhand}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="120" height="20" uuid="131e62b0-c0c6-4521-b12c-60cb2e8b4d73">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[AD_Org_ID[Name]]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="120" y="0" width="150" height="20" uuid="f9c3e31f-fda2-4661-9610-b4f22941296d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="270" y="0" width="100" height="20" uuid="6be5f993-d080-4628-a94a-14c4b0e2ffad">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[MovementDate]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="370" y="0" width="120" height="20" uuid="98c47add-6c7b-4e71-87a9-70bdeca0e4bb">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[C_DocType_ID[Name]]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="490" y="0" width="100" height="20" uuid="145a75ff-68d1-4f3c-9cf0-508c5c3c80cf">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[C_Activity_ID[Name]]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="590" y="0" width="100" height="20" uuid="54fb9608-ddb4-4b54-bf9b-195c826b2927">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[CostingMethod]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="690" y="0" width="100" height="20" uuid="b0f93ce9-137d-45d7-aa5f-41cbbb96e74b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[M_InventoryLine>Line]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="790" y="0" width="200" height="20" uuid="1cf86355-3f88-4cdb-ac88-67c8c12a9535">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[M_InventoryLine>M_Product_ID[Value]]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="990" y="0" width="220" height="20" uuid="c995be2b-41fc-4ffb-91e1-14886c9d595a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[M_InventoryLine>M_AttributeSetInstance_ID]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1210" y="0" width="200" height="20" uuid="c9fc3962-9bee-4ed7-86cc-6c64d6ad20d1">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[M_InventoryLine>C_Charge_ID[Name]]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1610" y="0" width="200" height="20" uuid="876bbe2e-97c4-44ef-93b9-195b7dc04ded">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[M_InventoryLine>NewCostPrice]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1410" y="0" width="200" height="20" uuid="d9882296-0fa9-473b-a252-50be697421ca">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[M_InventoryLine>CurrentCostPrice]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement isPrintRepeatedValues="false" x="0" y="0" width="120" height="20" uuid="a037daf9-3c77-4af4-ac1d-786ce56c8325">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{orgname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement isPrintRepeatedValues="false" x="120" y="0" width="150" height="20" uuid="33e44986-537a-4da6-96b4-f9c5b0220224">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Update Cost of  : " + $F{activity}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement isPrintRepeatedValues="false" x="270" y="0" width="100" height="20" uuid="4bf0ebab-6da3-41a7-9f57-b575582081c7">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[new StringBuilder(new SimpleDateFormat("yyyy-MM-dd").format($P{AsOn}))]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement isPrintRepeatedValues="false" x="370" y="0" width="120" height="20" uuid="910efefd-935f-4cdb-8ae8-f81004a56d43">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Cost Adjustment"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement isPrintRepeatedValues="false" x="490" y="0" width="100" height="20" uuid="191de65f-794a-4f5e-b0c8-421e5bc227c8">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{activity}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement isPrintRepeatedValues="false" x="590" y="0" width="100" height="20" uuid="61831148-9a41-4a83-aed6-75a006ef8541">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["S"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="690" y="0" width="100" height="20" uuid="a35ce48e-3947-4d9e-abea-7ac6290b0d5d">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT} * 10]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="790" y="0" width="200" height="20" uuid="d54834c3-0548-416e-81b2-582a0333d6b9">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{value}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="990" y="0" width="220" height="20" uuid="2a93f894-cb20-43f0-b495-18f41e39ea0c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{m_attributesetinstance_id}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1210" y="0" width="200" height="20" uuid="738f9c2c-4246-4175-920b-39caf43d0bae">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Feed Issuance"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1610" y="0" width="200" height="20" uuid="2428ea05-f071-4f31-a5ba-72c2989fbeac">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{currentcostprice}.doubleValue() + ($F{cost_amount}.doubleValue() / $F{tot_animal}.doubleValue())]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1410" y="0" width="200" height="20" uuid="847e5a5f-ca93-4867-9193-1239617b67bc">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{currentcostprice}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

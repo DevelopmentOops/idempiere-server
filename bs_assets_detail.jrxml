@@ -1,0 +1,1075 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="bs_assets_detail" language="groovy" pageWidth="802" pageHeight="555" orientation="Landscape" columnWidth="799" leftMargin="3" rightMargin="0" topMargin="0" bottomMargin="0" uuid="98b0215b-9880-44e2-aa6c-00a9863e4561">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="85"/>
+	<property name="ireport.y" value="40"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#00FFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 3_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="fixed_assets" uuid="745dde1b-ef43-4fb5-8198-cb6a979eb962">
+		<queryString language="SQL">
+			<![CDATA[SELECT	el.Name, el.value, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= '2019-05-14'
+	AND fa.ad_client_id = 1000000
+	AND el.c_element_id = 1000000
+	AND el.accounttype IN ('A')
+	AND el.value BETWEEN '20000' AND '29999'
+
+
+
+GROUP BY el.value, el.name, el.accounttype
+
+HAVING (sum(fa.amtacctdr) - sum(fa.amtacctcr)) <> 0
+
+ORDER BY el.value]]>
+		</queryString>
+		<field name="name" class="java.lang.String"/>
+		<field name="amount" class="java.math.BigDecimal"/>
+	</subDataset>
+	<subDataset name="current_assets" uuid="30991492-7b9d-48a3-a77a-a661611fbd17">
+		<queryString language="SQL">
+			<![CDATA[SELECT	el.Name, el.value, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= '2019-05-14'
+	AND fa.ad_client_id = 1000000
+	AND el.c_element_id = 1000000
+	AND el.accounttype IN ('A')
+	AND el.value BETWEEN '1' AND '19999'
+
+
+
+GROUP BY el.value, el.name, el.accounttype
+
+HAVING (sum(fa.amtacctdr) - sum(fa.amtacctcr)) <> 0
+
+ORDER BY el.value]]>
+		</queryString>
+		<field name="name" class="java.lang.String"/>
+		<field name="amount" class="java.math.BigDecimal"/>
+	</subDataset>
+	<subDataset name="capital" uuid="0298822b-3ade-4e90-8935-8d0b6fc00c70">
+		<queryString language="SQL">
+			<![CDATA[SELECT	el.Name, el.value, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) amount
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= '2019-05-14'
+	AND fa.ad_client_id = 1000000
+	AND el.c_element_id = 1000000
+	AND el.accounttype IN ('O')
+	AND el.value BETWEEN '30500' AND '30600'
+
+
+
+GROUP BY el.value, el.name, el.accounttype
+
+HAVING (sum(fa.amtacctdr) - sum(fa.amtacctcr)) <> 0
+
+ORDER BY el.value]]>
+		</queryString>
+		<field name="name" class="java.lang.String"/>
+		<field name="amount" class="java.math.BigDecimal"/>
+	</subDataset>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AsOn" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT SUM(rec_cur) rec_cur, SUM(rec_last) rec_last, SUM(oth_rec_cur)oth_rec_cur, SUM(oth_rec_last) oth_rec_last, SUM(inven_cur) inven_cur, SUM(inven_last) inven_last, SUM(fa_cur) fa_cur,
+	SUM(fa_last) fa_last, SUM(bnkcash_cur) bnkcash_cur, SUM( bnkcash_last) bnkcash_last, SUM(cap_cur) cap_cur, SUM(cap_last) cap_last, SUM(pay_cur) pay_cur, SUM(pay_last) pay_last,
+	SUM(oth_pay_cur) oth_pay_cur, SUM(oth_pay_last) oth_pay_last, SUM(draw_cur) draw_cur, SUM(draw_last) draw_last, SUM(pl_cur) pl_cur, SUM(pl_last) pl_last,
+SUM(pl_last_last) pl_last_last, SUM(pl_during_lastyear) pl_during_lastyear, SUM(drw_during_lastyear) drw_during_lastyear
+
+FROM
+
+(
+
+SELECT	(sum(fa.amtacctdr) - sum(fa.amtacctcr)) rec_cur, 0 rec_last, 0 oth_rec_cur, 0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND elvl.third_level = 1000530
+	
+UNION ALL
+
+SELECT	0 rec_cur, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) rec_last, 0 oth_rec_cur, 0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+
+WHERE
+	fa.dateacct < (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND elvl.third_level = 1000530
+
+
+UNION
+
+SELECT	0 rec_cur, 0rec_last, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) oth_rec_cur, 0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+	AND el.value BETWEEN '4-004-001-001' AND '4-004-009-999'
+
+UNION
+
+SELECT	0 rec_cur, 0rec_last, 0 oth_rec_cur, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct < (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+	AND el.value BETWEEN '4-004-001-001' AND '4-004-009-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+	AND (el.value BETWEEN '4-001-001-001' AND '4-001-001-999') OR (el.value BETWEEN '4-003-001-001' AND '4-003-003-999')
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+	AND (el.value BETWEEN '4-001-001-001' AND '4-001-001-999') OR (el.value BETWEEN '4-003-001-001' AND '4-003-003-999')
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+	AND el.value BETWEEN '3-001-001-001' AND  '3-001-009-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+	AND el.value BETWEEN '3-001-001-001' AND  '3-001-009-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+	AND el.value BETWEEN '4-002-001-001' AND '4-002-009-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct < (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('A')
+	AND el.value BETWEEN '4-002-001-001' AND '4-002-009-999'
+
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND elvl.fourth_level = 1000162
+
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+LEFT JOIN adempiere.c_elementvalue_level_v elvl ON fa.account_id = elvl.first_level
+
+WHERE
+	fa.dateacct <= (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND elvl.fourth_level = 1000162
+
+
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('L')
+	AND el.value BETWEEN '2-002-003-001' AND '2-002-999-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct < (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('L')
+	AND el.value  BETWEEN '2-002-003-001' AND '2-002-999-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct <= $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('L')
+	AND el.value BETWEEN '2-001-001-001' AND '2-001-999-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct < (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('L')
+	AND el.value BETWEEN '2-001-001-001' AND '2-001-999-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct BETWEEN (SELECT date_trunc('year', now())) AND $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('O')
+	AND el.value = '30510'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, (sum(fa.amtacctdr) - sum(fa.amtacctcr)) draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct < (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('O')
+	AND el.value = '30510'
+
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct BETWEEN (SELECT date_trunc('year', now())) AND $P{AsOn}
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('R', 'E')
+	AND el.value BETWEEN '5-001-001-001' AND '8-001-999-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) pl_last, 0 pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct < (SELECT date_trunc('year', now()))
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('R', 'E')
+	AND el.value BETWEEN '5-001-001-001' AND '8-001-999-999'
+
+
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) pl_last_last, 0 pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct < (SELECT CONCAT((date_part('year',TIMESTAMP 'now()')-1), '-01-01') ::date)
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('R', 'E')
+	AND el.value BETWEEN '5-001-001-001' AND '8-001-999-999'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) pl_during_lastyear, 0 drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct BETWEEN (SELECT CONCAT((date_part('year',TIMESTAMP 'now()')-1), '-01-01') ::date) AND (SELECT CONCAT((date_part('year',TIMESTAMP 'now()')-1), '-12-31') ::date)
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('R', 'E')
+	AND el.value BETWEEN '41000' AND '82550'
+
+UNION
+
+SELECT	0 rec_cur, 0 cur_last, 0 oth_rec_cur,0 oth_rec_last, 0 inven_cur, 0 inven_last, 0 fa_cur, 0 fa_last, 0 bnkcash_cur, 0 bnkcash_last, 0 cap_cur, 0 cap_last, 0 pay_cur, 0 pay_last, 0 oth_pay_cur, 0 oth_pay_last, 0 draw_cur, 0 draw_last, 0 pl_cur, 0 pl_last, 0 pl_last_last, 0 pl_during_lastyear, (sum(fa.amtacctcr) - sum(fa.amtacctdr)) drw_during_lastyear
+
+FROM adempiere.fact_acct fa
+LEFT JOIN adempiere.c_elementvalue el ON fa.account_id = el.c_elementvalue_id
+
+WHERE
+	fa.dateacct BETWEEN (SELECT CONCAT((date_part('year',TIMESTAMP 'now()')-1), '-01-01') ::date) AND (SELECT CONCAT((date_part('year',TIMESTAMP 'now()')-1), '-12-31') ::date)
+	AND fa.ad_client_id = $P{AD_Client_ID}
+	AND el.c_element_id = 1000002
+	AND el.accounttype IN ('O')
+	AND el.value = '30510') data]]>
+	</queryString>
+	<field name="rec_cur" class="java.math.BigDecimal"/>
+	<field name="rec_last" class="java.math.BigDecimal"/>
+	<field name="oth_rec_cur" class="java.math.BigDecimal"/>
+	<field name="oth_rec_last" class="java.math.BigDecimal"/>
+	<field name="inven_cur" class="java.math.BigDecimal"/>
+	<field name="inven_last" class="java.math.BigDecimal"/>
+	<field name="fa_cur" class="java.math.BigDecimal"/>
+	<field name="fa_last" class="java.math.BigDecimal"/>
+	<field name="bnkcash_cur" class="java.math.BigDecimal"/>
+	<field name="bnkcash_last" class="java.math.BigDecimal"/>
+	<field name="cap_cur" class="java.math.BigDecimal"/>
+	<field name="cap_last" class="java.math.BigDecimal"/>
+	<field name="pay_cur" class="java.math.BigDecimal"/>
+	<field name="pay_last" class="java.math.BigDecimal"/>
+	<field name="oth_pay_cur" class="java.math.BigDecimal"/>
+	<field name="oth_pay_last" class="java.math.BigDecimal"/>
+	<field name="draw_cur" class="java.math.BigDecimal"/>
+	<field name="draw_last" class="java.math.BigDecimal"/>
+	<field name="pl_cur" class="java.math.BigDecimal"/>
+	<field name="pl_last" class="java.math.BigDecimal"/>
+	<field name="pl_last_last" class="java.math.BigDecimal"/>
+	<field name="pl_during_lastyear" class="java.math.BigDecimal"/>
+	<field name="drw_during_lastyear" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="366" splitType="Stretch">
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="593" y="85" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fa_cur}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="678" y="0" width="85" height="20" uuid="189131f3-0172-49a6-908f-6b634c0ac9a8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Last Year]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="593" y="0" width="85" height="20" uuid="189131f3-0172-49a6-908f-6b634c0ac9a8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Current Year]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="190" y="0" width="85" height="20" uuid="189131f3-0172-49a6-908f-6b634c0ac9a8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Current Year]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="275" y="0" width="85" height="20" uuid="189131f3-0172-49a6-908f-6b634c0ac9a8"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Last Year]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="401" y="34" width="401" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[ASSETS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="34" width="401" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="12" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[EQUITY & LIABILITIES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="401" y="61" width="401" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[NON-CURRENT ASSETS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="61" width="401" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[EQUITY & RESERVES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="401" y="85" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Property, plant and equipment]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="678" y="85" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fa_last}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="85" width="190" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Equity]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="190" y="85" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{cap_cur} + $F{pl_last})-$F{draw_last}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="85" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cap_last} + $F{pl_last_last}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="401" y="164" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL NON-CURRENT ASSETS]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="593" y="164" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fa_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="678" y="164" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fa_last}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="401" y="198" width="401" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[CURRENT ASSETS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="401" y="223" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<box leftPadding="18"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Stock in Trade]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="401" y="243" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<box leftPadding="18"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Trade Debtors]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="401" y="263" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<box leftPadding="18"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Loan and Advances]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="401" y="283" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<box leftPadding="18"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Cash & Bank Balances]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="593" y="223" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inven_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="593" y="243" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<leftPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rec_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="593" y="263" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<leftPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{oth_rec_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="593" y="283" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bnkcash_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="678" y="223" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inven_last}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="678" y="243" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rec_last}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="678" y="263" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{oth_rec_last}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="678" y="283" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{bnkcash_last}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="593" y="307" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rec_cur} + $F{oth_rec_cur} + $F{inven_cur} + $F{bnkcash_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="678" y="307" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{rec_last} + $F{oth_rec_last} + $F{inven_last} + $F{bnkcash_last}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="401" y="307" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL CURRENT ASSETS]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="593" y="346" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fa_cur} + $F{rec_cur} + $F{oth_rec_cur} + $F{inven_cur} + $F{bnkcash_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="678" y="346" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{fa_last} + $F{rec_last} + $F{oth_rec_last} + $F{inven_last} + $F{bnkcash_last}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="401" y="346" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL ASSETS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="105" width="190" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Profit for the Year]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="149" width="190" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Less Drawing during the Year]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="190" y="105" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pl_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="105" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pl_during_lastyear}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="190" y="129" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{cap_cur} + $F{pl_last})-$F{draw_last}+ $F{pl_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="129" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cap_last} + $F{pl_last_last} + $F{pl_during_lastyear}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="190" y="149" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{draw_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="149" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{drw_during_lastyear}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="129" width="190" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="198" width="401" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[CURRENT LIABILITIES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="223" width="190" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Trade Creditors]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="243" width="190" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Accruals and other Liabilities]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="263" width="190" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Short Term Borrowings ]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="190" y="223" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pay_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="223" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pay_last}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="190" y="263" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="263" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="190" y="243" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{oth_pay_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="243" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box rightPadding="2">
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{oth_pay_last}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="190" y="283" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pay_cur} + $F{oth_pay_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="283" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pay_last} + $F{oth_pay_last}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-2" y="283" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL LIABILITIES]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="346" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL EQUITY AND LIABILITIES]]></text>
+			</staticText>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="192" y="346" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{cap_cur} + $F{pl_last})-$F{draw_last}+ ($F{pl_cur}) - $F{draw_cur} + $F{pay_cur} + $F{oth_pay_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="277" y="346" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cap_last} + $F{pl_last_last} + $F{pl_during_lastyear}- $F{drw_during_lastyear} + $F{pay_last} + $F{oth_pay_last}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="190" y="169" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cap_cur} + $F{pl_last}+ $F{pl_cur} - $F{draw_cur}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)">
+				<reportElement x="275" y="169" width="85" height="20" uuid="64f48505-1d91-4d4f-ab41-7d28c9582f92"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cap_last} + $F{pl_last_last} + $F{pl_during_lastyear}- $F{drw_during_lastyear}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="-2" y="169" width="192" height="20" uuid="7c70080d-c192-454e-888f-26122cc3d14d"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL EQUITY]]></text>
+			</staticText>
+		</band>
+	</title>
+</jasperReport>

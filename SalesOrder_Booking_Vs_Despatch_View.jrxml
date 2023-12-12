@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="SalesOrder_Booking_Vs_Despatch_View" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="59ae0051-3af9-4cf0-aa3d-8187cccd2600">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.1" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.2" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.ignore.graphics" value="false"/>
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="net.sf.jasperreports.exports.xls.font.size.fix.enabled" value="false"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<parameter name="C_Order_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="EndDate" class="java.sql.Timestamp">
+		<defaultValueExpression><![CDATA[java.sql.Timestamp.valueOf("2011-02-28 00:00:00")]]></defaultValueExpression>
+	</parameter>
+	<parameter name="DocStatus" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT ord.*, coalesce(shp.movementqty, 0) movementqty,
+
+(SELECT org.orgname orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE org.ad_org_id = $P{AD_Org_ID})org),
+(SELECT cl.clientname clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl WHERE cl.ad_client_id = $P{AD_Client_ID})cl),
+(SELECT bp.bpname FROM (SELECT bp.name bpname FROM adempiere.c_bpartner bp  WHERE c_bpartner_id = $P{C_BPartner_ID})bp)
+
+FROM 
+
+(SELECT	o.dateordered, o.documentno
+		,ol.c_orderline_id, ol.m_product_id
+		,p.value prodcode, p.name prodname, uom.uomsymbol, ol.qtyentered orderqty
+		,bp.name customername, sz.name saleszone, sr.name salesregion, pp.PriceStd
+
+FROM adempiere.c_orderline ol
+LEFT JOIN adempiere.c_order o ON ol.c_order_id = o.c_order_id
+LEFT JOIN adempiere.m_product p ON ol.m_product_id = p.m_product_id
+LEFT JOIN adempiere.c_uom uom ON p.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.c_bpartner bp ON o.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_bpartner_location bpl ON bp.c_bpartner_id = bpl.c_bpartner_id
+LEFT JOIN adempiere.c_salesregion sr ON bpl.c_salesregion_id = sr.c_salesregion_id
+LEFT JOIN adempiere.c_saleszone sz ON sr.c_saleszone_id = sz.c_saleszone_id
+LEFT JOIN adempiere.m_productprice pp ON p.m_product_id = pp.m_product_id AND pp.M_PriceList_Version_ID=1000001
+
+WHERE	ol.ad_client_id = $P{AD_Client_ID}
+AND  ($P!{AD_Org_ID} IS NULL OR o.ad_org_id = $P!{AD_Org_ID})
+AND   ($P!{C_BPartner_ID} IS NULL OR o.c_bpartner_id = $P!{C_BPartner_ID}) 
+AND   ($P!{C_Order_ID} IS NULL OR o.c_order_id = $P!{C_Order_ID}) 
+AND o.dateordered BETWEEN $P{StartDate} and $P{EndDate}
+AND o.docstatus = COALESCE($P{DocStatus}, o.docstatus)
+		AND o.issotrx = 'Y'
+		AND o.docstatus IN ('CO', 'CL', 'IP')
+		
+ORDER BY o.dateordered, o.documentno, ol.line) ord
+
+LEFT JOIN
+
+
+( SELECT iol.c_orderline_id, iol.m_product_id,
+		SUM(iol.movementqty) movementqty
+
+FROM adempiere.m_inoutline iol
+LEFT JOIN adempiere.m_inout io ON iol.m_inout_id = io.m_inout_id
+LEFT JOIN adempiere.m_product p ON iol.m_product_id = p.m_product_id
+LEFT JOIN adempiere.c_uom uom ON p.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.c_bpartner bp ON io.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_bpartner_location bpl ON bp.c_bpartner_id = bpl.c_bpartner_id
+LEFT JOIN adempiere.c_salesregion sr ON bpl.c_salesregion_id = sr.c_salesregion_id
+LEFT JOIN adempiere.c_saleszone sz ON sr.c_saleszone_id = sz.c_saleszone_id
+
+WHERE	iol.ad_client_id = $P{AD_Client_ID}
+AND  ($P!{AD_Org_ID} IS NULL OR io.ad_org_id = $P!{AD_Org_ID})
+AND   ($P!{C_BPartner_ID} IS NULL OR io.c_bpartner_id = $P!{C_BPartner_ID})
+AND   ($P!{C_Order_ID} IS NULL OR io.c_order_id = $P!{C_Order_ID})
+AND io.docstatus = COALESCE($P{DocStatus}, io.docstatus)
+		AND io.issotrx = 'Y'
+		AND io.docstatus IN ('CO', 'CL', 'IP', 'DR', 'IN')
+
+GROUP BY iol.c_orderline_id, iol.m_product_id
+) shp
+
+ON ord.c_orderline_id = shp.c_orderline_id AND ord.m_product_id = shp.m_product_id]]>
+	</queryString>
+	<field name="dateordered" class="java.sql.Timestamp"/>
+	<field name="documentno" class="java.lang.String"/>
+	<field name="c_orderline_id" class="java.math.BigDecimal"/>
+	<field name="m_product_id" class="java.math.BigDecimal"/>
+	<field name="prodcode" class="java.lang.String"/>
+	<field name="prodname" class="java.lang.String"/>
+	<field name="uomsymbol" class="java.lang.String"/>
+	<field name="orderqty" class="java.math.BigDecimal"/>
+	<field name="customername" class="java.lang.String"/>
+	<field name="saleszone" class="java.lang.String"/>
+	<field name="salesregion" class="java.lang.String"/>
+	<field name="pricestd" class="java.math.BigDecimal"/>
+	<field name="movementqty" class="java.math.BigDecimal"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="bpname" class="java.lang.String"/>
+	<variable name="orderqty" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{orderqty}]]></variableExpression>
+	</variable>
+	<variable name="movement" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{movementqty}]]></variableExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="40" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="380" height="20" uuid="6b8fc69d-3ca8-4dc4-af43-18c24fa229a1">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Sales Order Booking Vs Despatch View"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="0" y="20" width="380" height="20" forecolor="#006F3A" uuid="4a7c1395-f68b-4218-aa77-df8951301d41">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Top">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname} + " [ " + $F{orgname} + " ]"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="20" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="60" height="20" uuid="7323a2d7-e5c6-448a-a370-9af5b423d4a0"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Date Order]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="60" y="0" width="70" height="20" uuid="b904e11b-485f-4312-ae6c-a0b54c1e2666"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[DocumentNo]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="130" y="0" width="110" height="20" uuid="c8ba9618-dfef-4678-bfe6-63016cd524fd">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Customer Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="240" y="0" width="60" height="20" uuid="f3793272-3ed3-4e57-b14d-8d07bb9c1186">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Region]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="300" y="0" width="80" height="20" uuid="7de13714-4ec4-4d6d-88df-13d822198f04">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Zone]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="380" y="0" width="70" height="20" uuid="fa9540c7-5d57-4e63-8823-e78022be0142">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Product Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="450" y="0" width="152" height="20" uuid="0e15000a-2c29-43c5-8a76-c618c53fb648"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Product Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="702" y="0" width="50" height="20" uuid="22ccf0a5-b91f-469c-9c23-34e0e3275d71"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Desp Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="752" y="0" width="50" height="20" uuid="47aad0bd-7bca-4201-b076-7e5512010c03">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Diff Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="652" y="0" width="50" height="20" uuid="f1c5520c-029e-4289-99f0-19af43d62654">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Order Qty]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="602" y="0" width="50" height="20" uuid="282a10bb-8113-49be-9352-90c25ba97d68"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[SalePrice]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="M/d/yy" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="657a3dc7-7911-46bc-aa17-43a0ea372ee2">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dateordered}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="60" y="0" width="70" height="20" isPrintWhenDetailOverflows="true" uuid="039ba29f-7efe-491b-ae08-3330f10d1e86"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{documentno}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="130" y="0" width="110" height="20" isPrintWhenDetailOverflows="true" uuid="26c8d529-7378-4066-9376-273edd86c2e1">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{customername}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="240" y="0" width="60" height="20" isPrintWhenDetailOverflows="true" uuid="041913e6-6e67-4d2a-a420-4df1e1c633b8">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{saleszone}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="300" y="0" width="80" height="20" isPrintWhenDetailOverflows="true" uuid="5655aa86-36cc-4d60-9f6c-1ddc230a994b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{salesregion}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="380" y="0" width="70" height="20" isPrintWhenDetailOverflows="true" uuid="95bd2905-9d8f-4d2b-b684-fc80d408bc07"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prodcode}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="450" y="0" width="152" height="20" isPrintWhenDetailOverflows="true" uuid="c20e5ad8-236b-4999-93a7-7ae96b8a5c99"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prodname}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="702" y="0" width="50" height="20" isPrintWhenDetailOverflows="true" uuid="c29844f6-ab4c-4097-b052-31573f0922e4"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{movementqty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="652" y="0" width="50" height="20" isPrintWhenDetailOverflows="true" uuid="d502911f-02d5-41f9-ab81-bff7443fd03b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{orderqty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;(#,##0.###)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="602" y="0" width="50" height="20" isPrintWhenDetailOverflows="true" uuid="fefbbae8-2121-4ae9-89c6-859d7412d45b"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{pricestd}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" evaluationTime="Auto" pattern="#,##0.###;(#,##0.###)" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="752" y="0" width="50" height="20" isPrintWhenDetailOverflows="true" uuid="1649740d-50b3-4d14-a0de-2b122e47eca7"/>
+				<box padding="3">
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{orderqty}.doubleValue() - $F{movementqty}.doubleValue()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="20" splitType="Stretch">
+			<textField pattern="#,##0.###;(#,##0.###)">
+				<reportElement x="652" y="0" width="50" height="20" uuid="44357ae0-048b-4a06-9538-6cf2a07270b7"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{orderqty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.###;(#,##0.###)">
+				<reportElement x="702" y="0" width="50" height="20" uuid="df708330-e3bf-4b91-8ac3-768aa63e2004"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{movement}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.###;(#,##0.###)">
+				<reportElement x="752" y="0" width="50" height="20" uuid="dcc87a58-8a30-411d-8b5b-718597a91a59"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{orderqty}.doubleValue() - $V{movement}.doubleValue()]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

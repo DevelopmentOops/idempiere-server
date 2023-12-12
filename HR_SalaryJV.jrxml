@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HR_SalaryJV" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true" uuid="691c195c-52af-4664-9801-d03ce4bcc549">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<property name="net.sf.jasperreports.export.xls.detect.cell.type" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.1" value="columnHeader"/>
+	<property name="net.sf.jasperreports.export.xls.exclude.origin.keep.first.band.2" value="pageHeader"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.rows" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.remove.empty.space.between.columns" value="true"/>
+	<property name="net.sf.jasperreports.export.xls.ignore.graphics" value="false"/>
+	<property name="net.sf.jasperreports.print.keep.full.text" value="true"/>
+	<property name="net.sf.jasperreports.exports.xls.font.size.fix.enabled" value="false"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="HR_Period_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT (ROW_NUMBER() OVER() * 10) as Line, DESCRIPTION||' '||(SELECT to_char(enddate::date, 'fmMon-yyyy') FROM adempiere.hr_period WHERE hr_period_id = $P{HR_Period_ID}) DESCRIPTION, ACCOUNT_ID, C_BPartner_ID, C_BPName, SUM(AmtSourceDr) AmtSourceDr, SUM(AmtSourceCr) AmtSourceCr
+FROM (
+-- Total SSC Gross Salary + Mobile + Fuel + Vehicle + Arrears
+SELECT 10 as OrderBy, 'SSC Gross Salary ' as DESCRIPTION, '7-001-002-001' as ACCOUNT_ID, '' as C_BPartner_ID, '' as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id IN (1000002, 1000007, 1000012, 1000013, 1000014, 1000026, 1000025, 1000031, 1000020, 1000029) AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id = $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND cb.hr_emplocation_id IN (1000001, 1000002) AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY hm.hr_concept_id HAVING SUM(amount) <> 0
+UNION ALL
+-- Total Sales Staff Gross Salary + Mobile + Fuel + Vehicle + Arrears
+SELECT 20 as OrderBy, 'Sales Staff Gross Salary ' as DESCRIPTION, '7-002-001-001' as ACCOUNT_ID, '' as C_BPartner_ID, '' as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id IN (1000002, 1000007, 1000012, 1000013, 1000014, 1000026, 1000025, 1000031, 1000020, 1000029) AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND cb.hr_emplocation_id IN (1000003, 1000004) AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY hm.hr_concept_id HAVING SUM(amount) <> 0
+UNION ALL
+-- Total Factory Gross Salary + Mobile + Fuel + Vehicle + Arrears
+SELECT 30 as OrderBy, 'Factory Gross Salary ' as DESCRIPTION, '6-002-001-001' as ACCOUNT_ID, '' as C_BPartner_ID, '' as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id IN (1000002, 1000007, 1000012, 1000013, 1000014, 1000026, 1000025, 1000031, 1000020, 1000029) AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND cb.hr_emplocation_id IN (1000006, 1000009, 1000010, 1000005, 1000007, 1000008) AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY hm.hr_concept_id HAVING SUM(amount) <> 0
+UNION ALL
+-- Total Rest Gross Salary + Mobile + Fuel + Vehicle + Arrears
+SELECT 40 as OrderBy, 'Rest Gross Salary ' as DESCRIPTION, '7-001-002-001' as ACCOUNT_ID, '' as C_BPartner_ID, '' as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id IN (1000002, 1000007, 1000012, 1000013, 1000014, 1000026, 1000025, 1000031, 1000020, 1000029) AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND cb.hr_emplocation_id NOT IN (1000001, 1000002, 1000003, 1000004, 1000006, 1000005, 1000007, 1000008, 1000009, 1000010) AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY hm.hr_concept_id HAVING SUM(amount) <> 0
+UNION ALL
+-- Total Gross Salary Employee Cr
+SELECT 50 as OrderBy, 'Employee Gross Salary ' as DESCRIPTION,'2-002-002-006' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, 0::numeric AmtSourceDr, SUM(Amount) AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id IN (1000002, 1000007, 1000012, 1000013,  1000014, 1000026, 1000025, 1000031, 1000020, 1000029) AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) <> 0
+UNION ALL
+-- Total Advance Employee Dr
+SELECT 60 as OrderBy, 'Employee Advance ' as DESCRIPTION, '2-002-002-006' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000021 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- Total Advance Employee Cr
+SELECT 70 as OrderBy, 'Employee Advance ' as DESCRIPTION,'4-004-001-002' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, 0::numeric AmtSourceDr, SUM(Amount) AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000021 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- Total Loan Employee Dr
+SELECT 80 as OrderBy, 'Employee Loan ' as DESCRIPTION, '2-002-002-006' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000022 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- Total Loan Employee Cr
+SELECT 90 as OrderBy, 'Employee Loan ' as DESCRIPTION, '4-004-001-001' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, 0::numeric AmtSourceDr, SUM(Amount) AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000022 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- LapTop/MobileLoan Employee Dr
+SELECT 100 as OrderBy, 'Employee LapTop/Mobile Loan ' as DESCRIPTION, '2-002-002-006' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000033 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- LapTop/mobile Loan Employee Cr
+SELECT 110 as OrderBy, 'Employee LapTop/Mobile Loan ' as DESCRIPTION, '4-004-001-003' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, 0::numeric AmtSourceDr, SUM(Amount) AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000033 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- Total Tax
+SELECT 120 as OrderBy, 'Tax ' as DESCRIPTION, '2-002-004-001' as ACCOUNT_ID, '' as C_BPartner_ID, '' as C_BPName, 0 AmtSourceDr, SUM(Amount)::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id = 1000016 AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY hm.hr_concept_id HAVING SUM(amount) > 0
+UNION ALL
+-- Total TAX Employee Cr
+SELECT 130 as OrderBy, 'Employee TAX ' as DESCRIPTION,'2-002-002-006' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000016 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+--Total Late Deduction CR
+SELECT 140 as OrderBy, 'Total Late Deduction ' as DESCRIPTION, '7-001-002-007' as ACCOUNT_ID, '' as C_BPartner_ID, '' as C_BPName, 0 AmtSourceDr, SUM(Amount)::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id = 1000024 AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id = $P{AD_Client_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY hm.hr_concept_id HAVING SUM(amount) > 0
+UNION ALL
+-- Late Employee Dr
+SELECT 160 as OrderBy, 'Employee Late Deduction ' as DESCRIPTION,'2-002-002-006' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000024 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id = $P{AD_Client_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- Employee Contribution PF Cr
+SELECT 170 as OrderBy, 'Provident Fund Employee Contribution' as DESCRIPTION, '2-002-002-009' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, 0::numeric AmtSourceDr, SUM(Amount)::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id = 1000028 AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- Total PF Employee Dr
+SELECT 180 as OrderBy, 'Provident Fund Employee Contribution ' as DESCRIPTION,'2-002-002-006' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000028 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id = $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- Total PF Employer Contribution Cr
+SELECT 190 as OrderBy, 'Provident Fund Employer Contribution' as DESCRIPTION, '2-002-002-009' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, 0::numeric AmtSourceDr, SUM(Amount)::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id = 1000028 AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id =  $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+UNION ALL
+-- Total PF Employer Contribution Dr
+SELECT 200 as OrderBy, 'Provident Fund Employer Contribution' as DESCRIPTION,'7-001-002-002' as ACCOUNT_ID, '' as C_BPartner_ID, '' as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000028 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id = $P{AD_Client_ID} AND cb.ad_org_id = $P{AD_Org_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY  hm.hr_concept_id HAVING SUM(amount) > 0
+UNION ALL
+--Total Excess Mobile Usage
+SELECT 210 as OrderBy, 'Total Excess Mobile Usage ' as DESCRIPTION, '7-001-001-006' as ACCOUNT_ID, '' as C_BPartner_ID, '' as C_BPName, 0::numeric AmtSourceDr, SUM(Amount) AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hr_concept_id = 1000030 AND hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id = $P{AD_Client_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY hm.hr_concept_id HAVING SUM(amount) > 0
+UNION ALL
+-- Employee Excess Mobile Usage Cr
+SELECT 220 as OrderBy, 'Employee Excess Mobile Usage ' as DESCRIPTION,'2-002-002-006' as ACCOUNT_ID, cb.empcode as C_BPartner_ID, cb.empname as C_BPName, SUM(Amount) AmtSourceDr, 0::numeric AmtSourceCr FROM adempiere.hr_movement hm, adempiere.xxhr_employee_v cb WHERE hm.c_bpartner_id = cb.c_bpartner_id AND hm.hr_concept_id = 1000030 AND hm.hr_period_id = $P{HR_Period_ID} AND cb.ad_client_id = $P{AD_Client_ID} AND (cb.enddate IS NULL OR cb.enddate >= hm.validfrom) GROUP BY cb.c_bpartner_id, cb.empcode, cb.empname HAVING SUM(amount) > 0
+) q
+GROUP BY OrderBy, DESCRIPTION, ACCOUNT_ID, C_BPartner_ID, C_BPName
+ORDER BY OrderBY]]>
+	</queryString>
+	<field name="line" class="java.lang.Long"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="account_id" class="java.lang.String"/>
+	<field name="c_bpartner_id" class="java.lang.String"/>
+	<field name="c_bpname" class="java.lang.String"/>
+	<field name="amtsourcedr" class="java.math.BigDecimal"/>
+	<field name="amtsourcecr" class="java.math.BigDecimal"/>
+	<title>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="45" height="20" uuid="a5ba622f-97cd-46bf-85b9-eca7d25c9166">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Line"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="45" y="0" width="235" height="20" uuid="e426f000-057c-485a-8b68-e0717bf3955b">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Description"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="280" y="0" width="110" height="20" uuid="bebc5a59-2bf1-438e-8b14-2e448df977e6">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Account_ID[Value]"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="390" y="0" width="125" height="20" uuid="c4b7ad6d-b677-477a-880e-6d4da79d73a7">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["C_BPartner_ID[Value]"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="640" y="0" width="80" height="20" uuid="b9264a72-1dc6-46b8-8af7-673bd763643f">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["AmtSourceDr"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="720" y="0" width="82" height="20" uuid="fab6fa4f-81d0-44b5-b521-897a1e5b40e0">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["AmtSourceCr"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="515" y="0" width="125" height="20" uuid="2adb4f9f-ee2a-4149-80b8-fc3ede7debbc">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Name"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<detail>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="45" height="20" uuid="43eec41e-6ce6-4c28-ab50-d200f113e3de">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{line}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="45" y="0" width="235" height="20" uuid="56eb7ad8-8766-464c-b823-e0ac02c69042"/>
+				<box padding="3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="280" y="0" width="110" height="20" uuid="11038560-4b6c-4e55-a01b-279025238ff3"/>
+				<box padding="3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{account_id}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="390" y="0" width="125" height="20" uuid="0eb46efe-1ca7-427c-b1cb-9b43953473ad">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box padding="3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{c_bpartner_id}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;#,##0.###-">
+				<reportElement stretchType="RelativeToBandHeight" x="640" y="0" width="80" height="20" uuid="555163da-0a42-429a-9441-9a403a4d64a5"/>
+				<box padding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{amtsourcedr}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.###;#,##0.###-">
+				<reportElement stretchType="RelativeToBandHeight" x="720" y="0" width="82" height="20" uuid="531a2135-5b91-414f-9759-ed456107c174">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box padding="3"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{amtsourcecr}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement stretchType="RelativeToBandHeight" x="515" y="0" width="125" height="20" uuid="0d8da903-ed30-4473-8812-7c24cfdf0415">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box padding="3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{c_bpname}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

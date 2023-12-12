@@ -1,0 +1,687 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="FN_ProfitLossReport_Test" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="70215b20-30ec-4c8d-b4e6-bf85eb737eba">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="LRFDataBase"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="C_Period_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT *, row_number() over(partition by row_num order by row_num) number,
+(SELECT orgname FROM (SELECT org.name orgname FROM adempiere.ad_org org WHERE org.ad_org_id  =$P{AD_Org_ID} )org),
+(SELECT clientname FROM (SELECT cl.name clientname FROM adempiere.ad_client cl WHERE cl.ad_client_id = $P{AD_Client_ID} )cl),
+(SELECT curr_period FROM (SELECT p.name curr_period FROM adempiere.c_period p WHERE p.c_period_id = $P{C_Period_ID} )p),
+(SELECT last_period FROM (SELECT p.name last_period FROM adempiere.c_period p WHERE p.c_period_id = $P{C_Period_ID} -1 )p)
+from
+(
+SELECT 1 top_level_id,'Non Current Assests'  Group_name,0 grpid, second_level account_id, 0 order_by, value, INITCAP(account_name) account_name, ROUND(SUM(amt_cur), 0) amt_cur, ROUND(SUM(amt_last),0) amt_last, 9 row_num, ROUND(SUM(dr), 0) dr, ROUND(SUM(cr), 0) cr
+FROM 
+(SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, 0 amt_last, SUM(amtacctdr) dr, SUM(amtacctcr) cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id = $P{C_Period_ID}
+    AND fourth_level IN (1000087)
+	GROUP BY second_level, elv.value, elv.name
+	UNION ALL
+	SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, SUM(amtacctdr-amtacctcr) amt_last, 0 dr, 0 cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id <= $P{C_Period_ID}-1 
+    AND fourth_level IN (1000087)
+	GROUP BY second_level, elv.value, elv.name) d
+	GROUP BY second_level, value, account_name
+	
+UNION ALL
+
+SELECT 1 top_level_id,'Current Assets' Group_name,1 grpid, second_level account_id, 1 order_by, value, INITCAP(account_name) account_name, ROUND(SUM(amt_cur), 0) amt_cur, ROUND(SUM(amt_last),0) amt_last, 9 row_num, ROUND(SUM(dr), 0) dr, ROUND(SUM(cr), 0) cr
+	FROM 
+	(SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, 0 amt_last, SUM(amtacctdr) dr, SUM(amtacctcr) cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id = $P{C_Period_ID}
+	 AND fourth_level IN (1000127)
+	GROUP BY second_level, elv.name, elv.value
+	UNION ALL
+	SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, SUM(amtacctdr-amtacctcr) amt_last, 0 dr, 0 cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id <= $P{C_Period_ID}-1 
+	 AND fourth_level IN (1000127)
+	GROUP BY second_level, elv.name, elv.value
+	ORDER BY value) d
+	GROUP BY second_level, value, account_name
+	
+UNION ALL
+
+SELECT 2 top_level_id,'Current Liabilities' Group_name,0 grpid, second_level account_id, 0 order_by, value, INITCAP(account_name) account_name, ROUND(SUM(amt_cur), 0) amt_cur, ROUND(SUM(amt_last),0) amt_last, 9 row_num, ROUND(SUM(dr), 0) dr, ROUND(SUM(cr), 0) cr
+	FROM 
+	(SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, 0 amt_last, SUM(amtacctdr) dr, SUM(amtacctcr) cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id = $P{C_Period_ID}
+	 AND third_level IN (1000068)
+	GROUP BY second_level, elv.name, elv.value
+	UNION ALL
+	SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, SUM(amtacctdr-amtacctcr) amt_last, 0 dr, 0 cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id <= $P{C_Period_ID}-1 
+	 AND third_level IN (1000068)
+	GROUP BY second_level, elv.name, elv.value
+	ORDER BY value) d
+	GROUP BY second_level, value, account_name
+	
+UNION ALL	
+SELECT 2 top_level_id,'Long Term Liabilities' Group_name,1 grpid, second_level account_id, 1 order_by, value, INITCAP(account_name) account_name, ROUND(SUM(amt_cur), 0) amt_cur, ROUND(SUM(amt_last),0) amt_last, 9 row_num, ROUND(SUM(dr), 0) dr, ROUND(SUM(cr), 0) cr
+	FROM 
+	(SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, 0 amt_last, SUM(amtacctdr) dr, SUM(amtacctcr) cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id = $P{C_Period_ID}
+	 AND third_level IN (1000064)
+	GROUP BY second_level, elv.name, elv.value
+	UNION ALL
+	SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, SUM(amtacctdr-amtacctcr) amt_last, 0 dr, 0 cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id <= $P{C_Period_ID}-1 
+	 AND third_level IN (1000064)
+	GROUP BY second_level, elv.name, elv.value
+	ORDER BY value) d
+	GROUP BY second_level, value, account_name
+	
+UNION ALL
+
+SELECT 2 top_level_id,'Partners Capital Drawings and Reserves' Group_name, 2 grpid, second_level account_id, 2 order_by, value, INITCAP(account_name) account_name, ROUND(SUM(amt_cur), 0) amt_cur, ROUND(SUM(amt_last),0) amt_last, 9 row_num, ROUND(SUM(dr), 0) dr, ROUND(SUM(cr), 0) cr
+	FROM 
+	(SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, 0 amt_last, SUM(amtacctdr) dr, SUM(amtacctcr) cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id = $P{C_Period_ID}
+	 AND fourth_level IN (1000054)
+	GROUP BY second_level, elv.name, elv.value
+	UNION ALL
+	SELECT second_level, elv.value, elv.name account_name, 0 amt_cur, SUM(amtacctdr-amtacctcr) amt_last, 0 dr, 0 cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id <= $P{C_Period_ID}-1 
+	 AND fourth_level IN (1000054)
+	GROUP BY second_level, elv.name, elv.value
+	ORDER BY value) d
+	GROUP BY second_level, value, account_name
+	
+UNION ALL
+	
+	SELECT 2 top_level_id, 'Profit / Loss for the Period'  Group_name,2 grpid, second_level account_id, 2 order_by, value, INITCAP(account_name) account_name, ROUND(SUM(amt_cur), 0) amt_cur, ROUND(SUM(amt_last),0) amt_last, 9 row_num, ROUND(SUM(dr), 0) dr, ROUND(SUM(cr), 0) cr
+FROM 
+(SELECT 999999 second_level, '9999999999' as value, 'Profit / Loss for the Period' account_name, 0 amt_cur, 0 amt_last, SUM(amtacctdr) dr, SUM(amtacctcr) cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id = $P{C_Period_ID}
+    AND fourth_level IN (1000166,1000171,1000225,1000308)
+	
+	UNION ALL
+	
+	SELECT 999999 second_level, '9999999999' as value, 'Profit / Loss for the Period' account_name, 0 amt_cur, SUM(amtacctdr-amtacctcr) amt_last, 0 dr, 0 cr
+	FROM adempiere.fact_acct fa
+	LEFT JOIN adempiere.c_elementvalue_level_v el ON fa.account_id = el.first_level
+	LEFT JOIN adempiere.c_elementvalue elv ON el.second_level = elv.c_elementvalue_id
+	WHERE fa.ad_client_id = $P{AD_Client_ID} 
+    AND ($P!{AD_Org_ID} IS NULL OR fa.ad_org_id = $P!{AD_Org_ID})
+    AND fa.c_period_id <= $P{C_Period_ID}-1 
+    AND fourth_level IN (1000166,1000171,1000225,1000308)
+	) d
+	GROUP BY second_level, value, account_name)d
+	order by d.top_level_id,grpid, value]]>
+	</queryString>
+	<field name="top_level_id" class="java.lang.Integer"/>
+	<field name="group_name" class="java.lang.String"/>
+	<field name="grpid" class="java.lang.Integer"/>
+	<field name="account_id" class="java.math.BigDecimal"/>
+	<field name="order_by" class="java.lang.Integer"/>
+	<field name="value" class="java.lang.String"/>
+	<field name="account_name" class="java.lang.String"/>
+	<field name="amt_cur" class="java.math.BigDecimal"/>
+	<field name="amt_last" class="java.math.BigDecimal"/>
+	<field name="row_num" class="java.lang.Integer"/>
+	<field name="dr" class="java.math.BigDecimal"/>
+	<field name="cr" class="java.math.BigDecimal"/>
+	<field name="number" class="java.lang.Long"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="curr_period" class="java.lang.String"/>
+	<field name="last_period" class="java.lang.String"/>
+	<variable name="Amount_Cur_Sum_GrpID" class="java.math.BigDecimal" resetType="Group" resetGroup="Group_GRPID_Based" calculation="Sum">
+		<variableExpression><![CDATA[$F{amt_last}.doubleValue() + $F{dr}.doubleValue() - $F{cr}.doubleValue()]]></variableExpression>
+	</variable>
+	<variable name="Amt_Last_Sum_GrpID" class="java.math.BigDecimal" resetType="Group" resetGroup="Group_GRPID_Based" calculation="Sum">
+		<variableExpression><![CDATA[$F{amt_last}]]></variableExpression>
+	</variable>
+	<variable name="Amount_Cur_Sum_Top_Level" class="java.math.BigDecimal" resetType="Group" resetGroup="Top_Level_Based" calculation="Sum">
+		<variableExpression><![CDATA[$F{amt_last}.doubleValue() + $F{dr}.doubleValue() - $F{cr}.doubleValue()]]></variableExpression>
+	</variable>
+	<variable name="Amt_Last_Sum_Top_Level" class="java.math.BigDecimal" resetType="Group" resetGroup="Top_Level_Based" calculation="Sum">
+		<variableExpression><![CDATA[$F{amt_last}]]></variableExpression>
+	</variable>
+	<group name="Top_Level_Based">
+		<groupExpression><![CDATA[$F{top_level_id}]]></groupExpression>
+		<groupHeader>
+			<band height="15">
+				<textField>
+					<reportElement mode="Transparent" x="0" y="0" width="234" height="15" forecolor="#000000" backcolor="#FFFFFF" uuid="52e2d29c-6c29-44ce-91cb-12fa9f6cbf77">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="5"/>
+					<textElement verticalAlignment="Middle">
+						<font size="9" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[(($F{top_level_id} == 1)  ? "Assets" : ($F{top_level_id} == 2) ? "Liabilities" : "Partners Capital Drawings And Reserves")]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="234" y="0" width="80" height="20" backcolor="#E0DEDE" uuid="7d77c6c1-014e-490b-9d66-d177535e42df">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Amt_Last_Sum_Top_Level}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Transparent" x="0" y="0" width="234" height="20" backcolor="#FFFFFF" uuid="5c49b6ab-e3d2-4521-a64b-a1eb09f8fe71">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[(($F{top_level_id} == 1)  ? "Assets" : ($F{top_level_id} == 2) ? "Liabilities" : "Partners Capital Drawings And Reserves") + "Total"]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="474" y="0" width="80" height="20" backcolor="#E0DEDE" uuid="f745a416-eae5-4c8d-bb11-7c5317268894">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Amount_Cur_Sum_Top_Level}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="394" y="0" width="80" height="20" backcolor="#F0F0F0" uuid="9f76b65d-1322-43fe-99c9-3e7a6064ceb1">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="314" y="0" width="80" height="20" backcolor="#F0F0F0" uuid="936a2f2c-d4d9-47fa-a0a6-1f60f5d054e3">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="Group_GRPID_Based">
+		<groupExpression><![CDATA[$F{grpid}]]></groupExpression>
+		<groupHeader>
+			<band height="15">
+				<textField>
+					<reportElement mode="Transparent" x="0" y="0" width="234" height="15" forecolor="#030303" backcolor="#FFFFFF" uuid="d7788839-69d9-431b-8e93-10e7bd22e940">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="15"/>
+					<textElement verticalAlignment="Middle">
+						<font size="8" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{group_name}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="15">
+				<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="474" y="0" width="80" height="15" backcolor="#E0DEDE" uuid="e59b665a-f89b-41be-9423-874529d4c350">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Amount_Cur_Sum_GrpID}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="234" y="0" width="80" height="15" backcolor="#E0DEDE" uuid="106c09bd-bf37-44c1-88bb-99e0ae452e2c">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$V{Amt_Last_Sum_GrpID}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Transparent" x="0" y="0" width="234" height="15" backcolor="#FFFFFF" uuid="3a304826-5710-41a3-b72a-7f9f5078f1c9">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{group_name} + "Total"]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="394" y="0" width="80" height="15" backcolor="#F0F0F0" uuid="261b0466-28ce-40e6-89b6-55a4857a601a">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+					<reportElement mode="Opaque" x="314" y="0" width="80" height="15" backcolor="#F0F0F0" uuid="ad3b0355-47fb-4650-b626-7e740846ea83">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					</reportElement>
+					<box padding="2">
+						<pen lineColor="#A8A8A8"/>
+						<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+						<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font size="8" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[""]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="78" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="555" height="20" uuid="718c8b83-3bb3-43e5-a490-1a5ea5f6230f">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="SansSerif" size="14" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname} + " [ " + ($F{orgname} !=null? $F{orgname} : "") + " ]"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="40" width="555" height="20" uuid="f9ddeced-cf9c-4b39-ae12-44641d9e290e">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box topPadding="0"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="SansSerif" size="10" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["For the month of : " + $F{curr_period}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="20" width="555" height="20" uuid="f78ee0d2-ef12-4be0-b449-1288f79cb4ea">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Balance Sheet"]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="15">
+			<textField>
+				<reportElement x="0" y="0" width="190" height="15" uuid="86e79e5f-b23c-405c-991d-15c4bf59c61b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="474" y="0" width="80" height="15" forecolor="#FFFFFF" backcolor="#000000" uuid="307f8cc1-99b4-4f49-8d88-b1d86ba3ffd6">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{curr_period}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="234" y="0" width="80" height="15" backcolor="#E0DEDE" uuid="79d72abe-0742-4d7d-8911-8441529e267f">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{last_period}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="190" y="0" width="44" height="15" uuid="13d00bbf-11c9-4400-a171-7ec8ddfad65b"/>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Note"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="394" y="0" width="80" height="15" backcolor="#F0F0F0" uuid="d6257e63-5308-465d-9394-4f413650012b">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["CR"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Opaque" x="314" y="0" width="80" height="15" backcolor="#F0F0F0" uuid="4bffdbf2-1464-4a9b-9ccd-b1115c368e5e">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="1.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["DR"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="15" splitType="Stretch">
+			<textField>
+				<reportElement mode="Transparent" x="234" y="0" width="80" height="15" backcolor="#FFFFFF" uuid="3b48c8a9-edda-4097-a6f9-00c6981c1df7">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["(Rupees)"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="314" y="0" width="80" height="15" backcolor="#FFFFFF" uuid="d7135f9b-549d-44a5-8fea-b6799f85506b">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["(Rupees)"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="474" y="0" width="80" height="15" backcolor="#FFFFFF" uuid="6cc0d528-f071-4744-88bd-2d8a079528cd">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["(Rupees)"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="394" y="0" width="80" height="15" backcolor="#FFFFFF" uuid="e684eab0-687c-4436-9ffd-470526010b9c">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Arial" size="7" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["(Rupees)"]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="474" y="0" width="80" height="15" backcolor="#E0DEDE" uuid="85c05dc1-e412-4d48-bcbf-d796e415cf98">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineColor="#A8A8A8"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[($F{amt_last}.doubleValue() + $F{dr}.doubleValue()) - $F{cr}.doubleValue()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="0" y="0" width="234" height="15" backcolor="#FFFFFF" uuid="5c779deb-afdb-471d-ba6f-ee678769ff88">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box topPadding="0" leftPadding="30" bottomPadding="0" rightPadding="0">
+					<pen lineColor="#A8A8A8"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{account_name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="234" y="0" width="80" height="15" backcolor="#E0DEDE" uuid="2fb2837c-f330-42f5-9820-8c624a8090a3">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineColor="#A8A8A8"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{amt_last}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="394" y="0" width="80" height="15" backcolor="#F0F0F0" uuid="091f63dc-f015-4253-bbf6-c0bea102bbb0">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineColor="#A8A8A8"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{cr}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)" isBlankWhenNull="true">
+				<reportElement mode="Opaque" x="314" y="0" width="80" height="15" backcolor="#F0F0F0" uuid="aedf8a7e-544f-4e4c-978f-0d654d17022e">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<box padding="2">
+					<pen lineColor="#A8A8A8"/>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dr}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

@@ -1,0 +1,1291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HR_MonthlyAttend" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9712e25a-21d1-43cf-84ae-f298e4c9c99d">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="idempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="16"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="977"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="MyYear" class="java.lang.Integer"/>
+	<parameter name="MyMonth" class="java.lang.Integer"/>
+	<parameter name="HR_Department_ID" class="java.lang.Integer"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<parameter name="HR_EmpLocation_ID" class="java.lang.Integer"/>
+	<parameter name="C_City_ID" class="java.lang.Integer"/>
+	<queryString language="SQL">
+		<![CDATA[SELECT emp.clientname, emp.orgname, emp.c_bpartner_id, emp.empcode, emp.empname, emp.startdate, emp.departmet, emp.subdeptname, emp.designation, emp.emplocation, emp.postcity, 0 as OType, 'In' as TType
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 1 AND EXTRACT(Month FROM attdate::date) = $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D1
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 2 AND EXTRACT(Month FROM attdate::date) = $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D2
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 3 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D3
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 4 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D4
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 5 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D5
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 6 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D6
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 7 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D7
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 8 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D8
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 9 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D9
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 10 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D10
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 11 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D11
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 12 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D12
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 13 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D13
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 14 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D14
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 15 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D15
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 16 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D16
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 17 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D17
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 18 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D18
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 19 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D19
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 20 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D20
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 21 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D21
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 22 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D22
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 23 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D23
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 24 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D24
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 25 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D25
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 26 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D26
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 27 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D27
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 28 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D28
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 29 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D29
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 30 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D30
+, COALESCE((SELECT CAST(time_in::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 31 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D31
+FROM adempiere.xxhr_employee_v emp
+WHERE emp.hr_emplocation_id = COALESCE($P{HR_EmpLocation_ID}, emp.hr_emplocation_id)
+  AND emp.c_city_id = COALESCE($P{C_City_ID}, emp.c_city_id)
+  AND emp.ad_client_id =  $P{AD_Client_ID}
+  AND emp.ad_org_id = COALESCE($P{AD_Org_ID}, emp.ad_org_id)
+  AND emp.hr_department_id = COALESCE($P{HR_Department_ID}, emp.hr_department_id)
+  AND emp.c_bpartner_id = COALESCE($P{C_BPartner_ID}, emp.c_bpartner_id)
+UNION ALL
+SELECT emp.clientname, emp.orgname, emp.c_bpartner_id, emp.empcode, emp.empname, emp.startdate, emp.departmet, emp.subdeptname, emp.designation, emp.emplocation, emp.postcity, 1 as OType, 'Out' as TType
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 1 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D1
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 2 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D2
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 3 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D3
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 4 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D4
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 5 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D5
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 6 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D6
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 7 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D7
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 8 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D8
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 9 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D9
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 10 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D10
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 11 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D11
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 12 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D12
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 13 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D13
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 14 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D14
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 15 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D15
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 16 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D16
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 17 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D17
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 18 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D18
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 19 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D19
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 20 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D20
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 21 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D21
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 22 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D22
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 23 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D23
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 24 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D24
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 25 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D25
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 26 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D26
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 27 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D27
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 28 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D28
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 29 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D29
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 30 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D30
+, COALESCE((SELECT CAST(time_out::time as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 31 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D31
+FROM adempiere.xxhr_employee_v emp
+WHERE emp.hr_emplocation_id = COALESCE($P{HR_EmpLocation_ID}, emp.hr_emplocation_id)
+  AND emp.c_city_id = COALESCE($P{C_City_ID}, emp.c_city_id)
+  AND emp.ad_client_id =  $P{AD_Client_ID}
+  AND emp.ad_org_id = COALESCE($P{AD_Org_ID}, emp.ad_org_id)
+  AND emp.hr_department_id = COALESCE($P{HR_Department_ID}, emp.hr_department_id)
+  AND emp.c_bpartner_id = COALESCE($P{C_BPartner_ID}, emp.c_bpartner_id)
+UNION ALL
+SELECT emp.clientname, emp.orgname, emp.c_bpartner_id, emp.empcode, emp.empname, emp.startdate, emp.departmet, emp.subdeptname, emp.designation, emp.emplocation, emp.postcity, 2 as OType, 'Status' as TType
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 1 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D1
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 2 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D2
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 3 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D3
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 4 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D4
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 5 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D5
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 6 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D6
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 7 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D7
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 8 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D8
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 9 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D9
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 10 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D10
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 11 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D11
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 12 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D12
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 13 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D13
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 14 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D14
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 15 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D15
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 16 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D16
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 17 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D17
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 18 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D18
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 19 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D19
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 20 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D20
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 21 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D21
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 22 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D22
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 23 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D23
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 24 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D24
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 25 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D25
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 26 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D26
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 27 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D27
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 28 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D28
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 29 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D29
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 30 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) =  $P{MyYear}),'') D30
+, COALESCE((SELECT CAST(attstatus as character varying(5)) FROM adempiere.hr_final_attend WHERE c_bpartner_id = emp.c_bpartner_id AND EXTRACT(Day FROM attdate::date) = 31 AND EXTRACT(Month FROM attdate::date) =  $P{MyMonth} AND EXTRACT(Year FROM attdate::date) = $P{MyYear}),'') D31
+FROM adempiere.xxhr_employee_v emp
+WHERE emp.hr_emplocation_id = COALESCE($P{HR_EmpLocation_ID}, emp.hr_emplocation_id)
+  AND emp.c_city_id = COALESCE($P{C_City_ID}, emp.c_city_id)
+  AND emp.ad_client_id =  $P{AD_Client_ID}
+  AND emp.ad_org_id = COALESCE($P{AD_Org_ID}, emp.ad_org_id)
+  AND emp.hr_department_id = COALESCE($P{HR_Department_ID}, emp.hr_department_id)
+  AND emp.c_bpartner_id = COALESCE($P{C_BPartner_ID}, emp.c_bpartner_id)]]>
+	</queryString>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="c_bpartner_id" class="java.math.BigDecimal"/>
+	<field name="empcode" class="java.lang.String"/>
+	<field name="empname" class="java.lang.String"/>
+	<field name="startdate" class="java.sql.Timestamp"/>
+	<field name="departmet" class="java.lang.String"/>
+	<field name="subdeptname" class="java.lang.String"/>
+	<field name="designation" class="java.lang.String"/>
+	<field name="emplocation" class="java.lang.String"/>
+	<field name="postcity" class="java.lang.String"/>
+	<field name="otype" class="java.lang.Integer"/>
+	<field name="ttype" class="java.lang.String"/>
+	<field name="d1" class="java.lang.String"/>
+	<field name="d2" class="java.lang.String"/>
+	<field name="d3" class="java.lang.String"/>
+	<field name="d4" class="java.lang.String"/>
+	<field name="d5" class="java.lang.String"/>
+	<field name="d6" class="java.lang.String"/>
+	<field name="d7" class="java.lang.String"/>
+	<field name="d8" class="java.lang.String"/>
+	<field name="d9" class="java.lang.String"/>
+	<field name="d10" class="java.lang.String"/>
+	<field name="d11" class="java.lang.String"/>
+	<field name="d12" class="java.lang.String"/>
+	<field name="d13" class="java.lang.String"/>
+	<field name="d14" class="java.lang.String"/>
+	<field name="d15" class="java.lang.String"/>
+	<field name="d16" class="java.lang.String"/>
+	<field name="d17" class="java.lang.String"/>
+	<field name="d18" class="java.lang.String"/>
+	<field name="d19" class="java.lang.String"/>
+	<field name="d20" class="java.lang.String"/>
+	<field name="d21" class="java.lang.String"/>
+	<field name="d22" class="java.lang.String"/>
+	<field name="d23" class="java.lang.String"/>
+	<field name="d24" class="java.lang.String"/>
+	<field name="d25" class="java.lang.String"/>
+	<field name="d26" class="java.lang.String"/>
+	<field name="d27" class="java.lang.String"/>
+	<field name="d28" class="java.lang.String"/>
+	<field name="d29" class="java.lang.String"/>
+	<field name="d30" class="java.lang.String"/>
+	<field name="d31" class="java.lang.String"/>
+	<sortField name="clientname"/>
+	<sortField name="orgname"/>
+	<sortField name="emplocation"/>
+	<sortField name="postcity"/>
+	<sortField name="c_bpartner_id"/>
+	<sortField name="otype"/>
+	<group name="Location">
+		<groupExpression><![CDATA[$F{emplocation}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<textField>
+					<reportElement x="0" y="0" width="802" height="20" uuid="411380d2-207f-47f9-a404-1e9c679a468d">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="5">
+						<pen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{emplocation}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band>
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="Posted City">
+		<groupExpression><![CDATA[$F{postcity}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<textField>
+					<reportElement x="0" y="0" width="802" height="20" uuid="6cfeefd0-53f9-4d4b-8b04-d5c2a275978e">
+						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					</reportElement>
+					<box leftPadding="10">
+						<pen lineWidth="0.5"/>
+					</box>
+					<textElement verticalAlignment="Middle">
+						<font size="9" isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{postcity}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band>
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="Employee">
+		<groupExpression><![CDATA[$F{c_bpartner_id}]]></groupExpression>
+		<groupHeader>
+			<band>
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="1">
+				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				<line>
+					<reportElement x="0" y="0" width="802" height="1" uuid="5bf65404-5759-45fa-8f3d-edb9742c5e00">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					</reportElement>
+					<graphicElement>
+						<pen lineWidth="0.5"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<pageHeader>
+		<band height="75" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<rectangle>
+				<reportElement mode="Transparent" x="0" y="60" width="802" height="15" uuid="e70e75b2-77d4-4c93-9e35-625cc62e2663">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid"/>
+				</graphicElement>
+			</rectangle>
+			<image scaleImage="FillFrame">
+				<reportElement x="5" y="5" width="70" height="40" uuid="5e1d90ab-1a90-4726-83c9-2a7cd59ec887">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<imageExpression><![CDATA["C:/idempiere-server/reports/logo/kuene.png"]]></imageExpression>
+			</image>
+			<textField>
+				<reportElement x="0" y="5" width="802" height="30" uuid="3c7b0d88-b943-4615-b8a9-de813f349bdc">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="22" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Monthly Attendance Report"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="80" y="5" width="250" height="20" forecolor="#0A26C7" uuid="b1f3d1cb-7194-4f7f-a66f-f85c8e9829f8">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{clientname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="80" y="25" width="250" height="20" forecolor="#156B0D" uuid="05febe93-70a8-4144-91a0-35c57403d4b3">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle">
+					<font size="9" isBold="true" isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{orgname}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="35" width="802" height="20" forecolor="#A6A6A6" uuid="aab6831f-c374-4661-8da3-5579fbe67e9f">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font isItalic="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["For The Month of " + ( $P{MyMonth} == 1 ? "January" : 
+										  $P{MyMonth} == 2 ? "February" : 
+										  $P{MyMonth} == 3 ? "March" : 
+										  $P{MyMonth} == 4 ? "April" : 
+										  $P{MyMonth} == 5 ? "May" : 
+										  $P{MyMonth} == 6 ? "June" : 
+										  $P{MyMonth} == 7 ? "July" : 
+										  $P{MyMonth} == 8 ? "August" : 
+										  $P{MyMonth} == 9 ? "September" : 
+										  $P{MyMonth} == 10 ? "October" : 
+										  $P{MyMonth} == 11 ? "November" : 
+										  "December"
+) + ", " + $P{MyYear}.toString()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="182" y="60" width="20" height="15" uuid="96b5e6f2-bf06-4d18-942f-556f7a2907e7">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["01"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="202" y="60" width="20" height="15" uuid="1c8a81a9-1cae-44ea-b5ec-d62a993135e3">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["02"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="222" y="60" width="20" height="15" uuid="d74d2820-e263-400e-bc69-38c66b10debc">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["03"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="242" y="60" width="20" height="15" uuid="9fcd7442-0e48-4676-bcb3-1a94929a417f">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["04"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="262" y="60" width="20" height="15" uuid="a6d3488b-2135-4184-8efc-f89ee0e4c28a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["05"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="282" y="60" width="20" height="15" uuid="849534b9-e9ba-42a5-a4d0-9578d3309260">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["06"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="302" y="60" width="20" height="15" uuid="2eff6050-5326-439d-8dca-79aad72f5159">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["07"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="322" y="60" width="20" height="15" uuid="2c364173-1d26-4cce-b742-cb20df5f7ceb">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["08"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="342" y="60" width="20" height="15" uuid="3ccbffb8-c6b4-4e59-a036-630a8150c46c">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["09"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="362" y="60" width="20" height="15" uuid="95bf6695-eb7b-4680-a170-1a00b6b95053">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["10"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="382" y="60" width="20" height="15" uuid="33358a53-d14e-4b0a-b4cf-96439d5c66cc">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["11"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="402" y="60" width="20" height="15" uuid="7d81bc3a-cbef-41ad-ae6b-622e84078921">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["12"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="422" y="60" width="20" height="15" uuid="e9fcbae1-34fb-4e40-864b-35295ee2f3b9">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["13"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="442" y="60" width="20" height="15" uuid="0973dd82-210d-4e61-a63c-d350b2f3e984">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["14"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="462" y="60" width="20" height="15" uuid="18d45dc9-3a56-4224-80e3-db8bf50bf954">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["15"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="482" y="60" width="20" height="15" uuid="b2260f2f-049f-4641-96d8-cbe4dd2be7cc">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["16"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="502" y="60" width="20" height="15" uuid="ab60bb24-99fd-4499-a3cc-e95bbc8f3c5b">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["17"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="522" y="60" width="20" height="15" uuid="330da1f8-0ecb-4bb8-b89f-5d3abeea58e7">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["18"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="542" y="60" width="20" height="15" uuid="2dc90351-6e46-43c2-a0fd-d5a8dd9469cb">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["19"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="562" y="60" width="20" height="15" uuid="dba96629-0802-4705-a77e-92c02ed9f7ab">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["20"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="582" y="60" width="20" height="15" uuid="69d2c572-5cb9-49e9-aaa7-9908aabbdbc6">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["21"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="602" y="60" width="20" height="15" uuid="b7f39f35-a7c4-44a5-9deb-48316b262f49">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["22"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="622" y="60" width="20" height="15" uuid="8d5792be-7231-41c3-a443-1d2fd9e7e8be">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["23"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="642" y="60" width="20" height="15" uuid="73d9322d-135e-460d-9c59-04403d0aff70">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["24"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="662" y="60" width="20" height="15" uuid="15dc3a69-f529-4627-a7df-9d8c3cc1f136">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["25"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="682" y="60" width="20" height="15" uuid="d7c67d83-56be-4c24-b6d0-e89f8685132e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["26"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="702" y="60" width="20" height="15" uuid="87e334ba-b909-47db-8190-97dba0dfa2d6">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["27"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="722" y="60" width="20" height="15" uuid="045cfd28-1eac-4c9e-a564-fcea9b448a33">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["28"]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="742" y="60" width="20" height="15" uuid="491be6ac-dacc-4e53-97f2-adef9674c423">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["29"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="762" y="60" width="20" height="15" uuid="a843f3e2-29fc-46ea-8b37-336498d6a365">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["30"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="782" y="60" width="20" height="15" uuid="ce71aedf-cf93-41ed-8ad2-df401046c889">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["31"]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<line>
+				<reportElement x="0" y="0" width="802" height="1" uuid="30190a59-0821-474c-8f87-c29007ec7c9e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="0" y="0" width="30" height="15" uuid="4e3c3d8a-a00d-484d-9bf7-8c82c00371dc">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<printWhenExpression><![CDATA[$F{otype} == 0]]></printWhenExpression>
+				</reportElement>
+				<box>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empcode}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="30" y="0" width="127" height="15" uuid="ffa66a92-2039-462f-b756-0943846f24f6">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<printWhenExpression><![CDATA[$F{otype} == 0]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="2" rightPadding="2">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{empname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="157" y="0" width="25" height="15" uuid="88b2c677-fb03-4484-a049-8a7543cf5fb6">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box leftPadding="2">
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{ttype}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="182" y="0" width="20" height="15" uuid="1610eb20-3ad9-4ca4-92e0-86403716a38f">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d1}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="202" y="0" width="20" height="15" uuid="8d126dd7-f316-4a20-9ee9-3ab41a6e0a98">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d2}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="222" y="0" width="20" height="15" uuid="1f4369d3-60c6-4bbb-af9a-622b4713cab8">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d3}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="242" y="0" width="20" height="15" uuid="aafa9cff-1977-434b-830f-8790f785791f">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d4}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="262" y="0" width="20" height="15" uuid="daf7f865-fad0-44b4-b60c-f66cb059092a">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d5}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="282" y="0" width="20" height="15" uuid="5825892f-ae83-44b6-be5e-c0caeb3d5422">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d6}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="302" y="0" width="20" height="15" uuid="85ba6bb0-65e8-43af-b5e5-e85782bd39cb">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d7}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="322" y="0" width="20" height="15" uuid="d03c9be4-74ac-496b-a507-fb348d8e1221">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d8}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="342" y="0" width="20" height="15" uuid="363d0cf0-161f-4f8f-94d8-fe4cf2673261">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d9}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="362" y="0" width="20" height="15" uuid="ea40f74b-e8d4-4572-aa68-ba842759a5dd">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d10}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="382" y="0" width="20" height="15" uuid="fb03d188-7561-4b1f-a191-2318b4977312">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d11}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="402" y="0" width="20" height="15" uuid="288862cf-0b72-4cc1-ac35-c6c5b1b50cf4">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d12}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="422" y="0" width="20" height="15" uuid="9d895a7d-08c3-43fb-9a3b-7550ccd7b9f0">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d13}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="442" y="0" width="20" height="15" uuid="a442ddf3-b8da-418e-877a-a0a62c4a1702">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d14}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="462" y="0" width="20" height="15" uuid="333e10ef-774d-4aa2-adbd-703562a00aea">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d15}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="482" y="0" width="20" height="15" uuid="e33568bb-2d44-475c-a4fc-1e016660b578">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d16}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="502" y="0" width="20" height="15" uuid="f1c46ee2-2cf7-46e6-a331-e7cf95ba565f">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d17}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="522" y="0" width="20" height="15" uuid="709ab47b-d9ca-41ca-a407-d1033cfb9a8c">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d18}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="542" y="0" width="20" height="15" uuid="f5e5e8e5-5d49-4d96-aa01-0410060f6264">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d19}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="562" y="0" width="20" height="15" uuid="bc3518cb-5a01-4e2f-80f7-1fe6d2637930">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d20}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="582" y="0" width="20" height="15" uuid="553725e3-b2a1-4986-83b1-a349b666aa08">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d21}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="602" y="0" width="20" height="15" uuid="65cb4233-f546-4d53-992b-b62a98ea486d">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d22}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="622" y="0" width="20" height="15" uuid="d1accdc3-c7d0-4a50-a1b6-df7523c57114">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d23}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="642" y="0" width="20" height="15" uuid="0fb4409a-901c-4be0-b44d-c77e28586fc3">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d24}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="662" y="0" width="20" height="15" uuid="61e05a37-43f8-4a83-8ddd-deaabbc71fca">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d25}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="682" y="0" width="20" height="15" uuid="7bc2585c-78c2-43f4-8fe5-e1d19fed0fb9">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d26}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="702" y="0" width="20" height="15" uuid="fd194a1c-ec05-4943-bf2e-c173efdc0e95">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d27}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="722" y="0" width="20" height="15" uuid="9b6cb648-948a-4be1-af46-35d019bd4feb">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d28}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="742" y="0" width="20" height="15" uuid="b853fefc-cf09-4919-9cb9-8751470f2f40">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d29}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="762" y="0" width="20" height="15" uuid="3df1d784-3884-4788-83a9-b68008aa5ecc">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d30}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="782" y="0" width="20" height="15" uuid="28a3a2ba-497f-4409-af3a-fe08b56bf9ae">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="6"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{d31}]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="0" width="157" height="15" uuid="c239a7ba-f65c-48e4-b862-06b5b80e303f">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<printWhenExpression><![CDATA[$F{otype} == 1]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3" rightPadding="3">
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{departmet} + " " + $F{subdeptname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="157" height="15" uuid="08a04cba-b3db-480c-891e-54b79830cfd7">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<printWhenExpression><![CDATA[$F{otype} == 2]]></printWhenExpression>
+				</reportElement>
+				<box leftPadding="3" rightPadding="3">
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font size="7"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{designation}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="1" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<line>
+				<reportElement x="0" y="0" width="802" height="1" uuid="b858ebbc-c6ce-4ce1-b639-4fcca9e94360">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<graphicElement>
+					<pen lineWidth="0.5"/>
+				</graphicElement>
+			</line>
+		</band>
+	</pageFooter>
+</jasperReport>

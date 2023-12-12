@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="payment_voucher" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="ea5b5b3d-6726-4c10-87c3-47bd85aabd79">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="idempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="C_Payment_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT	client.name as companyname, org.name as orgname, pay.documentno as paydocno, CONCAT(bnka.name, ' ', bnka.accountno) bankname, doc.name as docname,
+				pay.datetrx ::date, pay.description, bp.name as bpname, pj.name as projectname, chrg.name as chargename, pay.payamt as payamt, inv.documentno as invoicedocno, inv.grandtotal as invoiceamt,
+				bnka.accountno, pay.isreceipt, pay.c_charge_id, pay.description, CONCAT(address1, '  ', address2, city ) address, cur.iso_code, cur.cursymbol
+
+FROM adempiere.c_payment pay
+LEFT JOIN adempiere.c_bankaccount bnka ON pay.c_bankaccount_id = bnka.c_bankaccount_id
+LEFT JOIN adempiere.c_bank bnk ON bnka.c_bank_id = bnk.c_bank_id
+LEFT JOIN adempiere.c_doctype doc ON pay.c_doctype_id = doc.c_doctype_id
+LEFT JOIN adempiere.c_bpartner bp ON pay.c_bpartner_id = bp.c_bpartner_id
+LEFT JOIN adempiere.c_project pj ON pay.c_project_id = pj.c_project_id
+LEFT JOIN adempiere.c_charge chrg ON pay.c_charge_id = chrg.c_charge_id
+LEFT JOIN adempiere.ad_client client ON pay.ad_client_id = client.ad_client_id
+LEFT JOIN adempiere.ad_org org ON pay.ad_org_id = org.ad_org_id
+LEFT JOIN adempiere.ad_orginfo orginfo ON org.ad_org_id = orginfo.ad_org_id
+LEFT JOIN adempiere.c_location loc ON orginfo.c_location_id = loc.c_location_id
+LEFT JOIN adempiere.c_invoice inv ON pay.c_invoice_id = inv.c_invoice_id
+LEFT JOIN adempiere.c_currency cur ON pay.c_currency_id = cur.c_currency_id
+
+WHERE pay.c_payment_id = $P{C_Payment_ID}]]>
+	</queryString>
+	<field name="companyname" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="paydocno" class="java.lang.String"/>
+	<field name="bankname" class="java.lang.String"/>
+	<field name="docname" class="java.lang.String"/>
+	<field name="datetrx" class="java.sql.Date"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="bpname" class="java.lang.String"/>
+	<field name="projectname" class="java.lang.String"/>
+	<field name="chargename" class="java.lang.String"/>
+	<field name="payamt" class="java.math.BigDecimal"/>
+	<field name="invoicedocno" class="java.lang.String"/>
+	<field name="invoiceamt" class="java.math.BigDecimal"/>
+	<field name="accountno" class="java.lang.String"/>
+	<field name="isreceipt" class="java.lang.String"/>
+	<field name="c_charge_id" class="java.math.BigDecimal"/>
+	<field name="COLUMN_17" class="java.lang.String"/>
+	<field name="address" class="java.lang.String"/>
+	<field name="iso_code" class="java.lang.String"/>
+	<field name="cursymbol" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="519" splitType="Stretch">
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" x="20" y="128" width="359" height="23" uuid="d7d7924d-e663-4138-bb0a-8efde4d6d43c"/>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="13" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<b> Voucher No : </b>" + $F{paydocno}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" x="390" y="250" width="150" height="30" uuid="4198e8fd-785d-4f03-ab3b-e69847f38a0e">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="14" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{payamt}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="50" y="497" width="70" height="15" uuid="45b76289-2633-4067-9af2-57d03727ab5a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Prepare By]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="248" y="497" width="70" height="15" uuid="4d2709fd-aba4-4a82-8abe-388ceb95f0f6"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Checked By]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="449" y="497" width="70" height="15" uuid="256c0d1c-7615-4a98-9113-43e3ef1e1e33"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Approved By]]></text>
+			</staticText>
+			<line>
+				<reportElement x="34" y="493" width="100" height="1" uuid="59b838c8-e6ca-48cf-95c3-313d761a810f">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="232" y="493" width="100" height="1" uuid="76bc54bf-4013-4702-967f-b757491447e5">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="432" y="493" width="100" height="1" uuid="36d59d9d-9a7c-4e4a-ac9d-935482193167"/>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" x="20" y="167" width="518" height="30" uuid="042cacf3-460c-4ef1-a5bf-fc32d663342f">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Left" verticalAlignment="Middle" markup="html">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<b>Bank/Cash : </b>" + $F{bankname}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="136" y="401" width="403" height="1" uuid="50ce3b4d-53de-4232-8a4b-ffa4d38a347c">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+			</line>
+			<line>
+				<reportElement x="154" y="435" width="385" height="1" uuid="95b4312d-aa99-4f3b-a071-1cba15fa4935">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement x="20" y="202" width="257" height="30" uuid="c929ff46-9120-4bc6-8b77-599327ff65ac">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<b> Charge To : </b>" + $F{chargename}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="8" width="400" height="30" forecolor="#000000" uuid="dc93e633-a8d5-4aee-a6ae-226c63099e69"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="18" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{companyname}.toUpperCase()]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="277" y="202" width="261" height="30" uuid="8a60a2d8-1737-49a1-8671-f527f3e14ab8"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="html">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<b>Party Name : </b>" + $F{bpname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="430" width="105" height="15" uuid="46401a99-2462-4854-a98e-564f1db2d41a">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Center">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{isreceipt}.equals( "Y" ) ? "Recipient Name & Sign" : "Collector Name & Sign"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="395" width="105" height="15" uuid="cba91d23-cfcd-41e9-b162-79204b5ac8ed">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{isreceipt}.equals( "Y" ) ? "Recipient CNIC # " : "Collector CNIC # "]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" isPrintRepeatedValues="false" mode="Opaque" x="20" y="306" width="519" height="46" backcolor="#EBEBEB" uuid="8c023058-3011-4cb1-ac35-7f2d518825a0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+					<topPen lineWidth="1.0" lineColor="#E6E6E6"/>
+					<leftPen lineWidth="1.0" lineColor="#E6E6E6"/>
+					<bottomPen lineWidth="1.0" lineColor="#E6E6E6"/>
+					<rightPen lineWidth="1.0" lineColor="#E6E6E6"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="38" width="400" height="25" uuid="612d9803-7c54-4d1a-a3d0-20d430bdd06e"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="15" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{docname}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd-MMM-yy" isBlankWhenNull="true">
+				<reportElement isPrintRepeatedValues="false" x="379" y="128" width="159" height="23" uuid="fe94f7d5-999b-418a-aa3a-23a330982113"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" markup="html">
+					<font size="13" isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<b> Date : </b>" + $F{datetrx}]]></textFieldExpression>
+			</textField>
+			<image hAlign="Center" vAlign="Middle">
+				<reportElement x="420" y="8" width="119" height="92" uuid="25783221-f163-42ba-88f5-3b44a94cdf2b">
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+			</image>
+			<textField>
+				<reportElement x="20" y="250" width="320" height="30" uuid="7571b29a-53e8-4838-a913-20e37dd810c7">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font size="12"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<b> Check No : </b>"]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement x="10" y="151" width="534" height="209" uuid="135c4c0c-cdee-4f73-a9bb-d307b05a6a8d"/>
+				<box>
+					<pen lineWidth="0.5" lineStyle="Dashed"/>
+				</box>
+			</frame>
+			<frame>
+				<reportElement x="2" y="0" width="554" height="519" uuid="4d49e45d-13b0-48d1-8275-5b91363a8a51">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textField isBlankWhenNull="true">
+					<reportElement x="340" y="250" width="48" height="30" uuid="971b5f5f-9cc6-413c-98cd-0ff0bdc5d3c1">
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<box rightPadding="0"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" markup="html">
+						<font size="14" isBold="true" isUnderline="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{cursymbol}+".  "]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</title>
+</jasperReport>

@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="product_register" pageWidth="921" pageHeight="595" orientation="Landscape" columnWidth="881" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="4c143be3-7cf8-42b3-8eb0-c9454bfed406">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere_ERP"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="M_Warehouse_ID" class="java.lang.Integer"/>
+	<parameter name="M_Locator_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_Category_ID" class="java.lang.Integer"/>
+	<parameter name="M_Product_ID" class="java.lang.Integer"/>
+	<parameter name="StartDate" class="java.sql.Timestamp"/>
+	<parameter name="EndDate" class="java.sql.Timestamp"/>
+	<queryString>
+		<![CDATA[SELECT prod_category, prod_code, prod_name, uom, SUM(open_qty) open_qty,  SUM(vendor_receipt) vendor_receipt, SUM(vendor_return) vendor_return, SUM(production_qty) production_qty, SUM(production_consume_qty) production_consume_qty,  SUM(movement_to) movement_to, SUM(movement_from) movement_from, SUM(customer_return) customer_return,  SUM(customer_shipment) customer_shipment, SUM(inventory_in) inventory_in, SUM(inventory_out) inventory_out, SUM(work_order)work_order, SUM(work_consume_order)work_consume_order
+
+FROM
+
+(
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom, SUM(tr.movementqty) open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE 	tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate <  $P{StartDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID}) 
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+
+GROUP BY pd.value, pd.name, pc.name, uom.uomsymbol
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom, 0 open_qty, SUM(tr.movementqty) vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID}) 
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype = 'V+'
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, ABS(SUM(tr.movementqty)) vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('V-')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol
+
+
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt,0 vendor_return, SUM(tr.movementqty) production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID}) 
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('P+')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol 
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, ABS(SUM(tr.movementqty)) production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE  tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID}) 
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('P-')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol 
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, SUM(tr.movementqty) movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE 	tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('M+')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, ABS(SUM(tr.movementqty)) movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('M-')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol 
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, SUM(tr.movementqty) customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE  tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('C+')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol
+
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, ABS(SUM(tr.movementqty)) customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE  tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('C-')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol
+
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, SUM(tr.movementqty) inventory_in, 0 inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE  tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('I+')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol
+
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, ABS(SUM(tr.movementqty)) inventory_out, 0 work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('I-')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol 
+
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, SUM(tr.movementqty) work_order, 0 work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE  tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('W+')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol 
+
+
+
+UNION ALL 
+
+SELECT pc.name prod_category, pd.value prod_code, pd.name prod_name, uom.uomsymbol uom,  0 open_qty, 0 vendor_receipt, 0 vendor_return, 0 production_qty, 0 production_consume_qty, 0 movement_to, 0 movement_from, 0 customer_return, 0 customer_shipment, 0 inventory_in, 0 inventory_out, 0 work_order, ABS(SUM(tr.movementqty)) work_consume_order
+
+FROM adempiere.m_transaction tr
+LEFT JOIN adempiere.m_product pd ON tr.m_product_id = pd.m_product_id
+LEFT JOIN adempiere.m_product_category pc ON pd.m_product_category_id = pc.m_product_category_id
+LEFT JOIN adempiere.c_uom uom ON pd.c_uom_id = uom.c_uom_id
+LEFT JOIN adempiere.m_locator lc ON tr.m_locator_id = lc.m_locator_id
+
+WHERE tr.ad_client_id = $P{AD_Client_ID}   
+				AND tr.movementdate BETWEEN  $P{StartDate} AND  $P{EndDate} 
+				AND ( $P!{AD_Org_ID} IS NULL OR tr.ad_org_id = $P!{AD_Org_ID})
+				AND ( $P!{M_Warehouse_ID} IS NULL OR lc.m_warehouse_id = $P!{M_Warehouse_ID}) 
+				AND ( $P!{M_Locator_ID} IS NULL OR tr.m_locator_id = $P!{M_Locator_ID})  
+				AND ( $P!{M_Product_Category_ID} IS NULL OR pc.m_product_category_id = $P!{M_Product_Category_ID})
+				AND ( $P!{M_Product_ID} IS NULL OR tr.m_product_id = $P!{M_Product_ID})
+				AND tr.movementtype IN ('W-')
+
+GROUP BY pd.value, pd.name ,pc.name, uom.uomsymbol ) d
+
+
+GROUP BY prod_category, prod_code, prod_name, uom]]>
+	</queryString>
+	<field name="prod_category" class="java.lang.String"/>
+	<field name="prod_code" class="java.lang.String"/>
+	<field name="prod_name" class="java.lang.String"/>
+	<field name="uom" class="java.lang.String"/>
+	<field name="open_qty" class="java.math.BigDecimal"/>
+	<field name="vendor_receipt" class="java.math.BigDecimal"/>
+	<field name="vendor_return" class="java.math.BigDecimal"/>
+	<field name="production_qty" class="java.math.BigDecimal"/>
+	<field name="production_consume_qty" class="java.math.BigDecimal"/>
+	<field name="movement_to" class="java.math.BigDecimal"/>
+	<field name="movement_from" class="java.math.BigDecimal"/>
+	<field name="customer_return" class="java.math.BigDecimal"/>
+	<field name="customer_shipment" class="java.math.BigDecimal"/>
+	<field name="inventory_in" class="java.math.BigDecimal"/>
+	<field name="inventory_out" class="java.math.BigDecimal"/>
+	<field name="work_order" class="java.math.BigDecimal"/>
+	<field name="work_consume_order" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="70" splitType="Stretch">
+			<textField>
+				<reportElement x="1" y="0" width="880" height="30" uuid="410a62c5-6822-4059-8677-edc9fc1b8145"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Product Register"]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="682" y="30" width="199" height="20" uuid="94401a2a-cb9b-4926-8481-08e5d75fe689">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["FROM " + new StringBuilder(new SimpleDateFormat("d-MMM-yyyy").format($P{StartDate})) + " To " +   new StringBuilder(new SimpleDateFormat("d-MMM-yyyy").format($P{EndDate}))]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="30" width="681" height="20" uuid="66cdd562-9692-489e-be3e-4c44fc616da6">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="20"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["CLient:  " + " | " + "Organization:  " + " | " + "Locator:  " + " | " + "Category :  "  + " | " + "Product:  "]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="50" width="880" height="20" uuid="f15d88a3-0528-4ee2-abac-5c7a776e7079">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<box leftPadding="20"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[""]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="21" y="0" width="50" height="30" uuid="896528f6-5ff6-4439-b9ae-0a77f95cfba7">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Product Category]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="71" y="0" width="47" height="30" uuid="a9b7ff9f-d03c-43c9-ba96-ac9770594212"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Product Code]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="118" y="0" width="47" height="30" uuid="bab111b2-af2e-445c-abd6-d2757b2b8689"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Product Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="165" y="0" width="47" height="30" uuid="f94feed4-38f4-4ff7-b04c-f6ce984e1e75"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[UOM]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="212" y="0" width="47" height="30" uuid="1269d2c1-633f-4d11-b9ec-767f61177d39"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Opening]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="259" y="0" width="47" height="30" uuid="dcf05d13-1faa-49e5-ae85-af5f91598dd2"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Vendor Receipts]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="306" y="0" width="47" height="30" uuid="f88647a6-70fe-4ec0-8faa-f06037555ae3"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Vendor return]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="353" y="0" width="47" height="30" uuid="84e8f378-ddd5-452b-a048-3deca468f074"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Produced]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="400" y="0" width="47" height="30" uuid="4f7404b8-e7ce-4bb5-aa6a-411774dac1ad"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Consum in Production]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="447" y="0" width="47" height="30" uuid="bc32993d-95df-42e5-97f9-233188dc3dd5"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Movement To]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="494" y="0" width="47" height="30" uuid="b7a23d02-d13b-416b-b56b-97a8c0275f2a"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Movement From]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="541" y="0" width="47" height="30" uuid="d9994af6-7361-4d60-9bc0-606b1f979868"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Customer Return]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="588" y="0" width="47" height="30" uuid="73449d81-f5be-4998-bff5-60895cb2edf9"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Customer Shipment]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="635" y="0" width="47" height="30" uuid="d0526944-2ba1-4ae6-bc1e-cd938794b561"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Inventory In]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="682" y="0" width="47" height="30" uuid="13493be0-f4b6-429c-a988-60bea0d685c0"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Inventory Out]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="729" y="0" width="47" height="30" uuid="d3a56393-9e00-4c29-b4b1-c4d297a9c3a6"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Work Order +]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="776" y="0" width="47" height="30" uuid="81b8956f-08cf-442b-8ead-81d0971bc0e3"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Work Order-]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="823" y="0" width="58" height="30" uuid="af23978d-1f67-4601-879b-957bc1c67422"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Closing"]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="1" y="0" width="20" height="30" uuid="fdf14502-06cb-420b-ae24-3fb7f33c49a1">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
+				</reportElement>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<text><![CDATA[S No]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="541" y="0" width="47" height="30" uuid="590b410c-e427-4a69-91bf-c88dab935af7"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{customer_return}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="21" y="0" width="50" height="30" uuid="562844f8-bf48-4912-af32-30f9da778015"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prod_category}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="259" y="0" width="47" height="30" uuid="49ced153-aae6-415a-ad11-e5bffd0bfe60"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vendor_receipt}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="306" y="0" width="47" height="30" uuid="4bf273eb-6f11-47e2-b039-8c6317a21720"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{vendor_return}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="212" y="0" width="47" height="30" uuid="e14bc206-87fb-434a-9dec-1ee9ffe04198"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="494" y="0" width="47" height="30" uuid="30d0584e-43d9-4035-bb8a-60ad8fab81ae"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{movement_from}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="118" y="0" width="47" height="30" uuid="7fb7fd5b-8ce6-46e7-a89d-fed2deea1c7b"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prod_name}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="165" y="0" width="47" height="30" uuid="2d2ff245-a144-417f-91dd-079dcfcef164"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{uom}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="447" y="0" width="47" height="30" uuid="c684ad81-f1eb-4ebd-b192-f8aea4045c0b"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{movement_to}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="353" y="0" width="47" height="30" uuid="34dd558c-81f6-459f-b23f-3cd3584a82a8"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{production_qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="400" y="0" width="47" height="30" uuid="dc7e5163-90fc-42f3-9402-14a1b15afd11"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{production_consume_qty}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="71" y="0" width="47" height="30" uuid="41b69af9-1292-43da-9617-13134c9a5c6b"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{prod_code}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="682" y="0" width="47" height="30" uuid="3421de4a-2831-4ae9-bd08-12e708db6bfd"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inventory_out}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="729" y="0" width="47" height="30" uuid="87fd6a4b-eaee-43c1-800f-5752ed60f35f"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{work_order}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="588" y="0" width="47" height="30" uuid="9e201573-3df9-423e-b64c-5c5d3709fe50"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{customer_shipment}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="635" y="0" width="47" height="30" uuid="ff644c33-9eda-418f-935d-d31a24229b45"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{inventory_in}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="776" y="0" width="47" height="30" uuid="65085696-dc9f-4b83-bd02-fcb8bdff6d54"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{work_consume_order}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="1" y="0" width="20" height="30" uuid="0985b151-f86e-4a5d-9eed-e82c6fde81ba"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00#;(#,##0.00#)" isBlankWhenNull="true">
+				<reportElement x="823" y="0" width="58" height="30" uuid="8ec2acec-01b1-498a-890a-b8ec77c0b1fa"/>
+				<box>
+					<pen lineWidth="0.25"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{open_qty}.doubleValue() + $F{vendor_receipt}.doubleValue() - $F{vendor_return}.doubleValue() + $F{production_qty}.doubleValue() - $F{production_consume_qty}.doubleValue() + $F{movement_to}.doubleValue() - $F{movement_from}.doubleValue() - $F{customer_shipment}.doubleValue() + $F{customer_return}.doubleValue() + $F{inventory_in}.doubleValue() - $F{inventory_out}.doubleValue() + $F{work_order}.doubleValue() - $F{work_consume_order}.doubleValue()]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+</jasperReport>

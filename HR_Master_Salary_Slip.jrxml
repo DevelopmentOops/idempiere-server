@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.4.0.final using JasperReports Library version 6.4.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="HR_Master_Salary_Slip" pageWidth="900" pageHeight="842" orientation="Landscape" columnWidth="860" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="c1ea6e68-95e9-417b-a25f-ad3db796cb32">
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="iDempiere"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<parameter name="HR_Period_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Client_ID" class="java.lang.Integer"/>
+	<parameter name="AD_Org_ID" class="java.lang.Integer"/>
+	<parameter name="HR_Department_ID" class="java.lang.Integer"/>
+	<parameter name="C_BPartner_ID" class="java.lang.Integer"/>
+	<parameter name="HR_EmpLocation_ID" class="java.lang.Integer"/>
+	<parameter name="C_City_ID" class="java.lang.Integer"/>
+	<queryString>
+		<![CDATA[SELECT *, p_dalocal + p_daout p_vehicle, p_talocal + p_taout p_tatotal, p_vmain + p_vrent p_vehtotal
+, COALESCE(p_mobile,0) + COALESCE(p_dalocal,0) + COALESCE(p_daout,0) + COALESCE(p_talocal,0) + COALESCE(p_taout,0) + COALESCE(p_fuel,0) + COALESCE(p_vmain,0) + COALESCE(p_vrent,0) + COALESCE(p_comm,0) + COALESCE(p_nsallow,0) + COALESCE(p_nstay,0) + COALESCE(p_stamp,0) + COALESCE(p_misc,0) + COALESCE(p_exdays,0) + COALESCE(p_ot,0) + COALESCE(p_arrear,0) AS p_totalallowance
+, (COALESCE(p_tax,0) + COALESCE(p_advsal,0) + COALESCE(p_loan,0) + COALESCE(p_late,0) + COALESCE(p_bankpay,0) + COALESCE(p_excessmobile,0) + COALESCE(p_pfemp,0))  AS p_total_ded
+, (COALESCE(p_gross,0) + COALESCE(p_mobile,0) + COALESCE(p_dalocal,0) + COALESCE(p_daout,0) + COALESCE(p_talocal,0) + COALESCE(p_taout,0) + COALESCE(p_fuel,0) + COALESCE(p_vmain,0) + COALESCE(p_vrent,0) + COALESCE(p_comm,0) + COALESCE(p_nsallow,0) + COALESCE(p_nstay,0) + COALESCE(p_stamp,0) + COALESCE(p_misc,0) + COALESCE(p_exdays,0) + COALESCE(p_ot,0) + COALESCE(p_arrear,0)) - (COALESCE(p_tax,0) + COALESCE(p_advsal,0) + COALESCE(p_loan,0) + COALESCE(p_late,0) + COALESCE(p_bankpay,0) + COALESCE(p_excessmobile,0) + COALESCE(p_pfemp,0))  AS p_netsal 
+FROM (
+SELECT emp.*,emp.hr_emplocation_id::Integer as loc_id
+, to_char(hp.enddate::date, 'fmMon-yyyy') as period
+, hp.startdate::date as period_start
+, hp.enddate::date as period_end
+, (hp.enddate::date - hp.startdate::date)+1 as perioddays
+, COALESCE(hs.pc_1000000, 0) as mgross_salary
+	, COALESCE(hs.pc_1000002, 0) as p_gross, COALESCE(hs.pc_1000003, 0) as p_basic
+	, COALESCE(hs.pc_1000004, 0) as p_hr, COALESCE(hs.pc_1000005, 0) as p_conv
+	, COALESCE(hs.pc_1000006, 0) as p_wd, COALESCE(hs.pc_1000007, 0) as p_mobile
+	, COALESCE(hs.pc_1000008, 0) as p_dalocal, COALESCE(hs.pc_1000009, 0) as p_daout
+	, COALESCE(hs.pc_1000010, 0) as p_talocal, COALESCE(hs.pc_1000011, 0) as p_taout
+	, COALESCE(hs.pc_1000012, 0) as p_fuel, COALESCE(hs.pc_1000013, 0) as p_vmain
+	, COALESCE(hs.pc_1000014, 0) as p_vrent, COALESCE(hs.pc_1000015, 0) as p_comm
+	, COALESCE(hs.pc_1000016, 0) as p_tax, COALESCE(hs.pc_1000017, 0) as p_nsallow
+	, COALESCE(hs.pc_1000018, 0) as p_nstay, COALESCE(hs.pc_1000019, 0) as p_stamp
+	, COALESCE(hs.pc_1000020, 0) as p_misc, COALESCE(hs.pc_1000021, 0) as p_advsal
+	, COALESCE(hs.pc_1000022, 0) as p_loan, COALESCE(hs.pc_1000023, 0) as p_exdays
+	, COALESCE(hs.pc_1000024, 0) as p_late, COALESCE(hs.pc_1000025, 0) as p_ot
+	, COALESCE(hs.pc_1000026, 0) as p_arrear, COALESCE(hs.pc_1000027, 0) as p_bankpay 
+	, COALESCE(hs.pc_1000028, 0) as p_pfemp, COALESCE(hs.pc_1000029, 0) as p_noleaveinctive
+	, COALESCE(hs.pc_1000030, 0) as p_excessmobile
+, (SELECT binarydata FROM adempiere.ad_image WHERE ad_image_id = emp.ad_image_id LIMIT 1) adImage
+,  COALESCE((SELECT SUM(l1.balc) FROM (SELECT COUNT(hr_final_attend_id) * leaveunit::numeric as balc FROM adempiere.hr_final_attend hf 
+			LEFT JOIN adempiere.hr_levtypes ht ON hf.attstatus = ht.value
+			WHERE c_bpartner_id = hs.c_bpartner_id AND attdate::date BETWEEN hp.startdate::date AND hp.enddate::date 
+			AND ht.isdeducted = 'Y' GROUP BY c_bpartner_id, leaveunit::numeric) as l1), 0) AS LevDed
+	, 	COALESCE((SELECT SUM(l2.balc) FROM (SELECT COUNT(hr_final_attend_id) * leaveunit::numeric as balc FROM adempiere.hr_final_attend hf 
+			LEFT JOIN adempiere.hr_levtypes ht ON hf.attstatus = ht.value
+			WHERE c_bpartner_id = hs.c_bpartner_id AND attdate::date BETWEEN hp.startdate::date AND hp.enddate::date 
+			AND ht.isdeducted = 'N' AND ht.hr_levtypes_id IN (1000000, 1000001, 1000002, 1000021, 1000003, 1000022) GROUP BY c_bpartner_id, leaveunit::numeric) as l2), 0) AS LevNDed
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000008 AND hr_period_id = hp.hr_period_id),0) as s_dalocal
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000009 AND hr_period_id = hp.hr_period_id),0) as s_daout
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000010 AND hr_period_id = hp.hr_period_id),0) as s_talocal
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000011 AND hr_period_id = hp.hr_period_id),0) as s_taout
+,COALESCE((SELECT amount FROM adempiere.hr_salary_entry WHERE c_bpartner_id = emp.c_bpartner_id AND hr_concept_id = 1000024 AND hr_period_id = hp.hr_period_id),0) as s_latedays
+FROM adempiere.hr_salaryinfo hs
+LEFT JOIN adempiere.xxhr_employee_v emp ON emp.c_bpartner_id = hs.c_bpartner_id
+left join adempiere.c_bpartner bp ON emp.c_bpartner_id = bp.c_bpartner_id
+left join adempiere.c_bpartner_location loc ON bp.c_bpartner_id = loc.c_bpartner_Id
+LEFT JOIN adempiere.hr_period hp ON hs.hr_period_id = hp.hr_period_id
+WHERE emp.startdate <= hp.enddate::date
+  AND hp.hr_period_id = $P{HR_Period_ID}
+  AND emp.ad_client_id = $P{AD_Client_ID}
+ AND emp.ad_org_id = COALESCE($P{AD_Org_ID}, emp.ad_org_id)
+ AND emp.hr_department_id = COALESCE($P{HR_Department_ID}, emp.hr_department_id)
+ AND emp.c_bpartner_id = COALESCE($P{C_BPartner_ID}, emp.c_bpartner_id)
+ AND emp.hr_emplocation_id = COALESCE($P{HR_EmpLocation_ID}, emp.hr_emplocation_id)
+ AND emp.c_city_id = COALESCE($P{C_City_ID}, emp.c_city_id)
+  AND (emp.enddate IS NULL OR emp.enddate::date >= hp.startdate::date)
+  ) q
+  ORDER BY clientname, orgname, departmet, c_bpartner_id]]>
+	</queryString>
+	<field name="ad_client_id" class="java.math.BigDecimal"/>
+	<field name="ad_org_id" class="java.math.BigDecimal"/>
+	<field name="c_bpartner_id" class="java.math.BigDecimal"/>
+	<field name="empcode" class="java.lang.String"/>
+	<field name="empname" class="java.lang.String"/>
+	<field name="hr_employee_id" class="java.math.BigDecimal"/>
+	<field name="hr_department_id" class="java.math.BigDecimal"/>
+	<field name="hr_job_id" class="java.math.BigDecimal"/>
+	<field name="startdate" class="java.sql.Timestamp"/>
+	<field name="enddate" class="java.sql.Timestamp"/>
+	<field name="date_birth" class="java.sql.Timestamp"/>
+	<field name="grade" class="java.lang.String"/>
+	<field name="maritalstatus" class="java.lang.String"/>
+	<field name="age" class="java.math.BigDecimal"/>
+	<field name="father_name" class="java.lang.String"/>
+	<field name="pmdccode" class="java.lang.String"/>
+	<field name="hr_subdepartment_id" class="java.math.BigDecimal"/>
+	<field name="departmet" class="java.lang.String"/>
+	<field name="deptvalue" class="java.lang.String"/>
+	<field name="c_bp_group_id" class="java.math.BigDecimal"/>
+	<field name="gross_salary" class="java.math.BigDecimal"/>
+	<field name="auto_attend" class="java.lang.String"/>
+	<field name="da_local" class="java.math.BigDecimal"/>
+	<field name="da_outback" class="java.math.BigDecimal"/>
+	<field name="ta_local" class="java.math.BigDecimal"/>
+	<field name="ta_outstation" class="java.math.BigDecimal"/>
+	<field name="mobile_allowance" class="java.math.BigDecimal"/>
+	<field name="vehicle_maintain" class="java.math.BigDecimal"/>
+	<field name="fuel_litres" class="java.math.BigDecimal"/>
+	<field name="fuel_amount" class="java.math.BigDecimal"/>
+	<field name="attendance_type" class="java.lang.String"/>
+	<field name="comm_percent" class="java.math.BigDecimal"/>
+	<field name="hr_shifts_id" class="java.math.BigDecimal"/>
+	<field name="rest_day" class="java.lang.String"/>
+	<field name="vehicle_rent" class="java.math.BigDecimal"/>
+	<field name="logo_id" class="java.math.BigDecimal"/>
+	<field name="nightstayallow" class="java.math.BigDecimal"/>
+	<field name="hr_emplocation_id" class="java.math.BigDecimal"/>
+	<field name="c_city_id" class="java.math.BigDecimal"/>
+	<field name="hr_emp_statustype_id" class="java.math.BigDecimal"/>
+	<field name="ad_image_id" class="java.math.BigDecimal"/>
+	<field name="cnicno" class="java.lang.String"/>
+	<field name="emp_grade" class="java.lang.String"/>
+	<field name="banktransfer" class="java.math.BigDecimal"/>
+	<field name="itax" class="java.math.BigDecimal"/>
+	<field name="shop_name" class="java.lang.String"/>
+	<field name="distributor_id" class="java.math.BigDecimal"/>
+	<field name="ispfallow" class="java.lang.String"/>
+	<field name="fixed_allowance" class="java.math.BigDecimal"/>
+	<field name="subdeptvalue" class="java.lang.String"/>
+	<field name="subdeptname" class="java.lang.String"/>
+	<field name="clientname" class="java.lang.String"/>
+	<field name="orgname" class="java.lang.String"/>
+	<field name="designation" class="java.lang.String"/>
+	<field name="c_bp_bankaccount_id" class="java.math.BigDecimal"/>
+	<field name="accountno" class="java.lang.String"/>
+	<field name="c_bank_id" class="java.math.BigDecimal"/>
+	<field name="emplocation" class="java.lang.String"/>
+	<field name="postcity" class="java.lang.String"/>
+	<field name="empstatus" class="java.lang.String"/>
+	<field name="bloog_group" class="java.lang.String"/>
+	<field name="gender_detail" class="java.lang.String"/>
+	<field name="region_detail" class="java.lang.String"/>
+	<field name="grade_detail" class="java.lang.String"/>
+	<field name="mobileno1" class="java.lang.String"/>
+	<field name="mobileno2" class="java.lang.String"/>
+	<field name="email_add" class="java.lang.String"/>
+	<field name="distributor_name" class="java.lang.String"/>
+	<field name="distributor_code" class="java.lang.String"/>
+	<field name="c_salesregion_id" class="java.math.BigDecimal"/>
+	<field name="c_location_id" class="java.math.BigDecimal"/>
+	<field name="zone_code" class="java.lang.String"/>
+	<field name="zone_desc" class="java.lang.String"/>
+	<field name="bp_address" class="java.lang.String"/>
+	<field name="bp_city" class="java.lang.String"/>
+	<field name="bp_country" class="java.lang.String"/>
+	<field name="emp_exp" class="java.lang.Long"/>
+	<field name="hredu" class="java.lang.Long"/>
+	<field name="hrinc" class="java.lang.Long"/>
+	<field name="showdescription" class="java.lang.String"/>
+	<field name="bloodgroup" class="java.lang.String"/>
+	<field name="isfuelperday" class="java.lang.String"/>
+	<field name="ispaynstay" class="java.lang.String"/>
+	<field name="isfuelob" class="java.lang.String"/>
+	<field name="fuel_lob" class="java.math.BigDecimal"/>
+	<field name="loc_id" class="java.lang.Integer"/>
+	<field name="period" class="java.lang.String"/>
+	<field name="period_start" class="java.sql.Date"/>
+	<field name="period_end" class="java.sql.Date"/>
+	<field name="perioddays" class="java.lang.Integer"/>
+	<field name="mgross_salary" class="java.math.BigDecimal"/>
+	<field name="p_gross" class="java.math.BigDecimal"/>
+	<field name="p_basic" class="java.math.BigDecimal"/>
+	<field name="p_hr" class="java.math.BigDecimal"/>
+	<field name="p_conv" class="java.math.BigDecimal"/>
+	<field name="p_wd" class="java.math.BigDecimal"/>
+	<field name="p_mobile" class="java.math.BigDecimal"/>
+	<field name="p_dalocal" class="java.math.BigDecimal"/>
+	<field name="p_daout" class="java.math.BigDecimal"/>
+	<field name="p_talocal" class="java.math.BigDecimal"/>
+	<field name="p_taout" class="java.math.BigDecimal"/>
+	<field name="p_fuel" class="java.math.BigDecimal"/>
+	<field name="p_vmain" class="java.math.BigDecimal"/>
+	<field name="p_vrent" class="java.math.BigDecimal"/>
+	<field name="p_comm" class="java.math.BigDecimal"/>
+	<field name="p_tax" class="java.math.BigDecimal"/>
+	<field name="p_nsallow" class="java.math.BigDecimal"/>
+	<field name="p_nstay" class="java.math.BigDecimal"/>
+	<field name="p_stamp" class="java.math.BigDecimal"/>
+	<field name="p_misc" class="java.math.BigDecimal"/>
+	<field name="p_advsal" class="java.math.BigDecimal"/>
+	<field name="p_loan" class="java.math.BigDecimal"/>
+	<field name="p_exdays" class="java.math.BigDecimal"/>
+	<field name="p_late" class="java.math.BigDecimal"/>
+	<field name="p_ot" class="java.math.BigDecimal"/>
+	<field name="p_arrear" class="java.math.BigDecimal"/>
+	<field name="p_bankpay" class="java.math.BigDecimal"/>
+	<field name="p_pfemp" class="java.math.BigDecimal"/>
+	<field name="p_noleaveinctive" class="java.math.BigDecimal"/>
+	<field name="p_excessmobile" class="java.math.BigDecimal"/>
+	<field name="adimage" class="java.lang.Object"/>
+	<field name="levded" class="java.math.BigDecimal"/>
+	<field name="levnded" class="java.math.BigDecimal"/>
+	<field name="s_dalocal" class="java.math.BigDecimal"/>
+	<field name="s_daout" class="java.math.BigDecimal"/>
+	<field name="s_talocal" class="java.math.BigDecimal"/>
+	<field name="s_taout" class="java.math.BigDecimal"/>
+	<field name="s_latedays" class="java.math.BigDecimal"/>
+	<field name="p_vehicle" class="java.math.BigDecimal"/>
+	<field name="p_tatotal" class="java.math.BigDecimal"/>
+	<field name="p_vehtotal" class="java.math.BigDecimal"/>
+	<field name="p_totalallowance" class="java.math.BigDecimal"/>
+	<field name="p_total_ded" class="java.math.BigDecimal"/>
+	<field name="p_netsal" class="java.math.BigDecimal"/>
+	<title>
+		<band height="462" splitType="Stretch">
+			<subreport>
+				<reportElement x="-20" y="0" width="880" height="462" uuid="b5df6038-99c6-407e-a46d-520cddeae665">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<subreportParameter name="HR_Period_ID">
+					<subreportParameterExpression><![CDATA[$P{HR_Period_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_Client_ID">
+					<subreportParameterExpression><![CDATA[$P{AD_Client_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="AD_Org_ID">
+					<subreportParameterExpression><![CDATA[$P{AD_Org_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="HR_Department_ID">
+					<subreportParameterExpression><![CDATA[$P{HR_Department_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="C_BPartner_ID">
+					<subreportParameterExpression><![CDATA[$P{C_BPartner_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="HR_EmpLocation_ID">
+					<subreportParameterExpression><![CDATA[$P{HR_EmpLocation_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<subreportParameter name="C_City_ID">
+					<subreportParameterExpression><![CDATA[$P{C_City_ID}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$F{loc_id}==1000002 ? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Support_Center.jasper" :
+$F{loc_id}==1000005 ? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Units.jasper" :
+$F{loc_id}==1000006? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Units.jasper" :
+$F{loc_id}==1000007? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Units.jasper" :
+$F{loc_id}==1000009  ? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Units.jasper" :
+$F{loc_id}==1000003  ? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Staff.jasper" :
+$F{loc_id}==1000004  ? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Staff.jasper" :
+$F{loc_id}==1000011  ? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Staff.jasper" :
+$F{loc_id}==1000012  ? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Staff.jasper" :
+$F{loc_id}==1000014  ? 
+"C:/idempiere-server/reports/HR_Salary_Slip_Sales_Staff.jasper" :
+"C:/idempiere-server/reports/Salary_Slip_Blesso.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+	</title>
+</jasperReport>
