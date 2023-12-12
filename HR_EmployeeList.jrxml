@@ -106,18 +106,6 @@ ORDER BY ad_client_id, ad_org_id, departmet, c_bpartner_id]]>
 		<groupHeader>
 			<band height="76">
 				<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-				<image scaleImage="FillFrame" hAlign="Center" vAlign="Middle">
-					<reportElement x="6" y="6" width="72" height="64" uuid="9e7165ea-4ae2-4348-91e5-c330650862b4">
-						<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-						<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
-						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					</reportElement>
-					<box>
-						<pen lineWidth="1.5"/>
-					</box>
-					<imageExpression><![CDATA[$F{adimage}]]></imageExpression>
-				</image>
 				<textField>
 					<reportElement x="85" y="2" width="230" height="12" uuid="a23b3c0c-075e-4c66-9366-b922e3405586">
 						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
@@ -265,15 +253,6 @@ ORDER BY ad_client_id, ad_org_id, departmet, c_bpartner_id]]>
 	<pageHeader>
 		<band height="45" splitType="Stretch">
 			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-			<image scaleImage="FillFrame">
-				<reportElement x="5" y="0" width="70" height="45" uuid="439c5205-742b-420f-9574-10552bd505e6">
-					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.x" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
-					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
-				</reportElement>
-				<imageExpression><![CDATA[(new File("C:\\idempiere-server\\reports\\logo\\" +$P{AD_Org_ID} + ".jpg").isFile() ? "C:\\idempiere-server\\reports\\logo\\" +$P{AD_Org_ID}+ ".jpg" : "C:\\idempiere-server\\reports\\logo\\default.jpg" )]]></imageExpression>
-			</image>
 			<textField>
 				<reportElement x="80" y="5" width="495" height="35" uuid="e0f6cb31-1428-4cec-926f-2a4ddf537c59">
 					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
